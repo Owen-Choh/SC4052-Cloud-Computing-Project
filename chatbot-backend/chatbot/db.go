@@ -1,8 +1,9 @@
 package chatbot
 
 import (
-	"fmt"
 	"database/sql"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -10,7 +11,7 @@ func InitDB() error {
 	// Open a connection to the database
 	db, err := sql.Open("sqlite3", "./database/chatbot.db")
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 	defer db.Close()
@@ -23,7 +24,7 @@ func InitDB() error {
 		password TEXT NOT NULL
 	);`)
 	if err != nil {
-		fmt.Printf("Error initalising users table: %s\n", err)
+		log.Printf("Error initalising users table: %s\n", err)
 		return err
 	}
 
@@ -38,10 +39,8 @@ func InitDB() error {
 		UNIQUE(userid, chatbotname)
 	);`)
 	if err != nil {
-		fmt.Printf("Error initalising chatbots table: %s\n", err)
+		log.Printf("Error initalising chatbots table: %s\n", err)
 		return err
 	}
-
-	fmt.Println("Database initialised successfully")
 	return err
 }

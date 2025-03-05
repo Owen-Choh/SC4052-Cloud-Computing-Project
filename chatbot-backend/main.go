@@ -7,11 +7,12 @@ import (
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot"
 )
-
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	dberr := chatbot.InitDB()
 	if dberr != nil {
-		fmt.Println("Abort server start up due to error initalising database")
+		log.Println("Abort server start up due to error initalising database")
 		return
 	}
 	log.Println("Database initialised successfully")
