@@ -2,16 +2,16 @@ package chatbot
 
 import (
 	"fmt"
-	"net/http"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func InitDB(w http.ResponseWriter, r *http.Request) {
+func InitDB() error {
 	// Open a connection to the database
 	db, err := sql.Open("sqlite3", "./database/chatbot.db")
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	defer db.Close()
 
@@ -24,6 +24,7 @@ func InitDB(w http.ResponseWriter, r *http.Request) {
 	);`)
 	if err != nil {
 		fmt.Printf("Error initalising users table: %s\n", err)
+		return err
 	}
 
 	_, err = db.Exec(`
@@ -38,10 +39,9 @@ func InitDB(w http.ResponseWriter, r *http.Request) {
 	);`)
 	if err != nil {
 		fmt.Printf("Error initalising chatbots table: %s\n", err)
-
-		fmt.Fprint(w, "Error occured while initializing database")
-		return
+		return err
 	}
 
-	fmt.Fprint(w, "Database initialized")
+	fmt.Println("Database initialised successfully")
+	return err
 }

@@ -2,10 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot"
 )
 
 func main() {
+	dberr := chatbot.InitDB()
+	if dberr != nil {
+		fmt.Println("Abort server start up due to error initalising database")
+		return
+	}
+	log.Println("Database initialised successfully")
+
 	router := SetUpRoutes()
 	// set server and start
 	server:= http.Server{
