@@ -10,6 +10,6 @@ func SetUpRoutes() *http.ServeMux {
 
 	router.HandleFunc("GET /api/", chatbot.HelloWorld)
 
-	router.HandleFunc("GET /api/checkdb", chatbot.CheckDB)
+	router.HandleFunc("GET /api/initDB", chatbot.InitDB)
 	return router
 }
