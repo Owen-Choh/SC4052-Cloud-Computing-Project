@@ -2,16 +2,17 @@ import React from "react";
 
 
 const Botconfigs: React.FC = () => {
-
+  const [activeTab, setActiveTab] = React.useState("chatInfo");
 
   return (
-    <div className="w-full">
+    <div className="flex flex-col w-full h-full">
       <div className="flex gap-4">
-        <h1>Chat info</h1>
-        <h1>customise</h1>
+        <h1 onClick={() => setActiveTab("chatInfo")}>Chat info</h1>
+        <h1 onClick={() => setActiveTab("customisation")}>customise</h1>
       </div>
-      <div className="">
-        <h1>the content</h1>
+      <div className="w-full flex-grow overflow-y-auto">
+        {activeTab === "chatInfo" && <p>Content for Tab 1</p>}
+        {activeTab === "customisation" && <p>Content for Tab 2</p>}
       </div>
     </div>
   )
