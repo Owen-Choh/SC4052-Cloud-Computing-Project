@@ -3,6 +3,7 @@ import useAuth from "../auth/useAuth";
 import { User } from "../auth/User";
 import { useEffect } from "react";
 import Sidebar from "../components/Sidebar";
+import Botconfigs from "../components/Botconfigs";
 
 
 function Dashboard() {
@@ -13,8 +14,7 @@ function Dashboard() {
     <div className="flex h-screen flex-1 w-full">
       <Sidebar />
       <div className="w-full p-4">
-        <h1>Dashboard</h1>
-        <p>Welcome, {currentUser?.username}!</p>
+        <Botconfigs />
       </div>
     </div>
   )
