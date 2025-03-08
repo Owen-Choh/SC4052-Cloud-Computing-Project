@@ -13,7 +13,7 @@ function Dashboard() {
   return (
     <div className="flex h-screen flex-1 w-full">
       <Sidebar />
-      <div className="w-full p-4">
+      <div className="w-full">
         <Botconfigs />
       </div>
     </div>
