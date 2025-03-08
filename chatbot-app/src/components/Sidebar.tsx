@@ -1,5 +1,6 @@
 import React from "react";
 import useAuth from "../auth/useAuth";
+import { Link } from "react-router-dom";
 
 
 const Sidebar: React.FC = () => {
@@ -10,12 +11,12 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <div className="bg-gray-800 text-white w-64">
-      <h1 className="text-2xl font-bold p-4">Sidebar</h1>
-      <ul>
+    <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
+      <h1 className="text-2xl font-bold p-4">Welcome</h1>
+      <ul className="flex-grow overflow-y-auto">
         {sidebarItems.map((item) => (
           <li key={item.name} className="p-4 hover:bg-gray-700">
-            <a href={item.path}>{item.name}</a>
+            <Link to={item.path}>{item.name}</Link>
           </li>
         ))}
       </ul>
