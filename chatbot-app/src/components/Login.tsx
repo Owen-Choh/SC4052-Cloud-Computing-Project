@@ -1,31 +1,39 @@
-import { useState } from "react";
+import useAuth from "../auth/useAuth";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { currentUser, login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
 
+    const formData = new FormData(event.target as HTMLFormElement);
     try {
-      const response = await fetch("https://yourdomain.com/api/login", {
-        method: "POST",
-        credentials: "include", // Allows cookies to be sent
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      await login(formData);
 
-      if (!response.ok) {
-        throw new Error("Invalid login credentials");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Unknown error occurred");
       }
-
-      alert("Login successful!");
-    } catch (err) {
-      setError("Invalid username or password");
     }
   };
+  
+  useEffect(() => {
+        console.log("login check user", currentUser);
+    if (currentUser) {
+      console.log("currentUser updated:", currentUser);
+      navigate("/Dashboard");
+    }
+  }, [currentUser, navigate]); // Runs when currentUser changes
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -33,6 +41,7 @@ const Login = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
+          name="username"
           placeholder="Username"
           className="border rounded p-2"
           value={username}
@@ -41,6 +50,7 @@ const Login = () => {
         />
         <input
           type="password"
+          name="password"
           placeholder="Password"
           className="border rounded p-2"
           value={password}

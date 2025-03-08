@@ -42,6 +42,7 @@ func InitDB() (bool, error) {
 		chatbotname TEXT NOT NULL,
 		usercontext TEXT NOT NULL,
 		createddate TEXT NOT NULL,
+		updateddate TEXT NOT NULL,
 		lastused TEXT NOT NULL,
 		filepath TEXT NOT NULL,
 		FOREIGN KEY(userid) REFERENCES users(userid),
