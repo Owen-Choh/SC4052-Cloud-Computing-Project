@@ -18,10 +18,13 @@ func main() {
 	}
 	
 	mainRouter := http.NewServeMux()
-
+	mainStack := middleware.CreateStack(
+		middleware.Logging, 
+		middleware.CORS,
+	)
 	nonAuthRouter := SetUpNonAuthRouter()
   
-	mainRouter.Handle("/api/", http.StripPrefix("/api", middleware.Logging(middleware.CORS(nonAuthRouter))))
+	mainRouter.Handle("/api/", http.StripPrefix("/api", mainStack(nonAuthRouter)))
 	// set server and start
 	server := http.Server{
 		Addr:    ":8080",

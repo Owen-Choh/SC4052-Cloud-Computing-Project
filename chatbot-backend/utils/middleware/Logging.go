@@ -16,8 +16,8 @@ func (w *wrappedResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-func Logging(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		wrappedResponseWriter := &wrappedResponseWriter{
@@ -27,5 +27,5 @@ func Logging(next http.Handler) http.HandlerFunc {
 
 		next.ServeHTTP(wrappedResponseWriter, r)
 		log.Printf("Received %s at %s Replied with %d %s\n", r.Method, r.URL.Path, wrappedResponseWriter.statusCode, time.Since(start))
-	}
+	})
 }
