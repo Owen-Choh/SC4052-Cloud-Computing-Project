@@ -5,22 +5,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/db"
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/validate"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/middleware"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	isInitialised, dberr := db.InitDB()
-	if isInitialised {
-		if dberr != nil {
-			log.Printf("Database initialised but %s", dberr)
-		} else {
-			log.Println("Database initialised")
-		}
-	} else if dberr != nil {
-		log.Println("Abort server start up due to error initalising database")
+	dberr := validate.CheckAndInitDB()
+	if dberr != nil {
 		return
 	}
 	
