@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
 )
@@ -34,20 +35,22 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	u, err := h.store.GetUserByName(user.Username)
 	if err != nil {
-		log.Printf("error in login %s\n", err)
+		log.Printf("error querying by username: %s\n", err)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
 		return
 	}
 
-	if u.Password != user.Password {
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("wrong password"))
+	if !auth.ComparePassword(u.Password, []byte(user.Password)) {
+		log.Printf("someone tried to login with wrong password\n")
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("not found, invalid email or password"))
 		return
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
-		"userid": strconv.Itoa(u.Userid),
+		"userid":   strconv.Itoa(u.Userid),
 		"username": u.Username,
-})
+		"token": "",
+	})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +59,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
-	
+
 	// check if user exists
 	_, err := h.store.GetUserByName(user.Username)
 	if err == nil {
@@ -64,7 +67,16 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.store.CreateUser(user)
+	hashedPassword, err := auth.HashPassword(user.Password)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = h.store.CreateUser(types.RegisterUserPayload{
+		Username: user.Username,
+		Password: hashedPassword,
+	})
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
