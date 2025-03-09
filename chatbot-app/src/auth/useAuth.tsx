@@ -1,7 +1,6 @@
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useContext, createContext } from "react";
 import { User } from "./User";
 import { loginApi } from "../api/apiConfig";
-import { useNavigate } from "react-router-dom";
 
 export interface AuthContextType {
   currentUser: User | null;
@@ -17,7 +16,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const navigate = useNavigate();
   const login = async (formData: FormData) => {
       console.log("login called with formData", formData);
       const oAuth2FormData = new FormData();
