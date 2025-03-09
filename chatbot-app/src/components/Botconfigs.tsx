@@ -6,10 +6,16 @@ import ChatbotCustomisation from "./ChatbotCustomisation";
 
 const Botconfigs: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
+
+  // TODO: replace mock for chatbot information component
   const chatbotName = "My Demo Chatbot";
   const isShared = false;
   const chatbotEndpoint = "/testuser/my-demo-chatbot";
-  const chatbotLink = "http://localhost:5173/testuser/my-demo-chatbot";
+  
+  // TODO: replace mock for chatbot customise component
+  const chatbotBehaviour = "Your friendly internet chatbot";
+  const chatbotContext = "Project due in a month";
+  const chatbotDocument = "project-details.pdf";
 
   return (
     <div className="flex flex-col w-full h-full p-4 bg-gray-900 gap-4">
@@ -33,7 +39,7 @@ const Botconfigs: React.FC = () => {
           <ChatbotInformation chatbotName={chatbotName} isShared={isShared} chatbotEndpoint={chatbotEndpoint} />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
-          <ChatbotCustomisation chatbotName={chatbotName} isShared={isShared} chatbotLink={chatbotLink} />
+          <ChatbotCustomisation chatbotBehaviour={chatbotBehaviour} chatbotContext={chatbotContext} chatbotDocument={chatbotDocument} />
         </TabPanel>
       </div>
     </div>
