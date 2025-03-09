@@ -57,7 +57,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"userid":   strconv.Itoa(u.Userid),
 		"username": u.Username,
-		"token": token,
+		"token":    token,
 	})
 }
 

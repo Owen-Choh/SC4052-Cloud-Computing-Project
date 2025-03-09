@@ -2,7 +2,7 @@ package auth
 
 import "testing"
 
-func TestCreateJWT(t * testing.T) {
+func TestCreateJWT(t *testing.T) {
 	secret := []byte("jwt-secret")
 
 	token, err := CreateJWT(secret, 1)

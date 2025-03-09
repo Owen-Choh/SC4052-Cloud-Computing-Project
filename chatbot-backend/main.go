@@ -18,27 +18,26 @@ func main() {
 	if dberr != nil {
 		return
 	}
-	
+
 	mainRouter := http.NewServeMux()
 	mainStack := middleware.CreateStack(
-		middleware.Logging, 
+		middleware.Logging,
 		middleware.CORS,
 	)
 	mainRouter.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// write to the response which returns to client
 		fmt.Fprintf(w, "Hello world!")
 	})
-	
+
 	userSubRouter := http.NewServeMux()
 	userStore := user.NewStore(dbConnection)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(userSubRouter)
 
-  
 	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
 	// set server and start
 	server := http.Server{
-		Addr:    ":"+config.Envs.Port,
+		Addr:    ":" + config.Envs.Port,
 		Handler: mainRouter,
 	}
 	log.Printf("Starting server on :%s...\n", config.Envs.Port)

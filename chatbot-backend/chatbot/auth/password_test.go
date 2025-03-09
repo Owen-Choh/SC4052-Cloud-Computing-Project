@@ -6,7 +6,7 @@ import (
 
 func TestHashPassword(t *testing.T) {
 	plaintext := "password"
-	
+
 	hash, err := HashPassword(plaintext)
 	if err != nil {
 		t.Errorf("error hashing password: %v", err)
@@ -33,9 +33,8 @@ func TestComparePassword(t *testing.T) {
 		t.Errorf("error password to match hash")
 	}
 
-	if ComparePassword(hash, []byte(plaintext)){
+	if ComparePassword(hash, []byte(plaintext)) {
 		t.Errorf("error password to not match hash")
 	}
 
 }
-

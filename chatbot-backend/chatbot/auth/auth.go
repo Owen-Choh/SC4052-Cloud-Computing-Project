@@ -13,13 +13,13 @@ type User struct {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	log.Println("Login received request at /login")
-	
+
 	err := r.ParseMultipartForm(1000)
 	if err != nil {
-			log.Fatal(err)
+		log.Fatal(err)
 	}
 
-	log.Printf("form value: %+v\n", r.Form) 
+	log.Printf("form value: %+v\n", r.Form)
 	log.Printf("form value: %+v\n", r.FormValue("username"))
 	log.Printf("form value: %+v\n", r.FormValue("password"))
 	// mock user for now

@@ -1,7 +1,6 @@
 package types
 
-import (
-)
+import ()
 
 type UserStoreInterface interface {
 	GetUserByName(username string) (*User, error)
