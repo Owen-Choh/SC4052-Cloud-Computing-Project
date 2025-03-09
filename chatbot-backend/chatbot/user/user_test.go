@@ -44,9 +44,9 @@ func (m *mockUserStore) GetUserByName(username string) (*types.User, error) {
 	return nil, nil
 }
 
-func GetUserByID(id int) (*types.User, error) {
+func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 	return nil, nil
 }
-func CreateUser(types.RegisterUserPayload) error {
+func (m *mockUserStore) CreateUser(types.RegisterUserPayload) error {
 	return nil
 }
