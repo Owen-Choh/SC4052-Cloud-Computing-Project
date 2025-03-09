@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/db"
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/middleware"
 )
 
 func main() {
@@ -24,8 +25,8 @@ func main() {
 	}
 	
 	router := SetUpMuxWithRoutes()
-
-	routerWithCORS := CORS(router)
+	// add CORS middleware
+	routerWithCORS := middleware.CORS(router)
 	// set server and start
 	server := http.Server{
 		Addr:    ":8080",
@@ -36,20 +37,4 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
-}
-
-func CORS(next http.Handler) http.HandlerFunc {
-  return func(w http.ResponseWriter, r *http.Request) {
-    w.Header().Add("Access-Control-Allow-Origin", "*")
-    w.Header().Add("Access-Control-Allow-Credentials", "true")
-    w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-    w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-
-    if r.Method == "OPTIONS" {
-        http.Error(w, "No Content", http.StatusNoContent)
-        return
-    }
-
-    next.ServeHTTP(w, r)
-  }
 }
