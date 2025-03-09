@@ -10,7 +10,7 @@ import (
 
 func InitDB() (bool, error) {
 	// Open a connection to the database
-	db, err := sql.Open("sqlite3", "./database/chatbot.db")
+	db, err := sql.Open("sqlite3", "./database_files/chatbot.db")
 	if err != nil {
 		log.Println(err)
 		return false, err

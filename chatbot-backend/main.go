@@ -17,13 +17,15 @@ func main() {
 		return
 	}
 	
-	router := SetUpMuxWithRoutes()
-	// add CORS middleware
-	routerWithCORS := middleware.CORS(router)
+	mainRouter := http.NewServeMux()
+
+	nonAuthRouter := SetUpNonAuthRouter()
+  
+	mainRouter.Handle("/api/", http.StripPrefix("/api", middleware.CORS(nonAuthRouter)))
 	// set server and start
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: routerWithCORS,
+		Handler: mainRouter,
 	}
 	fmt.Println("Starting server on :8080...")
 	err := server.ListenAndServe()

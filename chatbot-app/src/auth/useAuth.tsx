@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       console.log("sending oAuth2FormData", oAuth2FormData, "to loginApi", loginApi.getUri());
-      const loginResponse = await loginApi.post("/", oAuth2FormData, {
+      const loginResponse = await loginApi.post("", oAuth2FormData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
