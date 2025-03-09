@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
 )
@@ -27,7 +28,7 @@ func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
 	createdDate, err := utils.GetCurrentTime()
 	if err != nil {
 		log.Println("unable to obtain formatted date for creating user")
-		createdDate = "2025-01-01 00:00:00" // default time if time util fails
+		createdDate = config.Envs.Default_Time // default time if time util fails
 	}
 	lastLogin := createdDate
 

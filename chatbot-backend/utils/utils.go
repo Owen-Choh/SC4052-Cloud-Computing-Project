@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 )
 
 func ParseJSON(r *http.Request, payload any) error {
@@ -27,8 +29,9 @@ func WriteError(w http.ResponseWriter, statusCode int, err error) {
 	WriteJSON(w, statusCode, map[string]string{"error": err.Error()})
 }
 
+// returns time object in specified timezone. Errors and local time if error
 func GetTimezone() (time.Time, error) {
-	loc, err := time.LoadLocation("Asia/Singapore")
+	loc, err := time.LoadLocation(config.Envs.Timezone)
 	if err != nil {
 		log.Println("Error loading timezone:", err)
 		return time.Now(), err
@@ -46,7 +49,7 @@ func GetCurrentTime() (string, error) {
 	}
 
 	// Format the time (YYYY-MM-DD HH:MM:SS)
-	formattedTime := sgtTime.Format("2006-01-02 15:04:05")
+	formattedTime := sgtTime.Format(config.Envs.Default_Time)
 	log.Println("Current Time in SGT:", formattedTime)
 	return formattedTime, nil
 }
