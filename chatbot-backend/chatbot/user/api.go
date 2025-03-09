@@ -1,4 +1,4 @@
-package chatbot
+package user
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package chatbot
+package auth
 
 import (
 	"encoding/json"
