@@ -22,8 +22,8 @@ func NewHandler(store types.UserStoreInterface) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("/login", h.handleLogin)
-	router.HandleFunc("/register", h.handleRegister)
+	router.HandleFunc("/user/login", h.handleLogin)
+	router.HandleFunc("/user/register", h.handleRegister)
 
 	// admin routes
 }

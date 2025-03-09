@@ -34,8 +34,8 @@ func main() {
 	userStore := user.NewStore(dbConnection)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(userSubRouter)
-
-	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
+	
+	mainRouter.Handle("/api/", http.StripPrefix("/api", mainStack(userSubRouter)))
 	// set server and start
 	server := http.Server{
 		Addr:    ":" + config.Envs.Port,
