@@ -21,7 +21,7 @@ func main() {
 
 	nonAuthRouter := SetUpNonAuthRouter()
   
-	mainRouter.Handle("/api/", http.StripPrefix("/api", middleware.CORS(nonAuthRouter)))
+	mainRouter.Handle("/api/", http.StripPrefix("/api", middleware.Logging(middleware.CORS(nonAuthRouter))))
 	// set server and start
 	server := http.Server{
 		Addr:    ":8080",

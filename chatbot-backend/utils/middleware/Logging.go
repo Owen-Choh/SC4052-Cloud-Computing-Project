@@ -3,11 +3,29 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"time"
 )
+
+type wrappedResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (w *wrappedResponseWriter) WriteHeader(statusCode int) {
+	w.statusCode = statusCode
+	w.ResponseWriter.WriteHeader(statusCode)
+}
 
 func Logging(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Received %s %s\n", r.Method, r.URL.Path)
-		next.ServeHTTP(w, r)
+		start := time.Now()
+
+		wrappedResponseWriter := &wrappedResponseWriter{
+			ResponseWriter: w, 
+			statusCode: http.StatusOK,
+		}
+
+		next.ServeHTTP(wrappedResponseWriter, r)
+		log.Printf("Received %s at %s Replied with %d %s\n", r.Method, r.URL.Path, wrappedResponseWriter.statusCode, time.Since(start))
 	}
 }
