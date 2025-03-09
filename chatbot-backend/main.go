@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/user"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/middleware"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/validate"
@@ -37,12 +38,12 @@ func main() {
 	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
 	// set server and start
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    ":"+config.Envs.Port,
 		Handler: mainRouter,
 	}
-	fmt.Println("Starting server on :8080...")
+	log.Printf("Starting server on :%s...\n", config.Envs.Port)
 	err := server.ListenAndServe()
 	if err != nil {
-		fmt.Printf("Error starting server: %s\n", err)
+		log.Printf("Error starting server: %s\n", err)
 	}
 }
