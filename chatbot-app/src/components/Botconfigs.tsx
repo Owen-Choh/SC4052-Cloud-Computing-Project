@@ -8,6 +8,7 @@ const Botconfigs: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
   const chatbotName = "My Demo Chatbot";
   const isShared = false;
+  const chatbotEndpoint = "/testuser/my-demo-chatbot";
   const chatbotLink = "http://localhost:5173/testuser/my-demo-chatbot";
 
   return (
@@ -29,7 +30,7 @@ const Botconfigs: React.FC = () => {
       
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
-          <ChatbotInformation chatbotName={chatbotName} isShared={isShared} chatbotLink={chatbotLink} />
+          <ChatbotInformation chatbotName={chatbotName} isShared={isShared} chatbotEndpoint={chatbotEndpoint} />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
           <ChatbotCustomisation chatbotName={chatbotName} isShared={isShared} chatbotLink={chatbotLink} />

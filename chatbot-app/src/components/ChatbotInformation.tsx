@@ -3,10 +3,10 @@ import React, { useState } from "react";
 interface ChatbotInformationProps {
   chatbotName: string;
   isShared: boolean;
-  chatbotLink: string;
+  chatbotEndpoint: string;
 }
 
-const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotLink }) => {
+const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint }) => {
   const [currentName, setCurrentName] = useState(chatbotName);
   const [currentShared, setCurrentShared] = useState(isShared);
 
@@ -34,7 +34,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, is
 
       <div className="flex flex-row items-center gap-4">
         <p className="text-lg">Your Chatbot's unique link:</p>
-        <div>{chatbotLink}</div>
+        <div>{window.location.origin + chatbotEndpoint}</div>
       </div>
 
       <button 
