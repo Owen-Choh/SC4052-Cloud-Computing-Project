@@ -12,6 +12,7 @@ type Config struct {
 	Default_Time string
 	Timezone string
 	JWTExpirationInSeconds int64
+	JWTSecret string
 }
 
 var Envs = initConfig()
@@ -24,6 +25,7 @@ func initConfig() Config {
 		Default_Time: "2025-01-01 00:00:00",
 		Timezone: "Asia/Singapore",
 		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*7),
+		JWTSecret: getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
 	}
 }
 
