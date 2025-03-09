@@ -8,9 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func GetDBConnection() (*sql.DB, error){
+	return sql.Open("sqlite3", "./database_files/chatbot.db")
+}
+
 func InitDB() (bool, error) {
 	// Open a connection to the database
-	db, err := sql.Open("sqlite3", "./database_files/chatbot.db")
+	db, err := GetDBConnection()
 	if err != nil {
 		log.Println(err)
 		return false, err

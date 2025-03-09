@@ -3,10 +3,12 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 )
 
-func ParseJson(r *http.Request, payload any) error {
+func ParseJSON(r *http.Request, payload any) error {
 	if r.Body == nil {
 		return fmt.Errorf("missing request body")
 	}
@@ -14,7 +16,7 @@ func ParseJson(r *http.Request, payload any) error {
 	return json.NewDecoder(r.Body).Decode(payload)
 }
 
-func WriteJson(w http.ResponseWriter, statusCode int, payload any) error {
+func WriteJSON(w http.ResponseWriter, statusCode int, payload any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
@@ -22,5 +24,29 @@ func WriteJson(w http.ResponseWriter, statusCode int, payload any) error {
 }
 
 func WriteError(w http.ResponseWriter, statusCode int, err error) {
-	WriteJson(w, statusCode, map[string]string{"error": err.Error()})
+	WriteJSON(w, statusCode, map[string]string{"error": err.Error()})
+}
+
+func GetTimezone() (time.Time, error) {
+	loc, err := time.LoadLocation("Asia/Singapore")
+	if err != nil {
+		log.Println("Error loading timezone:", err)
+		return time.Now(), err
+	}
+
+	// Get current time in Singapore time
+	sgtTime := time.Now().In(loc)
+	return sgtTime, nil
+}
+
+func GetCurrentTime() (string, error) {
+	sgtTime, err := GetTimezone()
+	if err != nil {
+		return "", err
+	}
+
+	// Format the time (YYYY-MM-DD HH:MM:SS)
+	formattedTime := sgtTime.Format("2006-01-02 15:04:05")
+	log.Println("Current Time in SGT:", formattedTime)
+	return formattedTime, nil
 }

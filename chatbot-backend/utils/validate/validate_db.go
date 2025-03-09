@@ -1,11 +1,13 @@
 package validate
 
 import (
+	"database/sql"
 	"log"
+
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/db"
 )
 
-func CheckAndInitDB() error {
+func CheckAndInitDB() (*sql.DB, error) {
 	isInitialised, dberr := db.InitDB()
 	if isInitialised {
 		if dberr != nil {
@@ -15,7 +17,8 @@ func CheckAndInitDB() error {
 		}
 	} else if dberr != nil {
 		log.Println("Abort server start up due to error initalising database")
-		return dberr
+		return nil, dberr
 	}
-	return nil
+
+	return db.GetDBConnection()
 }
