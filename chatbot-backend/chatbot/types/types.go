@@ -7,11 +7,6 @@ type ChatbotStoreInterface interface {
 	CreateChatbot(userPayload CreateChatbotPayload) (int, error)
 }
 
-type GetChatbotPayload struct {
-	Username      string    `json:"username" validate:"required"`
-	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
-}
-
 type CreateChatbotPayload struct {
 	Userid      int    `json:"userid" validate:"required"`
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`

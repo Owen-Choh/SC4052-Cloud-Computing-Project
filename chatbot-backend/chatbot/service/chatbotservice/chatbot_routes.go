@@ -21,24 +21,20 @@ func NewHandler(store types.ChatbotStoreInterface) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("GET /chatbot/{chatbotName}", h.GetChatbot)
+	router.HandleFunc("GET /chatbot/{username}/{chatbotName}", h.GetChatbot)
 	router.HandleFunc("POST /chatbot/", h.CreateChatbot)
 }
 
 func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
-	var payload types.GetChatbotPayload
-	if err := utils.ParseJSON(r, payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+	username := r.PathValue("username")
+	chatbotName := r.PathValue("chatbotName")
+
+	if username == "" || chatbotName == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid parameters"))
 		return
 	}
 
-	if err := utils.Validate.Struct(payload); err != nil {
-		validate_error := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
-		return
-	}
-
-	chatbot, err := h.store.GetChatbotByName(payload.Username, payload.Chatbotname)
+	chatbot, err := h.store.GetChatbotByName(username, chatbotName)
 	if err != nil {
 		if errors.Is(err, ErrChatbotNotFound){
 			utils.WriteError(w, http.StatusNotFound, err)
