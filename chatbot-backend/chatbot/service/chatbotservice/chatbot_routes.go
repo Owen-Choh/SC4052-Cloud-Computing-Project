@@ -7,7 +7,6 @@ import (
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
-	"github.com/go-playground/validator/v10"
 )
 
 var ErrChatbotNotFound = errors.New("chatbot not found")
