@@ -4,7 +4,7 @@ import ()
 
 type ChatbotStoreInterface interface {
 	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
-	CreateChatbot(userPayload CreateChatbotPayload) (int, error)
+	CreateChatbot(userPayload NewChatbot) (int, error)
 }
 
 type NewChatbot struct {
