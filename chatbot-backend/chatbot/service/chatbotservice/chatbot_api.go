@@ -22,6 +22,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
 
 }
-func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 
+func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
+	
 }

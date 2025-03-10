@@ -9,20 +9,20 @@ type ChatbotStoreInterface interface {
 }
 
 type CreateChatbotPayload struct {
-	userid      int    `json:"userid"`
-	chatbotname string `json:"chatbotname"`
-	usercontext string `json:"usercontext"`
-	file        string `json:"file"`
+	Userid      int    `json:"userid"`
+	Chatbotname string `json:"chatbotname"`
+	Usercontext string `json:"usercontext"`
+	File        string `json:"file"`
 }
 type Chatbot struct {
-	chatbotid   int    `json:"chatbotid"`
-	userid      int    `json:"userid"`
-	chatbotname string `json:"chatbotname"`
-	usercontext string `json:"usercontext"`
-	createddate string `json:"createddate"`
-	updateddate string `json:"updateddate"`
-	lastused    string `json:"lastused"`
-	filepath    string `json:"filepath"`
+	Chatbotid   int    `json:"chatbotid"`
+	Userid      int    `json:"userid"`
+	Chatbotname string `json:"chatbotname"`
+	Usercontext string `json:"usercontext"`
+	Createddate string `json:"createddate"`
+	Updateddate string `json:"updateddate"`
+	Lastused    string `json:"lastused"`
+	Filepath    string `json:"filepath"`
 }
 
 type UserStoreInterface interface {

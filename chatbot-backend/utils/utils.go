@@ -48,7 +48,7 @@ func GetTimezone() (time.Time, error) {
 func GetCurrentTime() (string, error) {
 	sgtTime, err := GetTimezone()
 	if err != nil {
-		return "", err
+		return config.Envs.Default_Time, err
 	}
 
 	// Format the time (YYYY-MM-DD HH:MM:SS)
