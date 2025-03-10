@@ -5,7 +5,7 @@ import "testing"
 func TestCreateJWT(t *testing.T) {
 	secret := []byte("jwt-secret")
 
-	token, err := CreateJWT(secret, 1)
+	token, err := CreateJWT(secret, 1, "test user")
 	if err != nil {
 		t.Errorf("error creating jwt: %v", err)
 	}

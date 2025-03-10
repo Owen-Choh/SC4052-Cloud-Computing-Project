@@ -9,13 +9,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateJWT(secret []byte, userid int) (string, error) {
+func CreateJWT(secret []byte, userid int, username string) (string, error) {
 	expiration := time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
 
 	currentTime, _ := utils.GetTimezone()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userid":    strconv.Itoa(userid),
+		"username":  username,
 		"expiredAt": currentTime.Add(expiration).Unix(),
 	})
 
