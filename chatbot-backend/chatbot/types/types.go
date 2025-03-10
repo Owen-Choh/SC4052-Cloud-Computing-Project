@@ -3,16 +3,22 @@ package types
 import ()
 
 type ChatbotStoreInterface interface {
-	GetChatbotByName(username string, chatbotName string) (Chatbot, error)
+	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
 	CreateChatbot(userPayload CreateChatbotPayload) (int, error)
 }
 
-type CreateChatbotPayload struct {
-	Userid      int    `json:"userid" validate:"required"`
+type NewChatbot struct {
+	Username    string `json:"Username" validate:"required"`
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
 	Usercontext string `json:"usercontext"`
 	File        string `json:"file"`
 }
+type CreateChatbotPayload struct {
+	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Usercontext string `json:"usercontext"`
+	File        string `json:"file"`
+}
+
 type Chatbot struct {
 	Chatbotid   int    `json:"chatbotid"`
 	Userid      int    `json:"userid"`

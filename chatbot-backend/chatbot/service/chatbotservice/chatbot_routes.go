@@ -3,8 +3,10 @@ package chatbotservice
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
 )
@@ -13,6 +15,7 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 
 type Handler struct {
 	store types.ChatbotStoreInterface
+	userstore types.UserStoreInterface
 }
 
 func NewHandler(store types.ChatbotStoreInterface) *Handler {
@@ -20,8 +23,8 @@ func NewHandler(store types.ChatbotStoreInterface) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
-	router.HandleFunc("GET /chatbot/{username}/{chatbotName}", h.GetChatbot)
-	router.HandleFunc("POST /chatbot/", h.CreateChatbot)
+	router.HandleFunc("GET /chat/{username}/{chatbotName}", h.GetChatbot)
+	router.HandleFunc("POST /newchatbot", auth.WithJWTAuth(h.CreateChatbot, h.userstore))
 }
 
 func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +50,24 @@ func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
-	
+	username := auth.GetUsernameFromContext(r.Context())
+	if username == "" {
+		log.Println("username missing in request context")
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request"))
+		return
+	}
+
+	var payload types.CreateChatbotPayload
+	if err := utils.ParseJSON(r, payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	newChatbot := types.NewChatbot{
+		Username: username,
+		Chatbotname: payload.Chatbotname,
+		Usercontext: payload.Usercontext,
+		File: "",
+	}
+
 }

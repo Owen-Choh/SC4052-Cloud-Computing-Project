@@ -36,13 +36,13 @@ func (s *ChatbotStore) GetChatbotByName(username string, chatbotName string) (*t
 	return chatbot, nil
 }
 
-func (s *ChatbotStore) CreateChatbot(userPayload types.CreateChatbotPayload) (int, error) {
+func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) {
 	currentTime, _ := utils.GetCurrentTime()
 	temp_filepath := "tempfilepath.pdf"
 
 	res, dberr := s.db.Exec(
-		"INSERT INTO chatbots (userid, chatbotname, usercontext, createddate, updateddate, lastused, filepath) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		userPayload.Userid,
+		"INSERT INTO chatbots (username, chatbotname, usercontext, createddate, updateddate, lastused, filepath) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		userPayload.Username,
 		userPayload.Chatbotname,
 		userPayload.Usercontext,
 		currentTime,

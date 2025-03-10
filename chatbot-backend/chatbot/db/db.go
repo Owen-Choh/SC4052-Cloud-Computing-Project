@@ -42,15 +42,15 @@ func InitDB() (bool, error) {
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS chatbots (
 		chatbotid INTEGER PRIMARY KEY AUTOINCREMENT,
-		userid INTEGER NOT NULL,
+		username TEXT NOT NULL,
 		chatbotname TEXT NOT NULL,
 		usercontext TEXT NOT NULL,
 		createddate TEXT NOT NULL,
 		updateddate TEXT NOT NULL,
 		lastused TEXT NOT NULL,
 		filepath TEXT NOT NULL,
-		FOREIGN KEY(userid) REFERENCES users(userid),
-		UNIQUE(userid, chatbotname)
+		FOREIGN KEY(username) REFERENCES users(username),
+		UNIQUE(username, chatbotname)
 	);`)
 	if err != nil {
 		log.Printf("Error initalising chatbots table: %s\n", err)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/service/chatbotservice"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/service/user"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/middleware"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/validate"
@@ -35,7 +36,16 @@ func main() {
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(userSubRouter)
 	
-	mainRouter.Handle("/api/", http.StripPrefix("/api", mainStack(userSubRouter)))
+	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
+
+	chatbotSubRouter := http.NewServeMux()
+	chatbotStore := chatbotservice.NewStore(dbConnection)
+	chatbotHandler := chatbotservice.NewHandler(chatbotStore)
+	chatbotHandler.RegisterRoutes(chatbotSubRouter)
+	
+	mainRouter.Handle("/api/chatbot/", http.StripPrefix("/api/chatbot", mainStack(chatbotSubRouter)))
+
+	
 	// set server and start
 	server := http.Server{
 		Addr:    ":" + config.Envs.Port,

@@ -19,7 +19,24 @@ func NewStore(db *sql.DB) *UserStore {
 }
 
 func (s *UserStore) GetUserByID(id int) (*types.User, error) {
-	return nil, nil
+	rows, err := s.store.Query("SELECT * FROM users WHERE userid = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	user := new(types.User)
+	for rows.Next(){
+		user, err = scanRowIntoUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if user.Userid == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
+	
+	return user, nil
 }
 	
 func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
