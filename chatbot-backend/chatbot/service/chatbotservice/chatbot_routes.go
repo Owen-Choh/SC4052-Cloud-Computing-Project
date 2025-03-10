@@ -18,8 +18,11 @@ type Handler struct {
 	userstore types.UserStoreInterface
 }
 
-func NewHandler(store types.ChatbotStoreInterface) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface) *Handler {
+	return &Handler{
+		store: store,
+		userstore: userstore,
+	}
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {

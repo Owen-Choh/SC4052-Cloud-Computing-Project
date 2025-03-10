@@ -24,7 +24,7 @@ func initConfig() Config {
 		Port:                   getEnv("BACKEND_PORT", "8080"),
 		Default_Time:           "2025-01-01 00:00:00",
 		Timezone:               "Asia/Singapore",
-		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*7),
+		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*1),
 		JWTSecret:              getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
 	}
 }

@@ -22,12 +22,10 @@ const UsernameKey contextKey = "username"
 func CreateJWT(secret []byte, userid int, username string) (string, error) {
 	expiration := time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
 
-	currentTime, _ := utils.GetTimezone()
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userid":    strconv.Itoa(userid),
 		"username":  username,
-		"expiredAt": currentTime.Add(expiration).Unix(),
+		"expiredAt": time.Now().Add(expiration).Unix(),
 	})
 
 	tokenString, err := token.SignedString(secret)
@@ -58,6 +56,11 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 		claims := token.Claims.(jwt.MapClaims)
 		str := claims["userid"].(string)
 		userID, err := strconv.Atoi(str)
+		if err != nil {
+			log.Printf("failed to convert userID to int: %v", err)
+			permissionDenied(w)
+			return
+		}
 
 		u, err := store.GetUserByID(userID)
 		if err != nil {
@@ -81,13 +84,26 @@ func getTokenFromRequest(r *http.Request) string {
 }
 
 func validateToken(t string) (*jwt.Token, error) {
-	return jwt.Parse(t, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(t, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 
 		return []byte(config.Envs.JWTSecret), nil
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		expiredAt := int64(claims["expiredAt"].(float64))
+		if time.Now().Unix() > expiredAt {
+			return nil, fmt.Errorf("token has expired")
+		}
+	}
+
+	return token, nil
 }
 
 func permissionDenied(w http.ResponseWriter) {
