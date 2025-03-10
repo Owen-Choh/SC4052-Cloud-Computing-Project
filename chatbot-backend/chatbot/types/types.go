@@ -3,6 +3,7 @@ package types
 import ()
 
 type ChatbotStoreInterface interface {
+	GetChatbotsByUsername(username string) ([]Chatbot, error)
 	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
 	CreateChatbot(userPayload NewChatbot) (int, error)
 }

@@ -15,6 +15,24 @@ func NewStore(db *sql.DB) *ChatbotStore {
 	return &ChatbotStore{db: db}
 }
 
+func (s *ChatbotStore) GetChatbotsByUsername(username string) ([]types.Chatbot, error) {
+	rows, err := s.db.Query("SELECT * FROM chatbots WHERE username=?", username)
+	if err != nil {
+		return nil, err
+	}
+
+	chatbots := []types.Chatbot{}
+	for rows.Next() {
+		bot, err := scanRowsIntoChatbot(rows)
+		if err != nil {
+			return nil, err
+		}
+		chatbots = append(chatbots, *bot)
+	}
+
+	return chatbots, nil
+}
+
 func (s *ChatbotStore) GetChatbotByName(username string, chatbotName string) (*types.Chatbot, error) {
 	rows, err := s.db.Query("SELECT * FROM chatbots WHERE username=? AND chatbotName=?", username, chatbotName)
 	if err != nil {

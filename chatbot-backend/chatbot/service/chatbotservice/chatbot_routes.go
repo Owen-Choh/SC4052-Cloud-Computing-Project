@@ -26,8 +26,26 @@ func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInte
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
+	router.HandleFunc("GET /chat/list", auth.WithJWTAuth(h.GetUserChatbot, h.userstore))
 	router.HandleFunc("GET /chat/{username}/{chatbotName}", h.GetChatbot)
 	router.HandleFunc("POST /newchatbot", auth.WithJWTAuth(h.CreateChatbot, h.userstore))
+}
+
+func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
+	username := auth.GetUsernameFromContext(r.Context())
+	if username == "" {
+		log.Println("username missing in request context")
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request"))
+		return
+	}
+
+	chatbots, err := h.store.GetChatbotsByUsername(username)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, chatbots)
 }
 
 func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
