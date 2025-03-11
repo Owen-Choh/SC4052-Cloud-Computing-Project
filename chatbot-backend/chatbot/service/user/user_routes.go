@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -61,6 +62,15 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+    Value:    token,
+    HttpOnly: true,
+    Secure:   true, // Ensure it's only sent over HTTPS
+    Path:     "/",
+    Expires:  time.Now().Add(auth.GetExpirationDuration()), // 1 day expiry
+	})
+	
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"userid":   strconv.Itoa(u.Userid),
 		"username": u.Username,

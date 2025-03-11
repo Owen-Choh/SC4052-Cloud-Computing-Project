@@ -20,7 +20,7 @@ const UserIDKey contextKey = "userid"
 const UsernameKey contextKey = "username"
 
 func CreateJWT(secret []byte, userid int, username string) (string, error) {
-	expiration := time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
+	expiration := GetExpirationDuration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userid":    strconv.Itoa(userid),
@@ -124,4 +124,8 @@ func GetUsernameFromContext(ctx context.Context) string {
 		return ""
 	}
 	return username
+}
+
+func GetExpirationDuration() time.Duration {
+	return time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
 }
