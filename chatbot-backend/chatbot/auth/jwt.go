@@ -38,9 +38,14 @@ func CreateJWT(secret []byte, userid int, username string) (string, error) {
 
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tokenString := getTokenFromRequest(r)
+		tokenCookie, err := getTokenFromRequest(r)
+		if err != nil {
+			log.Println("Token cookie not found")
+			permissionDenied(w)
+			return
+		}
 
-		token, err := validateToken(tokenString)
+		token, err := validateToken(tokenCookie.Value)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
 			permissionDenied(w)
@@ -78,9 +83,8 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 	}
 }
 
-func getTokenFromRequest(r *http.Request) string {
-	tokenAuth := r.Header.Get("Authorization")
-	return tokenAuth
+func getTokenFromRequest(r *http.Request) (*http.Cookie, error) {
+	return r.Cookie("token")
 }
 
 func validateToken(t string) (*jwt.Token, error) {
