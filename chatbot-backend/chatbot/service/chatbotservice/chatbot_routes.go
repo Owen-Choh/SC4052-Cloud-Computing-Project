@@ -38,7 +38,8 @@ func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request"))
 		return
 	}
-
+	
+	log.Println("authenticated user: "+username)
 	chatbots, err := h.store.GetChatbotsByUsername(username)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)

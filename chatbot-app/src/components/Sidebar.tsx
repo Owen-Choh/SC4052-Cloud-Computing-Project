@@ -1,14 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import useAuth from "../auth/useAuth";
 import { Link } from "react-router-dom";
-
+import { User } from "../auth/User";
+import { getChatbotsApi } from "../api/apiConfig";
+import { Chatbot } from "../api/chatbot";
 
 const Sidebar: React.FC = () => {
   const { currentUser } = useAuth();
+
+  const fetchChatbots = async () => {
+    const chatbotsResponse: Chatbot[] = await getChatbotsApi.get("");
+    console.log("chatbot response:");
+    console.log(chatbotsResponse);
+    return chatbotsResponse;
+  };
+
   const sidebarItems = [
     { name: "Dashboard", path: "/Dashboard" },
     { name: "TempPage", path: "/TempPage" },
   ];
+
+  useEffect(() => {
+    fetchChatbots();
+  }, [currentUser]);
 
   return (
     <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
@@ -22,7 +36,7 @@ const Sidebar: React.FC = () => {
       </ul>
       <p className="p-4">Logged in as: {currentUser?.username}</p>
     </div>
-  )
-}
+  );
+};
 
 export default Sidebar;
