@@ -3,5 +3,9 @@ import axios from "axios";
 export const baseURL: string = import.meta.env.VITE_BASE_URL;
 
 export const loginApi = axios.create({
-  baseURL: `${baseURL}/login`,
+  baseURL: `${baseURL}/user/login`,
+});
+
+export const getChatbotsApi = axios.create({
+  baseURL: `${baseURL}/chat/list`,
 });
