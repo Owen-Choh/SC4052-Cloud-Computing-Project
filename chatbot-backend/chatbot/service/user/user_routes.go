@@ -30,10 +30,16 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	var payload types.LoginUserPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
+	// Parse the form for both application/x-www-form-urlencoded and multipart/form-data
+	if err := r.ParseMultipartForm(1000); err != nil {
+		log.Println("Error parsing login form:", err)
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
+	}
+
+	payload := types.LoginUserPayload{
+		Username: r.FormValue("username"),
+		Password: r.FormValue("password"),
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
@@ -70,21 +76,26 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
     Path:     "/",
     Expires:  time.Now().Add(auth.GetExpirationDuration()), // 1 day expiry
 	})
-	
+
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"userid":   strconv.Itoa(u.Userid),
 		"username": u.Username,
-		"token":    token,
 	})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
-	var payload types.RegisterUserPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
+	// Parse the form for both application/x-www-form-urlencoded and multipart/form-data
+	if err := r.ParseMultipartForm(1000); err != nil {
+		log.Println("Error parsing login form:", err)
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
+	payload := types.LoginUserPayload{
+		Username: r.FormValue("username"),
+		Password: r.FormValue("password"),
+	}
+	
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
