@@ -17,15 +17,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const login = async (formData: FormData) => {
-      console.log("login called with formData", formData);
-      const oAuth2FormData = new FormData();
-      for (const [key, value] of formData.entries()) {
-        // console.log("key", key, "value", value);
-        oAuth2FormData.append(key, value);
-      }
-
-      console.log("sending oAuth2FormData", oAuth2FormData, "to loginApi", loginApi.getUri());
-      const loginResponse = await loginApi.post("", oAuth2FormData, {
+      console.log("sending formData to loginApi:", loginApi.getUri());
+      const loginResponse = await loginApi.post("", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
