@@ -19,7 +19,7 @@ func (w *wrappedResponseWriter) WriteHeader(statusCode int) {
 func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-
+		log.Println(r.Header.Get("Origin"))
 		wrappedResponseWriter := &wrappedResponseWriter{
 			ResponseWriter: w, 
 			statusCode: http.StatusOK,

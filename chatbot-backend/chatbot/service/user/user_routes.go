@@ -23,6 +23,9 @@ func NewHandler(store types.UserStoreInterface) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {
+	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello from user")
+	})
 	router.HandleFunc("POST /login", h.handleLogin)
 	router.HandleFunc("POST /register", h.handleRegister)
 
