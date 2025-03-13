@@ -71,18 +71,11 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-    Value:    token,
-    HttpOnly: true,
-    Secure:   true, // Ensure it's only sent over HTTPS
-    Path:     "/",
-    Expires:  time.Now().Add(auth.GetExpirationDuration()), // 1 day expiry
-	})
-
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"userid":   strconv.Itoa(u.Userid),
 		"username": u.Username,
+		"token":    token,
+		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
 	})
 }
 

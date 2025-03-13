@@ -7,6 +7,5 @@ export const loginApi = axios.create({
 });
 
 export const getChatbotsApi = axios.create({
-  baseURL: `${baseURL}/chat/list`,
-  withCredentials: true
+  baseURL: `${baseURL}/chatbot/list`
 });
