@@ -71,9 +71,11 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]string{
-		"userid":   strconv.Itoa(u.Userid),
-		"username": u.Username,
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"user": map[string]interface{}{
+			"userid":   strconv.Itoa(u.Userid),
+			"username": u.Username,
+		},
 		"token":    token,
 		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
 	})

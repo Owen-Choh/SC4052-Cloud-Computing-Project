@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import useAuth from "../auth/useAuth";
 import { Link } from "react-router-dom";
-import { User } from "../auth/User";
+import { User } from "../auth/auth";
 import { getChatbotsApi } from "../api/apiConfig";
 import { Chatbot } from "../api/chatbot";
 
 const Sidebar: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
 
   const fetchChatbots = async () => {
-    const chatbotsResponse: Chatbot[] = await getChatbotsApi.get("");
+    const chatbotsResponse: Chatbot[] = await getChatbotsApi.get("",{headers: {Authorization: `Bearer ${token}`}});
     console.log("chatbot response:");
     console.log(chatbotsResponse);
     return chatbotsResponse;

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
-import { User } from "../auth/User";
+import { User } from "../auth/auth";
 import { useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Botconfigs from "../components/Botconfigs";
