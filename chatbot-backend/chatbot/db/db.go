@@ -44,10 +44,12 @@ func InitDB() (bool, error) {
 		chatbotid INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT NOT NULL,
 		chatbotname TEXT NOT NULL,
+		behaviour TEXT NOT NULL,
 		usercontext TEXT NOT NULL,
 		createddate TEXT NOT NULL,
 		updateddate TEXT NOT NULL,
 		lastused TEXT NOT NULL,
+		isShared BOOLEAN NOT NULL DEFAULT FALSE,
 		filepath TEXT NOT NULL,
 		FOREIGN KEY(username) REFERENCES users(username),
 		UNIQUE(username, chatbotname)

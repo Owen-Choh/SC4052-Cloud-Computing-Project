@@ -87,14 +87,26 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// newChatbot := types.NewChatbot{
-	// 	Username: username,
-	// 	Chatbotname: payload.Chatbotname,
-	// 	Usercontext: payload.Usercontext,
-	// 	File: "",
-	// }
-	
 	// TODO add the chatbot to db
-	utils.WriteJSON(w, http.StatusNotImplemented, fmt.Errorf("api is not ready"))
+	// utils.WriteJSON(w, http.StatusNotImplemented, fmt.Errorf("api is not ready"))
 
+	newChatbot := types.NewChatbot{
+		Username: username,
+		Chatbotname: payload.Chatbotname,
+		Behaviour: payload.Behaviour,
+		IsShared: payload.IsShared,
+		Usercontext: payload.Usercontext,
+		File: "",
+	}
+	
+	botID, err := h.store.CreateChatbot(newChatbot)
+	if err != nil {
+		log.Println("Error creating chatbot:", err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
+		"chatbotid": botID,
+	})
 }
