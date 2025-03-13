@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileUpload from "./FileUpload";
 
 interface ChatbotCustomisationProps {
   chatbotBehaviour: string;
   chatbotContext: string;
   chatbotDocument: string;
+  updateChatbotCustomisation: (behaviour: string, context: string, document: File | null) => void;
+  saveChatbotCustomisation: () => void;
 }
 
 const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
   chatbotBehaviour,
   chatbotContext,
   chatbotDocument,
+  updateChatbotCustomisation,
+  saveChatbotCustomisation,
 }) => {
   const [currentBehaviour, setCurrentBehaviour] = useState(chatbotBehaviour);
   const [currentContext, setCurrentContext] = useState(chatbotContext);
   const [currentDocument, setCurrentDocument] = useState<File | null>(null);
+
+  useEffect(() => {
+    updateChatbotCustomisation(currentBehaviour, currentContext, currentDocument);
+  }, [currentBehaviour, currentContext, currentDocument]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -57,13 +65,7 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
       </div>
       <button
         className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
-        onClick={() =>
-          alert(
-            "Settings button isnt working! " +
-              "Selected file for upload: " +
-              currentDocument?.name
-          )
-        }
+        onClick={() => saveChatbotCustomisation()}
       >
         Save Changes
       </button>
