@@ -1,40 +1,57 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useAuth from "../auth/useAuth";
-import { Link } from "react-router-dom";
-import { User } from "../auth/auth";
+import { Link, useNavigate } from "react-router-dom";
 import { getChatbotsApi } from "../api/apiConfig";
 import { Chatbot } from "../api/chatbot";
 
-const Sidebar: React.FC = () => {
-  const { currentUser, token } = useAuth();
+interface SidebarProps {
+  currentUsername: string | undefined;
+  chatbots: Chatbot[];
+  onCreateNewChatbot: () => void;
+  selectChatbot: (chatbotid: number) => void;
+}
 
-  const fetchChatbots = async () => {
-    const chatbotsResponse: Chatbot[] = await getChatbotsApi.get("",{headers: {Authorization: `Bearer ${token}`}});
-    console.log("chatbot response:");
-    console.log(chatbotsResponse);
-    return chatbotsResponse;
-  };
-
-  const sidebarItems = [
-    { name: "Dashboard", path: "/Dashboard" },
-    { name: "TempPage", path: "/TempPage" },
-  ];
-
-  useEffect(() => {
-    fetchChatbots();
-  }, [currentUser]);
+const Sidebar: React.FC<SidebarProps> = ({
+  currentUsername,
+  chatbots,
+  onCreateNewChatbot,
+  selectChatbot,
+}) => {
+  const navigate = useNavigate();
 
   return (
     <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
       <h1 className="text-2xl font-bold p-4">Welcome</h1>
       <ul className="flex-grow overflow-y-auto">
-        {sidebarItems.map((item) => (
-          <li key={item.name} className="p-4 hover:bg-gray-700">
-            <Link to={item.path}>{item.name}</Link>
+        {/* New Chatbot Button */}
+        <button
+          onClick={onCreateNewChatbot}
+          className="m-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          + New Chatbot
+        </button>
+        <li className="p-4 hover:bg-gray-700">
+          <Link to="/Dashboard">Dashboard</Link>
+        </li>
+        <li className="p-4 hover:bg-gray-700">
+          <Link to="/TempPage">TempPage</Link>
+        </li>
+
+        {/* Dynamically list chatbots */}
+        {chatbots.map((chatbot) => (
+          <li
+            key={chatbot.Chatbotid}
+            onClick={() => selectChatbot(chatbot.Chatbotid)}
+            className="p-4 hover:bg-gray-700"
+          >
+            {chatbot.Chatbotname}
           </li>
         ))}
+
+        <li className="p-4 hover:bg-gray-700">temporary item</li>
       </ul>
-      <p className="p-4">Logged in as: {currentUser?.username}</p>
+
+      <p className="p-4">Logged in as: {currentUsername}</p>
     </div>
   );
 };

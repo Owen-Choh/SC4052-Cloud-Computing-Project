@@ -2,7 +2,9 @@ export interface Chatbot {
   Chatbotid: number;
   Userid: number;
   Chatbotname: string;
+  Behaviour: string;
   Usercontext: string;
+  IsShared: boolean;
   Createddate: string;
   Updateddate: string;
   Lastused: string;

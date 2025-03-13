@@ -3,8 +3,13 @@ import Tab from "./ui/Tab";
 import TabPanel from "./ui/TabPanel";
 import ChatbotInformation from "./ChatbotInformation";
 import ChatbotCustomisation from "./ChatbotCustomisation";
+import { Chatbot } from "../api/chatbot";
 
-const Botconfigs: React.FC = () => {
+interface BotconfigsProps {
+  chatbot: Chatbot;
+}
+
+const Botconfigs: React.FC<BotconfigsProps> = ({chatbot}) => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
 
   // TODO: replace mock for chatbot information component
@@ -36,10 +41,10 @@ const Botconfigs: React.FC = () => {
       
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
-          <ChatbotInformation chatbotName={chatbotName} isShared={isShared} chatbotEndpoint={chatbotEndpoint} />
+          <ChatbotInformation chatbotName={chatbot.Chatbotname} isShared={chatbot.IsShared} chatbotEndpoint={chatbotEndpoint} />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
-          <ChatbotCustomisation chatbotBehaviour={chatbotBehaviour} chatbotContext={chatbotContext} chatbotDocument={chatbotDocument} />
+          <ChatbotCustomisation chatbotBehaviour={chatbot.Behaviour} chatbotContext={chatbot.Usercontext} chatbotDocument={chatbot.Filepath} />
         </TabPanel>
       </div>
     </div>
