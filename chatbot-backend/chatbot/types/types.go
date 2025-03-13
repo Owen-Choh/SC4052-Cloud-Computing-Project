@@ -11,12 +11,16 @@ type ChatbotStoreInterface interface {
 type NewChatbot struct {
 	Username    string `json:"Username" validate:"required"`
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
+	IsShared    bool   `json:"isShared" validate:"required"`
 	File        string `json:"file"`
 }
 type CreateChatbotPayload struct {
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
+	IsShared    bool   `json:"isShared" validate:"required"`
 	File        string `json:"file"`
 }
 
@@ -24,10 +28,12 @@ type Chatbot struct {
 	Chatbotid   int    `json:"chatbotid"`
 	Userid      int    `json:"userid"`
 	Chatbotname string `json:"chatbotname"`
+	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
 	Createddate string `json:"createddate"`
 	Updateddate string `json:"updateddate"`
 	Lastused    string `json:"lastused"`
+	IsShared    bool   `json:"isShared"`
 	Filepath    string `json:"filepath"`
 }
 
