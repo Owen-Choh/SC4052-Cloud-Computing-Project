@@ -1,15 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Chatbot } from "../api/chatbot";
+import Botconfigs from "./Botconfigs";
 
 interface ChatbotInformationProps {
   chatbotName: string;
   isShared: boolean;
   chatbotEndpoint: string;
   updateChatbotLink: (chatbotName: string) => void;
+  updateChatbotInfo: (chatbotName: string, isShared: boolean) => void;
+  saveChatbot: () => void;
 }
 
-const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint , updateChatbotLink}) => {
+const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint , updateChatbotLink, updateChatbotInfo, saveChatbot}) => {
   const [currentName, setCurrentName] = useState(chatbotName);
   const [currentShared, setCurrentShared] = useState(isShared);
+
+  useEffect(() => {
+    updateChatbotInfo(currentName, currentShared);
+  }, [currentName, currentShared]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,7 +50,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, is
 
       <button 
         className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
-        onClick={() => alert("Settings button isnt working!")}
+        onClick={() => saveChatbot()}
       >
         Save Changes
       </button>

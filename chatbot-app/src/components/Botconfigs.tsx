@@ -13,10 +13,26 @@ interface BotconfigsProps {
 const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
   const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.Chatbotname);
+  const [currentChatbot, setCurrentChatbot] = React.useState(chatbot);
 
   const updateChatbotLink = (chatbotName: string) => {
     setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
   };
+
+  const updateChatbotInfo = (chatbotName: string, isShared: boolean) => {
+    setCurrentChatbot({
+      ...currentChatbot,
+      Chatbotname: chatbotName,
+      IsShared: isShared,
+    });
+    console.log("Chatbot updated: ", currentChatbot);
+  }
+
+  const saveChatbot = () => {
+    // Save the chatbot to the database
+    console.log("Chatbot saved: ", currentChatbot);
+    alert("button not ready")
+  }
 
   const chatbotDocument = "project-details.pdf";
 
@@ -44,6 +60,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
             isShared={chatbot.IsShared}
             chatbotEndpoint={chatbotLink}
             updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
+            updateChatbotInfo={(chatbotName, isShared) => updateChatbotInfo(chatbotName, isShared)}
+            saveChatbot={() => saveChatbot()}
           />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
