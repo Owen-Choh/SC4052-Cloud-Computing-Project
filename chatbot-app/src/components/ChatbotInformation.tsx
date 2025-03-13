@@ -4,9 +4,10 @@ interface ChatbotInformationProps {
   chatbotName: string;
   isShared: boolean;
   chatbotEndpoint: string;
+  updateChatbotLink: (chatbotName: string) => void;
 }
 
-const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint }) => {
+const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint , updateChatbotLink}) => {
   const [currentName, setCurrentName] = useState(chatbotName);
   const [currentShared, setCurrentShared] = useState(isShared);
 
@@ -18,7 +19,9 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, is
         <input 
           type="text"
           value={currentName}
-          onChange={(e) => setCurrentName(e.target.value)}
+          onChange={(e) => 
+            {setCurrentName(e.target.value);
+            updateChatbotLink(e.target.value);}}
           className="p-2 border rounded bg-gray-900 text-white"
         />
       </div>

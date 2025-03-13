@@ -29,6 +29,8 @@ function Dashboard() {
     Filepath: "",
   };
 
+  const username = currentUser?.username ? currentUser.username : "";
+
   const fetchChatbots = async () => {
     try {
       const response = await getChatbotsApi.get("", {
@@ -63,7 +65,7 @@ function Dashboard() {
   return (
     <div className="flex h-screen flex-1 w-full">
       <Sidebar
-        currentUsername={currentUser?.username}
+        currentUsername={username}
         chatbots={chatbots}
         onCreateNewChatbot={() => {
           setIsCreatingChatbot(true);
@@ -78,9 +80,9 @@ function Dashboard() {
       />
       <div className="w-full">
       {isCreatingChatbot ? (
-        <Botconfigs chatbot={newBot} />
+        <Botconfigs username={username} chatbot={newBot} />
       ) : selectedChatbotID && selectedChatbot ? (
-        <Botconfigs chatbot={selectedChatbot} />
+        <Botconfigs username={username} chatbot={selectedChatbot} />
       ) : (
         <h1 className="text-2xl font-bold p-4">Select a chatbot to view</h1>
       )}

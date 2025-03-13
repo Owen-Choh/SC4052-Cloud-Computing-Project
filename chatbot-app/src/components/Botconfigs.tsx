@@ -6,20 +6,18 @@ import ChatbotCustomisation from "./ChatbotCustomisation";
 import { Chatbot } from "../api/chatbot";
 
 interface BotconfigsProps {
+  username: string;
   chatbot: Chatbot;
 }
 
-const Botconfigs: React.FC<BotconfigsProps> = ({chatbot}) => {
+const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
+  const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.Chatbotname);
 
-  // TODO: replace mock for chatbot information component
-  const chatbotName = "My Demo Chatbot";
-  const isShared = false;
-  const chatbotEndpoint = "/testuser/my-demo-chatbot";
-  
-  // TODO: replace mock for chatbot customise component
-  const chatbotBehaviour = "Your friendly internet chatbot";
-  const chatbotContext = "Project due in a month";
+  const updateChatbotLink = (chatbotName: string) => {
+    setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
+  };
+
   const chatbotDocument = "project-details.pdf";
 
   return (
@@ -38,13 +36,22 @@ const Botconfigs: React.FC<BotconfigsProps> = ({chatbot}) => {
       </div>
 
       <div className="border-b-2 border-gray-700"></div>
-      
+
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
-          <ChatbotInformation chatbotName={chatbot.Chatbotname} isShared={chatbot.IsShared} chatbotEndpoint={chatbotEndpoint} />
+          <ChatbotInformation
+            chatbotName={chatbot.Chatbotname}
+            isShared={chatbot.IsShared}
+            chatbotEndpoint={chatbotLink}
+            updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
+          />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
-          <ChatbotCustomisation chatbotBehaviour={chatbot.Behaviour} chatbotContext={chatbot.Usercontext} chatbotDocument={chatbot.Filepath} />
+          <ChatbotCustomisation
+            chatbotBehaviour={chatbot.Behaviour}
+            chatbotContext={chatbot.Usercontext}
+            chatbotDocument={chatbot.Filepath}
+          />
         </TabPanel>
       </div>
     </div>
