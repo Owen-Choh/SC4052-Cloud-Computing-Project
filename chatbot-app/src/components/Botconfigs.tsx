@@ -3,7 +3,7 @@ import Tab from "./ui/Tab";
 import TabPanel from "./ui/TabPanel";
 import ChatbotInformation from "./ChatbotInformation";
 import ChatbotCustomisation from "./ChatbotCustomisation";
-import { Chatbot } from "../api/chatbot";
+import { Chatbot, CreateChatbotPayload } from "../api/chatbot";
 import { createChatbotsApi } from "../api/apiConfig";
 import useAuth from "../auth/useAuth";
 
@@ -45,7 +45,15 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     // Save the chatbot to the database
     console.log("Chatbot saved: ", currentChatbot);
     // alert("button not ready");
-    createChatbotsApi.post("", currentChatbot, {
+    
+    const requestChatbot: CreateChatbotPayload ={
+      Chatbotname: currentChatbot.Chatbotname,
+      Behaviour: currentChatbot.Behaviour,
+      Usercontext: currentChatbot.Usercontext,
+      IsShared: currentChatbot.IsShared,
+      Filepath: currentChatbot.Filepath,
+    }
+    createChatbotsApi.post("", requestChatbot, {
       headers: { Authorization: `Bearer ${token}` },
     });
   };

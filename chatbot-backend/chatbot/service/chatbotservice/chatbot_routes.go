@@ -82,7 +82,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload types.CreateChatbotPayload
-	if err := utils.ParseJSON(r, payload); err != nil {
+	if err := utils.ParseJSON(r, &payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}

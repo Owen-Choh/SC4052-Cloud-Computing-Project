@@ -10,3 +10,11 @@ export interface Chatbot {
   Lastused: string;
   Filepath: string;
 }
+
+export interface CreateChatbotPayload {
+  Chatbotname: string;
+  Behaviour: string;
+  Usercontext: string;
+  IsShared: boolean;
+  Filepath: string;
+}
