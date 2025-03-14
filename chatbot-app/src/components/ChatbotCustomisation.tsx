@@ -49,7 +49,7 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         <p className="text-xl">Any documents that your chatbot should use?</p>
         {chatbotDocument ? (
           <p>
-            Chatbot currently has: 
+            Chatbot currently has:{" "}
             <span className="font-bold">{chatbotDocument}</span>
           </p>
         ) : (
