@@ -19,6 +19,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const [currentChatbot, setCurrentChatbot] = React.useState(chatbot);
   const [success, setSuccess] = React.useState("");
   const [error, setError] = React.useState("");
+  const [originalFilepath, setOriginalFilepath] = React.useState(chatbot.filepath);
 
   const updateChatbotLink = (chatbotName: string) => {
     setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
@@ -90,6 +91,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     updateChatbotLink(chatbot.chatbotname);
     setSuccess("");
     setError("");
+    setOriginalFilepath(chatbot.filepath);
     console.log("Chatbot updated: ", currentChatbot);
   }, [chatbot]);
 
@@ -130,7 +132,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
           <ChatbotCustomisation
             chatbotBehaviour={currentChatbot.behaviour}
             chatbotContext={currentChatbot.usercontext}
-            chatbotDocument={currentChatbot.filepath}
+            chatbotDocument={originalFilepath}
             updateChatbotCustomisation={(behaviour, context) => updateChatbotCustomisation(behaviour, context)}
             updateChatbotFile={(document) => updateChatbotFile(document)}
             saveChatbotCustomisation={() => saveChatbot()}
