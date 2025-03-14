@@ -9,6 +9,7 @@ export interface Chatbot {
   Updateddate: string;
   Lastused: string;
   Filepath: string;
+  File: File | null;
 }
 
 export interface CreateChatbotPayload {
@@ -16,5 +17,5 @@ export interface CreateChatbotPayload {
   Behaviour: string;
   Usercontext: string;
   IsShared: boolean;
-  Filepath: string;
+  File: File | null;
 }

@@ -37,6 +37,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
       Behaviour: behaviour,
       Usercontext: context,
       Filepath: document ? document.name : currentChatbot.Filepath,
+      File: document ? document : currentChatbot.File,
     });
     console.log("Chatbot customisation updated: ", currentChatbot);
   };
@@ -44,18 +45,33 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const saveChatbot = () => {
     // Save the chatbot to the database
     console.log("Chatbot saved: ", currentChatbot);
-    // alert("button not ready");
+    const formData = new FormData();
+    formData.append("Chatbotname", currentChatbot.Chatbotname);
+    formData.append("Behaviour", currentChatbot.Behaviour);
+    formData.append("Usercontext", currentChatbot.Usercontext);
+    formData.append("IsShared", currentChatbot.IsShared.toString());
     
-    const requestChatbot: CreateChatbotPayload ={
-      Chatbotname: currentChatbot.Chatbotname,
-      Behaviour: currentChatbot.Behaviour,
-      Usercontext: currentChatbot.Usercontext,
-      IsShared: currentChatbot.IsShared,
-      Filepath: currentChatbot.Filepath,
+    if (currentChatbot.File) {
+      formData.append("File", currentChatbot.File); // Append file if available
     }
-    createChatbotsApi.post("", requestChatbot, {
-      headers: { Authorization: `Bearer ${token}` },
+  
+    createChatbotsApi.post("", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data", // Important for file upload
+      },
     });
+
+    // const requestChatbot: CreateChatbotPayload ={
+    //   Chatbotname: currentChatbot.Chatbotname,
+    //   Behaviour: currentChatbot.Behaviour,
+    //   Usercontext: currentChatbot.Usercontext,
+    //   IsShared: currentChatbot.IsShared,
+    //   File: null,
+    // }
+    // createChatbotsApi.post("", requestChatbot, {
+    //   headers: { Authorization: `Bearer ${token}` },
+    // });
   };
 
   return (

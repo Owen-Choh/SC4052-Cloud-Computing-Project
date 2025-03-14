@@ -3,8 +3,10 @@ package chatbotservice
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
@@ -81,23 +83,63 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload types.CreateChatbotPayload
-	if err := utils.ParseJSON(r, &payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+	// var payload types.CreateChatbotPayload
+	// if err := utils.ParseJSON(r, &payload); err != nil {
+	// 	utils.WriteError(w, http.StatusBadRequest, err)
+	// 	return
+	// }
+
+	err := r.ParseMultipartForm(10 << 20) // 10MB limit
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to parse form"))
 		return
 	}
 
-	// TODO add the chatbot to db
-	// utils.WriteJSON(w, http.StatusNotImplemented, fmt.Errorf("api is not ready"))
+	// Extract chatbot fields from form
+	chatbotname := r.FormValue("Chatbotname")
+	behaviour := r.FormValue("Behaviour")
+	usercontext := r.FormValue("Usercontext")
+	isShared := r.FormValue("IsShared") == "true"
 
-	newChatbot := types.NewChatbot{
-		Username: username,
-		Chatbotname: payload.Chatbotname,
-		Behaviour: payload.Behaviour,
-		IsShared: payload.IsShared,
-		Usercontext: payload.Usercontext,
-		File: "",
+	// Handle file upload
+	file, header, err := r.FormFile("File")
+	var filepath string
+	if err == nil {
+		defer file.Close()
+
+		// Save the uploaded file
+		filepath = "database_files/uploads/" + username + "/" + header.Filename
+		log.Println("Saving file to:", filepath)
+		out, err := os.Create(filepath)
+		if err != nil {
+			log.Println("Error saving file:", err)
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+			return
+		}
+		defer out.Close()
+		io.Copy(out, file)
+	} else {
+		filepath = "" // No file uploaded
 	}
+
+	// Create chatbot struct
+	newChatbot := types.NewChatbot{
+		Username:    username,
+		Chatbotname: chatbotname,
+		Behaviour:   behaviour,
+		IsShared:    isShared,
+		Usercontext: usercontext,
+		File:        filepath,
+	}
+	
+	// newChatbot := types.NewChatbot{
+	// 	Username: username,
+	// 	Chatbotname: payload.Chatbotname,
+	// 	Behaviour: payload.Behaviour,
+	// 	IsShared: payload.IsShared,
+	// 	Usercontext: payload.Usercontext,
+	// 	File: "",
+	// }
 	
 	botID, err := h.store.CreateChatbot(newChatbot)
 	if err != nil {
