@@ -97,13 +97,21 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	isShared := r.FormValue("isShared") == "true"
 
 	// Handle file upload
-	file, header, err := r.FormFile("File")
+	file, header, err := r.FormFile("file")
 	var filepath string
 	if err == nil {
 		defer file.Close()
 
+		fullDirPath := "database_files/uploads/" + username + "/" + chatbotname
+		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
+		if err != nil {
+				log.Println("Error creating directory:", err)
+				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+				return 
+		}
+
 		// Save the uploaded file
-		filepath = "database_files/uploads/" + username + "/" + header.Filename
+		filepath = fullDirPath + "/" + header.Filename
 		log.Println("Saving file to:", filepath)
 		out, err := os.Create(filepath)
 		if err != nil {
