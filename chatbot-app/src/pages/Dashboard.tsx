@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import useAuth from "../auth/useAuth";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
@@ -17,16 +16,17 @@ function Dashboard() {
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
 
   const newBot: Chatbot = {
-    Chatbotid: 0,
-    Userid: currentUser?.userid ? currentUser.userid : 0,
-    Chatbotname: "",
-    Behaviour: "",
-    Usercontext: "",
-    IsShared: false,
-    Createddate: "",
-    Updateddate: "",
-    Lastused: "",
-    Filepath: "",
+    chatbotid: 0,
+    userid: currentUser?.userid ? currentUser.userid : 0,
+    chatbotname: "",
+    behaviour: "",
+    usercontext: "",
+    isShared: false,
+    createddate: "",
+    updateddate: "",
+    lastused: "",
+    filepath: "",
+    file: null,
   };
 
   const username = currentUser?.username ? currentUser.username : "";
@@ -37,16 +37,18 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setChatbots(response.data);
+      console.log("Chatbots fetched:", response.data);
     } catch (error) {
       console.error("Failed to fetch chatbots:", error);
     }
   };
 
   const findSelectedChatbot = (chatbotID: number | null) => {
+    console.log("findSelectedChatbot: ", chatbotID);
     if (!chatbotID) {
       return null;
     }
-    const found = chatbots.find((chatbot) => chatbot.Chatbotid === chatbotID);
+    const found = chatbots.find((chatbot) => chatbot.chatbotid === chatbotID);
 
     if (found) {
       return found;

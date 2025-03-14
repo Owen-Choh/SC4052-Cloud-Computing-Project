@@ -1,21 +1,21 @@
 export interface Chatbot {
-  Chatbotid: number;
-  Userid: number;
-  Chatbotname: string;
-  Behaviour: string;
-  Usercontext: string;
-  IsShared: boolean;
-  Createddate: string;
-  Updateddate: string;
-  Lastused: string;
-  Filepath: string;
-  File: File | null;
+  chatbotid: number;
+  userid: number;
+  chatbotname: string;
+  behaviour: string;
+  usercontext: string;
+  isShared: boolean;
+  createddate: string;
+  updateddate: string;
+  lastused: string;
+  filepath: string;
+  file: File | null;
 }
 
 export interface CreateChatbotPayload {
-  Chatbotname: string;
-  Behaviour: string;
-  Usercontext: string;
-  IsShared: boolean;
-  File: File | null;
+  chatbotname: string;
+  behaviour: string;
+  usercontext: string;
+  isShared: boolean;
+  file: File | null;
 }

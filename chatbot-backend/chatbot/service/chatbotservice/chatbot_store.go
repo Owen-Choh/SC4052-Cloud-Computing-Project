@@ -87,12 +87,14 @@ func scanRowsIntoChatbot(rows *sql.Rows) (*types.Chatbot, error) {
 
 	err := rows.Scan(
 		&chatbot.Chatbotid,
-		&chatbot.Userid,
+		&chatbot.Username,
 		&chatbot.Chatbotname,
+		&chatbot.Behaviour,
 		&chatbot.Usercontext,
 		&chatbot.Createddate,
 		&chatbot.Updateddate,
 		&chatbot.Lastused,
+		&chatbot.IsShared,
 		&chatbot.Filepath,
 	)
 	if err != nil {

@@ -26,7 +26,7 @@ type CreateChatbotPayload struct {
 
 type Chatbot struct {
 	Chatbotid   int    `json:"chatbotid"`
-	Userid      int    `json:"userid"`
+	Username      string    `json:"username"`
 	Chatbotname string `json:"chatbotname"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`

@@ -15,7 +15,7 @@ interface BotconfigsProps {
 const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = React.useState("chatInfo");
-  const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.Chatbotname);
+  const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.chatbotname);
   const [currentChatbot, setCurrentChatbot] = React.useState(chatbot);
 
   const updateChatbotLink = (chatbotName: string) => {
@@ -25,8 +25,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const updateChatbotInfo = (chatbotName: string, isShared: boolean) => {
     setCurrentChatbot({
       ...currentChatbot,
-      Chatbotname: chatbotName,
-      IsShared: isShared,
+      chatbotname: chatbotName,
+      isShared: isShared,
     });
     console.log("Chatbot updated: ", currentChatbot);
   };
@@ -34,10 +34,10 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const updateChatbotCustomisation = (behaviour: string, context: string, document: File | null) => {
     setCurrentChatbot({
       ...currentChatbot,
-      Behaviour: behaviour,
-      Usercontext: context,
-      Filepath: document ? document.name : currentChatbot.Filepath,
-      File: document ? document : currentChatbot.File,
+      behaviour: behaviour,
+      usercontext: context,
+      filepath: document ? document.name : currentChatbot.filepath,
+      file: document ? document : currentChatbot.file,
     });
     console.log("Chatbot customisation updated: ", currentChatbot);
   };
@@ -46,13 +46,13 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     // Save the chatbot to the database
     console.log("Chatbot saved: ", currentChatbot);
     const formData = new FormData();
-    formData.append("Chatbotname", currentChatbot.Chatbotname);
-    formData.append("Behaviour", currentChatbot.Behaviour);
-    formData.append("Usercontext", currentChatbot.Usercontext);
-    formData.append("IsShared", currentChatbot.IsShared.toString());
+    formData.append("chatbotname", currentChatbot.chatbotname);
+    formData.append("behaviour", currentChatbot.behaviour);
+    formData.append("usercontext", currentChatbot.usercontext);
+    formData.append("isShared", currentChatbot.isShared.toString());
     
-    if (currentChatbot.File) {
-      formData.append("File", currentChatbot.File); // Append file if available
+    if (currentChatbot.file) {
+      formData.append("file", currentChatbot.file); // Append file if available
     }
   
     createChatbotsApi.post("", formData, {
@@ -61,17 +61,6 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
         "Content-Type": "multipart/form-data", // Important for file upload
       },
     });
-
-    // const requestChatbot: CreateChatbotPayload ={
-    //   Chatbotname: currentChatbot.Chatbotname,
-    //   Behaviour: currentChatbot.Behaviour,
-    //   Usercontext: currentChatbot.Usercontext,
-    //   IsShared: currentChatbot.IsShared,
-    //   File: null,
-    // }
-    // createChatbotsApi.post("", requestChatbot, {
-    //   headers: { Authorization: `Bearer ${token}` },
-    // });
   };
 
   return (
@@ -94,8 +83,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
           <ChatbotInformation
-            chatbotName={chatbot.Chatbotname}
-            isShared={chatbot.IsShared}
+            chatbotName={chatbot.chatbotname}
+            isShared={chatbot.isShared}
             chatbotEndpoint={chatbotLink}
             updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
             updateChatbotInfo={(chatbotName, isShared) => updateChatbotInfo(chatbotName, isShared)}
@@ -104,9 +93,9 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
           <ChatbotCustomisation
-            chatbotBehaviour={chatbot.Behaviour}
-            chatbotContext={chatbot.Usercontext}
-            chatbotDocument={chatbot.Filepath}
+            chatbotBehaviour={chatbot.behaviour}
+            chatbotContext={chatbot.usercontext}
+            chatbotDocument={chatbot.filepath}
             updateChatbotCustomisation={(behaviour, context, document) => updateChatbotCustomisation(behaviour, context, document)}
             saveChatbotCustomisation={() => saveChatbot()}
           />

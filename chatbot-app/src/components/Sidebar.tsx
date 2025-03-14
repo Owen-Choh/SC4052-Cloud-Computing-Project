@@ -17,8 +17,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCreateNewChatbot,
   selectChatbot,
 }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
       <h1 className="text-2xl font-bold p-4">Welcome</h1>
@@ -40,11 +38,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Dynamically list chatbots */}
         {chatbots.map((chatbot) => (
           <li
-            key={chatbot.Chatbotid}
-            onClick={() => selectChatbot(chatbot.Chatbotid)}
+            key={chatbot.chatbotid}
+            onClick={() => selectChatbot(chatbot.chatbotid)}
             className="p-4 hover:bg-gray-700"
           >
-            {chatbot.Chatbotname}
+            {chatbot.chatbotname}
           </li>
         ))}
 

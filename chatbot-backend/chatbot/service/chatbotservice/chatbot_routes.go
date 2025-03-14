@@ -132,15 +132,6 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		File:        filepath,
 	}
 	
-	// newChatbot := types.NewChatbot{
-	// 	Username: username,
-	// 	Chatbotname: payload.Chatbotname,
-	// 	Behaviour: payload.Behaviour,
-	// 	IsShared: payload.IsShared,
-	// 	Usercontext: payload.Usercontext,
-	// 	File: "",
-	// }
-	
 	botID, err := h.store.CreateChatbot(newChatbot)
 	if err != nil {
 		log.Println("Error creating chatbot:", err)
