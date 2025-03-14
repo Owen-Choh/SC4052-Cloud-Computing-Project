@@ -17,6 +17,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const [activeTab, setActiveTab] = React.useState("chatInfo");
   const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.chatbotname);
   const [currentChatbot, setCurrentChatbot] = React.useState(chatbot);
+  const [success, setSuccess] = React.useState("");
+  const [error, setError] = React.useState("");
 
   const updateChatbotLink = (chatbotName: string) => {
     setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
@@ -48,7 +50,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     });
   }
 
-  const saveChatbot = () => {
+  const saveChatbot = async () => {
     // Save the chatbot to the database
     console.log("Chatbot saved: ", currentChatbot);
     const formData = new FormData();
@@ -60,18 +62,34 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     if (currentChatbot.file) {
       formData.append("file", currentChatbot.file); // Append file if available
     }
+
+    try {
+      const response = await createChatbotsApi.post("", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
   
-    createChatbotsApi.post("", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data", // Important for file upload
-      },
-    });
+      console.log("Chatbot saved successfully:", response.data);
+      setSuccess("Chatbot saved successfully!");
+      setError("");
+    } catch (err: any) {
+      setSuccess("");
+      console.error("Failed to save chatbot:", err);
+      if (err.response?.status) {
+        setError("Failed to save chatbot. Error: "+err.response?.status + " " + err.response?.data?.error);
+      } else {
+        setError("Failed to save chatbot. Unknown Error occured");
+      }
+    }
   };
   
   useEffect(() => {
     setCurrentChatbot(chatbot);
     updateChatbotLink(chatbot.chatbotname);
+    setSuccess("");
+    setError("");
     console.log("Chatbot updated: ", currentChatbot);
   }, [chatbot]);
 
@@ -118,6 +136,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
             saveChatbotCustomisation={() => saveChatbot()}
           />
         </TabPanel>
+        {success && <p className="p-4 text-green-500">{success}</p>}
+        {error && <p className="p-4 text-red-500">{error}</p>}
       </div>
     </div>
   );
