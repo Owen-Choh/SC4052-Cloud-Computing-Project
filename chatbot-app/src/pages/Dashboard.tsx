@@ -51,7 +51,7 @@ function Dashboard() {
     const found = chatbots.find((chatbot) => chatbot.chatbotid === chatbotID);
 
     if (found) {
-      return found;
+      return { ...found };
     } else {
       console.log("error: Chatbot id not found");
       return null;
@@ -64,6 +64,10 @@ function Dashboard() {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    setSelectedChatbot(findSelectedChatbot(selectedChatbotID));
+  }, [selectedChatbotID, chatbots]);
+
   return (
     <div className="flex h-screen flex-1 w-full">
       <Sidebar
@@ -72,12 +76,10 @@ function Dashboard() {
         onCreateNewChatbot={() => {
           setIsCreatingChatbot(true);
           setSelectedChatbotID(null);
-          setSelectedChatbot(findSelectedChatbot(selectedChatbotID));
         }}
         selectChatbot={(selectedChatbotID) => {
           setIsCreatingChatbot(false);
           setSelectedChatbotID(selectedChatbotID);
-          setSelectedChatbot(findSelectedChatbot(selectedChatbotID));
         }}
       />
       <div className="w-full">

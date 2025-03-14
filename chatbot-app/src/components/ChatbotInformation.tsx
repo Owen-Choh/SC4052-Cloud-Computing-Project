@@ -11,25 +11,26 @@ interface ChatbotInformationProps {
   saveChatbot: () => void;
 }
 
-const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, isShared, chatbotEndpoint , updateChatbotLink, updateChatbotInfo, saveChatbot}) => {
-  const [currentName, setCurrentName] = useState(chatbotName);
-  const [currentShared, setCurrentShared] = useState(isShared);
-
-  useEffect(() => {
-    updateChatbotInfo(currentName, currentShared);
-  }, [currentName, currentShared]);
-
+const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
+  chatbotName,
+  isShared,
+  chatbotEndpoint,
+  updateChatbotLink,
+  updateChatbotInfo,
+  saveChatbot,
+}) => {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">Chatbot Information and Settings</h2>
       <div className="flex flex-row gap-4 items-center">
         <p className="text-lg">Your Chatbot's Name: </p>
-        <input 
+        <input
           type="text"
-          value={currentName}
-          onChange={(e) => 
-            {setCurrentName(e.target.value);
-            updateChatbotLink(e.target.value);}}
+          value={chatbotName}
+          onChange={(e) => {
+            updateChatbotInfo(e.target.value, isShared);
+            updateChatbotLink(e.target.value);
+          }}
           className="p-2 border rounded bg-gray-900 text-white"
         />
       </div>
@@ -37,8 +38,10 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, is
         <p className="text-lg">Do we share your chatbot?</p>
         <input
           type="checkbox"
-          checked={currentShared}
-          onChange={(e) => setCurrentShared(e.target.checked)}
+          checked={isShared}
+          onChange={(e) => {
+            updateChatbotInfo(chatbotName, e.target.checked);
+          }}
           className="w-5 h-5"
         />
       </div>
@@ -48,14 +51,14 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({ chatbotName, is
         <div>{window.location.origin + chatbotEndpoint}</div>
       </div>
 
-      <button 
+      <button
         className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
         onClick={() => saveChatbot()}
       >
         Save Changes
       </button>
     </div>
-  )
+  );
 };
 
 export default ChatbotInformation;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Tab from "./ui/Tab";
 import TabPanel from "./ui/TabPanel";
 import ChatbotInformation from "./ChatbotInformation";
@@ -31,16 +31,22 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     console.log("Chatbot updated: ", currentChatbot);
   };
 
-  const updateChatbotCustomisation = (behaviour: string, context: string, document: File | null) => {
+  const updateChatbotCustomisation = (behaviour: string, context: string) => {
     setCurrentChatbot({
       ...currentChatbot,
       behaviour: behaviour,
       usercontext: context,
-      filepath: document ? document.name : currentChatbot.filepath,
-      file: document ? document : currentChatbot.file,
     });
     console.log("Chatbot customisation updated: ", currentChatbot);
   };
+
+  const updateChatbotFile = (document: File | null) => {
+    setCurrentChatbot({
+      ...currentChatbot,
+      filepath: document ? document.name : currentChatbot.filepath,
+      file: document ? document : currentChatbot.file,
+    });
+  }
 
   const saveChatbot = () => {
     // Save the chatbot to the database
@@ -62,6 +68,12 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
       },
     });
   };
+  
+  useEffect(() => {
+    setCurrentChatbot(chatbot);
+    updateChatbotLink(chatbot.chatbotname);
+    console.log("Chatbot updated: ", currentChatbot);
+  }, [chatbot]);
 
   return (
     <div className="flex flex-col w-full h-full p-4 bg-gray-900 gap-4">
@@ -76,6 +88,11 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
           isActive={activeTab === "customisation"}
           onClick={() => setActiveTab("customisation")}
         />
+        <Tab
+          label={chatbot.chatbotname}
+          isActive={activeTab === "customisation"}
+          onClick={() => setActiveTab("customisation")}
+        />
       </div>
 
       <div className="border-b-2 border-gray-700"></div>
@@ -83,8 +100,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
           <ChatbotInformation
-            chatbotName={chatbot.chatbotname}
-            isShared={chatbot.isShared}
+            chatbotName={currentChatbot.chatbotname}
+            isShared={currentChatbot.isShared}
             chatbotEndpoint={chatbotLink}
             updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
             updateChatbotInfo={(chatbotName, isShared) => updateChatbotInfo(chatbotName, isShared)}
@@ -93,10 +110,11 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
           <ChatbotCustomisation
-            chatbotBehaviour={chatbot.behaviour}
-            chatbotContext={chatbot.usercontext}
-            chatbotDocument={chatbot.filepath}
-            updateChatbotCustomisation={(behaviour, context, document) => updateChatbotCustomisation(behaviour, context, document)}
+            chatbotBehaviour={currentChatbot.behaviour}
+            chatbotContext={currentChatbot.usercontext}
+            chatbotDocument={currentChatbot.filepath}
+            updateChatbotCustomisation={(behaviour, context) => updateChatbotCustomisation(behaviour, context)}
+            updateChatbotFile={(document) => updateChatbotFile(document)}
             saveChatbotCustomisation={() => saveChatbot()}
           />
         </TabPanel>

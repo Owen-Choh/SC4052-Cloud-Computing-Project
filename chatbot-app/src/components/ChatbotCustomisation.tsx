@@ -5,7 +5,8 @@ interface ChatbotCustomisationProps {
   chatbotBehaviour: string;
   chatbotContext: string;
   chatbotDocument: string;
-  updateChatbotCustomisation: (behaviour: string, context: string, document: File | null) => void;
+  updateChatbotCustomisation: (behaviour: string, context: string) => void;
+  updateChatbotFile: (document: File | null) => void;
   saveChatbotCustomisation: () => void;
 }
 
@@ -14,16 +15,9 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
   chatbotContext,
   chatbotDocument,
   updateChatbotCustomisation,
+  updateChatbotFile,
   saveChatbotCustomisation,
 }) => {
-  const [currentBehaviour, setCurrentBehaviour] = useState(chatbotBehaviour);
-  const [currentContext, setCurrentContext] = useState(chatbotContext);
-  const [currentDocument, setCurrentDocument] = useState<File | null>(null);
-
-  useEffect(() => {
-    updateChatbotCustomisation(currentBehaviour, currentContext, currentDocument);
-  }, [currentBehaviour, currentContext, currentDocument]);
-
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">
@@ -34,8 +28,8 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         <textarea
           name="behaviour_input"
           rows={2}
-          value={currentBehaviour}
-          onChange={(e) => setCurrentBehaviour(e.target.value)}
+          value={chatbotBehaviour}
+          onChange={(e) => updateChatbotCustomisation(e.target.value, chatbotContext)}
           className="p-2 border rounded bg-gray-900 text-white"
         />
       </div>
@@ -46,8 +40,8 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         <textarea
           name="context_input"
           rows={5}
-          value={currentContext}
-          onChange={(e) => setCurrentContext(e.target.value)}
+          value={chatbotContext}
+          onChange={(e) => updateChatbotCustomisation(chatbotBehaviour, e.target.value)}
           className="p-2 border rounded bg-gray-900 text-white"
         />
       </div>
@@ -61,7 +55,7 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         ) : (
           <p>No document uploaded</p>
         )}
-        <FileUpload onFileSelect={setCurrentDocument} />
+        <FileUpload onFileSelect={updateChatbotFile} />
       </div>
       <button
         className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
