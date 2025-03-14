@@ -13,7 +13,7 @@ type NewChatbot struct {
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
-	IsShared    bool   `json:"isShared" validate:"required"`
+	IsShared    bool   `json:"isShared"`
 	File        string `json:"file"`
 }
 type CreateChatbotPayload struct {

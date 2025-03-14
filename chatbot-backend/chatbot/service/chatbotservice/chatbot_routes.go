@@ -11,6 +11,7 @@ import (
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
+	"github.com/go-playground/validator/v10"
 )
 
 var ErrChatbotNotFound = errors.New("chatbot not found")
@@ -83,12 +84,6 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// var payload types.CreateChatbotPayload
-	// if err := utils.ParseJSON(r, &payload); err != nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, err)
-	// 	return
-	// }
-
 	err := r.ParseMultipartForm(10 << 20) // 10MB limit
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to parse form"))
@@ -96,10 +91,10 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract chatbot fields from form
-	chatbotname := r.FormValue("Chatbotname")
-	behaviour := r.FormValue("Behaviour")
-	usercontext := r.FormValue("Usercontext")
-	isShared := r.FormValue("IsShared") == "true"
+	chatbotname := r.FormValue("chatbotname")
+	behaviour := r.FormValue("behaviour")
+	usercontext := r.FormValue("usercontext")
+	isShared := r.FormValue("isShared") == "true"
 
 	// Handle file upload
 	file, header, err := r.FormFile("File")
@@ -130,6 +125,11 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		IsShared:    isShared,
 		Usercontext: usercontext,
 		File:        filepath,
+	}
+	if err := utils.Validate.Struct(newChatbot); err != nil {
+		validate_error := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
 	}
 	
 	botID, err := h.store.CreateChatbot(newChatbot)
