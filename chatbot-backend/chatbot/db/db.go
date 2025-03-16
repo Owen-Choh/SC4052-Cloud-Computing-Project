@@ -71,7 +71,7 @@ func InitDB() (bool, error) {
 		createddate TEXT NOT NULL,
 		FOREIGN KEY(chatbotid) REFERENCES chatbots(chatbotid),
 		FOREIGN KEY(username) REFERENCES users(username),
-		FOREIGN KEY(chatbotname) REFERENCES chatbots(chatbotname),
+		FOREIGN KEY(chatbotname) REFERENCES chatbots(chatbotname)
 	);`)
 	if err != nil {
 		log.Printf("Error initalising conversations table: %s\n", err)
