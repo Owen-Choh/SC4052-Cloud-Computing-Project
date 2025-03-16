@@ -29,7 +29,7 @@ type Handler struct {
 	// genaiModel  *genai.GenerativeModel
 }
 
-func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface, conversationStore *ConversationStore) (*Handler, error) {
+func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface, conversationStore *ConversationStore) (*Handler) {
 	// ctx := context.Background()
 
 	// Initialize the Gemini client
@@ -46,7 +46,7 @@ func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInte
 		conversationStore: conversationStore,
 		// genaiClient: client,
 		// genaiModel:  model,
-	}, nil
+	}
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {

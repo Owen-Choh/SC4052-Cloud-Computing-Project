@@ -40,7 +40,8 @@ func main() {
 
 	chatbotSubRouter := http.NewServeMux()
 	chatbotStore := chatbotservice.NewStore(dbConnection)
-	chatbotHandler := chatbotservice.NewHandler(chatbotStore, userStore)
+	conversationStore := chatbotservice.NewConversationStore(dbConnection)
+	chatbotHandler := chatbotservice.NewHandler(chatbotStore, userStore, conversationStore)
 	chatbotHandler.RegisterRoutes(chatbotSubRouter)
 	
 	mainRouter.Handle("/api/chatbot/", http.StripPrefix("/api/chatbot", mainStack(chatbotSubRouter)))
