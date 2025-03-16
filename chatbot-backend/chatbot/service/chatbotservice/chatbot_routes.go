@@ -212,19 +212,14 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conversationID := chatRequest.Conversationid
-	if conversationID == "" {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid parameters"))
+	conversations, err := h.conversationStore.GetConversationsByID(conversationID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	// conversations, err := h.conversationStore.GetConversationsByID(conversationID)
-	// if err != nil {
-	// 	utils.WriteError(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
-
 	// Initialize Gemini API client
-	log.Println("Initializing Gemini API client")
+	log.Printf("Initializing Gemini API client for %s\n", conversationID)
 	apiKey := config.Envs.GEMINI_API_KEY
 	if apiKey == "" {
 		log.Fatalln("Environment variable GEMINI_API_KEY not set")
@@ -241,19 +236,17 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	model.SetMaxOutputTokens(8192)
 	model.ResponseMIMEType = "text/plain"
 
-	log.Println("add system file")
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
 		systemFileURIs = []string{uploadToGemini(ctx, client, chatbot.Filepath)}
 	}
-	log.Println("add system instruction")
 	model.SystemInstruction = &genai.Content{
 		Parts: getSystemInstructionParts(*chatbot),
 	}
 
-	log.Println("start chat")
+	log.Printf("start chatid: %v", chatRequest.Conversationid)
 	session := model.StartChat()
-	//session.History = getContentFromConversions(conversations)
+	// append the file to history as system instruction only allow text
 	session.History = []*genai.Content{
 		{
 			Role: "user",
@@ -263,21 +256,30 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	}
+	// append the actual conversation from db
+	conversationHistory := getContentFromConversions(conversations)
+	session.History = append(session.History, conversationHistory...)
 
-	log.Println("send msg")
+	log.Printf("sending msg for conversationid: %s\n", conversationID)
 	resp, err := session.SendMessage(ctx, genai.Text(chatRequest.Message))
 	if err != nil {
-		// log.Fatalf("Error sending message: %v", err)
 		var apiErr *googleapi.Error
 		if errors.As(err, &apiErr) {
-			log.Fatalf("%s", apiErr.Body)
+			log.Printf("%s\n", apiErr.Body)
 		}
-		log.Fatalln("shutting down server as api not working")
+		log.Println("WARNING: api call is not working")
 		return
 	}
-	log.Println("Got response")
-	log.Printf("Response: %v\n", resp)
-	// save to database and colate response to send back to user
+
+	// save to database and collate response to send back to user
+	h.conversationStore.CreateConversation(types.CreateConversationPayload{
+		Conversationid: conversationID,
+		Chatbotid:      chatbot.Chatbotid,
+		Username:       chatbot.Username,
+		Chatbotname:    chatbot.Chatbotname,
+		Role:           "user",
+		Chat:           chatRequest.Message,
+	})
 	responseString := ""
 	for _, part := range resp.Candidates[0].Content.Parts {
 		go func(part genai.Part) {
@@ -299,6 +301,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		responseString += string(part.(genai.Text))
 	}
 
+	log.Printf("responding to conversation: %s\n", conversationID)
 	utils.WriteJSON(w, http.StatusOK, types.ChatResponse{Response: responseString})
 }
 
@@ -345,12 +348,7 @@ func uploadToGemini(ctx context.Context, client *genai.Client, path string) stri
 	}
 	defer file.Close()
 
-	log.Printf("opened file %s", path)
-
-	log.Printf("Uploading file %s", path)
-
 	fileData, err := client.UploadFile(ctx, "", file, nil)
-	// fileData, err := client.UploadFileFromPath(ctx, path, nil)
 	if err != nil {
 		log.Fatalf("Error uploading file: %v", err)
 	}
@@ -358,111 +356,3 @@ func uploadToGemini(ctx context.Context, client *genai.Client, path string) stri
 	log.Printf("Uploaded file %s as: %s", fileData.DisplayName, fileData.URI)
 	return fileData.URI
 }
-
-/*
-func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
-	username := r.PathValue("username")
-	chatbotName := r.PathValue("chatbotName")
-
-	if username == "" || chatbotName == "" {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid parameters"))
-		return
-	}
-
-	// Get chatbot for context
-	chatbot, err := h.store.GetChatbotByName(username, chatbotName)
-	if err != nil {
-		if errors.Is(err, ErrChatbotNotFound) {
-			utils.WriteError(w, http.StatusNotFound, err)
-		} else {
-			utils.WriteError(w, http.StatusInternalServerError, err)
-		}
-		return
-	}
-
-	// Read input message from request
-	var chatRequest types.ChatRequest
-	if err := utils.ParseJSON(r, &chatRequest); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request body"))
-		return
-	}
-	if err := utils.Validate.Struct(chatRequest); err != nil {
-		validate_error := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
-		return
-	}
-
-	// Construct prompt, including chatbot behavior, user context, and file content
-	prompt := h.buildPrompt(chatbot, chatRequest.Message)
-
-	// Send the prompt to Gemini and get the response
-	response, err := h.sendPromptToGemini(r.Context(), prompt)
-	if err != nil {
-		log.Printf("Error from Gemini API: %v", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("error getting response from AI model"))
-		return
-	}
-
-	// Send the response back to the client
-	utils.WriteJSON(w, http.StatusOK, ChatResponse{Response: response})
-}
-
-// buildPrompt constructs the full prompt to send to Gemini.
-func (h *Handler) buildPrompt(chatbot types.Chatbot, userMessage string) string {
-	promptBuilder := strings.Builder{}
-
-	// Add chatbot behavior
-	if chatbot.Behaviour != "" {
-		promptBuilder.WriteString(fmt.Sprintf("You are a chatbot with the following behavior: %s\n", chatbot.Behaviour))
-	}
-
-	// Add user context
-	if chatbot.Usercontext != "" {
-		promptBuilder.WriteString(fmt.Sprintf("This is the user context: %s\n", chatbot.Usercontext))
-	}
-
-	// Add file content
-	if chatbot.File != "" {
-		fileContent, err := h.readFileContent(chatbot.File)
-		if err != nil {
-			log.Printf("Error reading file: %v", err)
-			promptBuilder.WriteString("Error: Could not load the file associated with this chatbot. Please check chatbot config.\n")
-		} else {
-			promptBuilder.WriteString(fmt.Sprintf("Here is some more information that might be useful:\n%s\n", fileContent))
-		}
-	}
-
-	// Add user's message
-	promptBuilder.WriteString(fmt.Sprintf("User: %s\n", userMessage))
-	promptBuilder.WriteString("Assistant: ")
-
-	return promptBuilder.String()
-}
-
-// readFileContent reads the content of the uploaded file.
-func (h *Handler) readFileContent(filepath string) (string, error) {
-	content, err := os.ReadFile(filepath)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-
-// sendPromptToGemini sends the prompt to the Gemini API and returns the response.
-func (h *Handler) sendPromptToGemini(ctx context.Context, prompt string) (string, error) {
-	resp, err := h.model.GenerateContent(ctx, generativeai.Text(prompt))
-	if err != nil {
-		return "", fmt.Errorf("error generating response: %w", err)
-	}
-
-	var result strings.Builder
-	for _, part := range resp.Candidates[0].Content.Parts {
-		result.WriteString(string(part.(generativeai.Text)))
-	}
-	return result.String(), nil
-}
-
-func (h *Handler) Close() error {
-	return h.genaiClient.Close()
-}
-*/

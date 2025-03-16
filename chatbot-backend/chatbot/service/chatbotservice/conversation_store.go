@@ -70,6 +70,7 @@ func scanRowsIntoConversation(rows *sql.Rows) (*types.Conversation, error) {
 		&conversation.Chatbotname,
 		&conversation.Role,
 		&conversation.Chat,
+		&conversation.Createddate,
 	)
 	if err != nil {
 		return nil, err
