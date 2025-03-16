@@ -22,14 +22,14 @@ import (
 var ErrChatbotNotFound = errors.New("chatbot not found")
 
 type Handler struct {
-	store            types.ChatbotStoreInterface
-	userstore        types.UserStoreInterface
+	store             types.ChatbotStoreInterface
+	userstore         types.UserStoreInterface
 	conversationStore *ConversationStore
 	// genaiClient *genai.Client // Gemini API client
 	// genaiModel  *genai.GenerativeModel
 }
 
-func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface, conversationStore *ConversationStore) (*Handler) {
+func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface, conversationStore *ConversationStore) *Handler {
 	// ctx := context.Background()
 
 	// Initialize the Gemini client
@@ -41,8 +41,8 @@ func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInte
 	// model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 	return &Handler{
-		store:            store,
-		userstore:        userstore,
+		store:             store,
+		userstore:         userstore,
 		conversationStore: conversationStore,
 		// genaiClient: client,
 		// genaiModel:  model,
@@ -215,13 +215,15 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid parameters"))
 		return
 	}
-	
+
 	conversations, err := h.conversationStore.GetConversationsByID(conversationID)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
+	// Initialize Gemini API client
+	log.Println("Initializing Gemini API client")
 	apiKey := config.Envs.GEMINI_API_KEY
 	if apiKey == "" {
 		log.Fatalln("Environment variable GEMINI_API_KEY not set")
@@ -237,22 +239,27 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	model.SetMaxOutputTokens(8192)
 	model.ResponseMIMEType = "text/plain"
 
+	log.Println("add system file")
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
 		systemFileURIs = []string{uploadToGemini(ctx, client, chatbot.Filepath)}
 	}
+	log.Println("add system instruction")
 	model.SystemInstruction = &genai.Content{
 		Parts: getSystemInstructionParts(*chatbot, systemFileURIs),
 	}
 
+	log.Println("start chat")
 	session := model.StartChat()
-  session.History = getContentFromConversions(conversations)
+	session.History = getContentFromConversions(conversations)
 
+	log.Println("send msg")
 	resp, err := session.SendMessage(ctx, genai.Text(chatRequest.Message))
 	if err != nil {
 		log.Fatalf("Error sending message: %v", err)
 	}
-
+	log.Println("Got response")
+	log.Printf("Response: %v\n", resp)
 	// save to database and colate response to send back to user
 	responseString := ""
 	for _, part := range resp.Candidates[0].Content.Parts {
@@ -260,11 +267,11 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 			chat := string(part.(genai.Text))
 			_, err := h.conversationStore.CreateConversation(types.CreateConversationPayload{
 				Conversationid: conversationID,
-				Chatbotid: chatbot.Chatbotid,
-				Username: chatbot.Username,
-				Chatbotname: chatbot.Chatbotname,
-				Role: "model",
-				Chat: chat,
+				Chatbotid:      chatbot.Chatbotid,
+				Username:       chatbot.Username,
+				Chatbotname:    chatbot.Chatbotname,
+				Role:           "model",
+				Chat:           chat,
 			})
 
 			if err != nil {
@@ -299,11 +306,11 @@ func getContentFromConversions(conversations []types.Conversation) []*genai.Cont
 	content := []*genai.Content{}
 	for _, conversation := range conversations {
 		content = append(content, &genai.Content{
-      Role: conversation.Role,
-      Parts: []genai.Part{
-        genai.Text(conversation.Chat),
-      },
-    },)
+			Role: conversation.Role,
+			Parts: []genai.Part{
+				genai.Text(conversation.Chat),
+			},
+		})
 	}
 	return content
 }
@@ -322,16 +329,17 @@ func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Clie
 }
 
 func uploadToGemini(ctx context.Context, client *genai.Client, path string) string {
-	file, err := os.Open(path)
+	file, err := os.Open("./" + path)
 	if err != nil {
 		log.Fatalf("Error opening file: %v", err)
 	}
 	defer file.Close()
 
-	options := genai.UploadFileOptions{
-		DisplayName: path,
-	}
-	fileData, err := client.UploadFile(ctx, "", file, &options)
+	log.Printf("opened file %s", path)
+
+	log.Printf("Uploading file %s", path)
+
+	fileData, err := client.UploadFile(ctx, "", file, nil)
 	if err != nil {
 		log.Fatalf("Error uploading file: %v", err)
 	}
