@@ -232,6 +232,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 	modelName := "gemini-2.0-flash-thinking-exp-01-21"
 	ctx, client, model := setupAiModel(apiKey, modelName)
+	defer client.Close()
 
 	model.SetTemperature(0.9)
 	model.SetTopK(40)
@@ -322,14 +323,13 @@ func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Clie
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
 	}
-	defer client.Close()
 
 	model := client.GenerativeModel(modelName)
 	return ctx, client, model
 }
 
 func uploadToGemini(ctx context.Context, client *genai.Client, path string) string {
-	file, err := os.Open("./" + path)
+	file, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("Error opening file: %v", err)
 	}
@@ -340,6 +340,7 @@ func uploadToGemini(ctx context.Context, client *genai.Client, path string) stri
 	log.Printf("Uploading file %s", path)
 
 	fileData, err := client.UploadFile(ctx, "", file, nil)
+	// fileData, err := client.UploadFileFromPath(ctx, path, nil)
 	if err != nil {
 		log.Fatalf("Error uploading file: %v", err)
 	}
