@@ -16,6 +16,7 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 )
 
@@ -216,11 +217,11 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conversations, err := h.conversationStore.GetConversationsByID(conversationID)
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
+	// conversations, err := h.conversationStore.GetConversationsByID(conversationID)
+	// if err != nil {
+	// 	utils.WriteError(w, http.StatusInternalServerError, err)
+	// 	return
+	// }
 
 	// Initialize Gemini API client
 	log.Println("Initializing Gemini API client")
@@ -252,12 +253,18 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("start chat")
 	session := model.StartChat()
-	session.History = getContentFromConversions(conversations)
+	// session.History = getContentFromConversions(conversations)
 
 	log.Println("send msg")
 	resp, err := session.SendMessage(ctx, genai.Text(chatRequest.Message))
 	if err != nil {
-		log.Fatalf("Error sending message: %v", err)
+		// log.Fatalf("Error sending message: %v", err)
+		var apiErr *googleapi.Error
+		if errors.As(err, &apiErr) {
+			log.Fatalf("%s", apiErr.Body)
+		}
+		log.Fatalln("shutting down server as api not working")
+		return
 	}
 	log.Println("Got response")
 	log.Printf("Response: %v\n", resp)
