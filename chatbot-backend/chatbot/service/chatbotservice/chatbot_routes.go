@@ -248,12 +248,21 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("add system instruction")
 	model.SystemInstruction = &genai.Content{
-		Parts: getSystemInstructionParts(*chatbot, systemFileURIs),
+		Parts: getSystemInstructionParts(*chatbot),
 	}
 
 	log.Println("start chat")
 	session := model.StartChat()
-	// session.History = getContentFromConversions(conversations)
+	//session.History = getContentFromConversions(conversations)
+	session.History = []*genai.Content{
+		{
+			Role: "user",
+			Parts: []genai.Part{
+				genai.Text("Here are some files you can use:"),
+				genai.FileData{URI: systemFileURIs[0]},
+			},
+		},
+	}
 
 	log.Println("send msg")
 	resp, err := session.SendMessage(ctx, genai.Text(chatRequest.Message))
@@ -293,19 +302,13 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, types.ChatResponse{Response: responseString})
 }
 
-func getSystemInstructionParts(chatbot types.Chatbot, systemFileURIs []string) []genai.Part {
+func getSystemInstructionParts(chatbot types.Chatbot) []genai.Part {
 	parts := []genai.Part{} // Initialize empty slice
 	if chatbot.Behaviour != "" {
 		parts = append(parts, genai.Text("This is how you should behave: "+chatbot.Behaviour))
 	}
 	if chatbot.Usercontext != "" {
 		parts = append(parts, genai.Text("This is the context you should remember: "+chatbot.Usercontext))
-	}
-	if systemFileURIs != nil {
-		parts = append(parts, genai.Text("Here are some files you can use:"))
-		for _, uri := range systemFileURIs {
-			parts = append(parts, genai.FileData{URI: uri})
-		}
 	}
 	return parts
 }
