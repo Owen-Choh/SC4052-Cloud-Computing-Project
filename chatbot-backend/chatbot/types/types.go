@@ -65,3 +65,35 @@ type LoginUserPayload struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
+// ChatRequest defines the request body for chatting with a chatbot.
+type ChatRequest struct {
+	Conversationid string `json:"conversationid" validate:"required"`
+	Message string `json:"message" validate:"required"`
+}
+
+// ChatResponse defines the response body for chatting with a chatbot.
+type ChatResponse struct {
+	Response string `json:"response"`
+}
+
+type Conversation struct {
+	Chatid         int    `json:"chatid"`
+	Conversationid string `json:"conversationid"`
+	Chatbotid      int    `json:"chatbotid"`
+	Username       string `json:"username"`
+	Chatbotname    string `json:"chatbotname"`
+	Role           string `json:"role"`
+	Chat           string `json:"chat"`
+	Createddate    string `json:"createddate"`	
+}
+
+type CreateConversationPayload struct {
+	Conversationid string `json:"conversationid"`
+	Chatbotid      int    `json:"chatbotid"`
+	Username       string `json:"username"`
+	Chatbotname    string `json:"chatbotname"`
+	Role           string `json:"role"`
+	Chat           string `json:"chat"`
+	Createddate    string `json:"createddate"`
+}

@@ -13,6 +13,7 @@ type Config struct {
 	Timezone               string
 	JWTExpirationInSeconds int64
 	JWTSecret              string
+	GEMINI_API_KEY				 string
 }
 
 var Envs = initConfig()
@@ -26,6 +27,7 @@ func initConfig() Config {
 		Timezone:               "Asia/Singapore",
 		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*1),
 		JWTSecret:              getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
+		GEMINI_API_KEY:				 getEnv("GEMINI_API_KEY", ""),
 	}
 }
 

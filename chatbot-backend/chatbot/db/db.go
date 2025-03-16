@@ -58,6 +58,25 @@ func InitDB() (bool, error) {
 		log.Printf("Error initalising chatbots table: %s\n", err)
 		return false, err
 	}
+
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS conversations (
+		chatid INTEGER PRIMARY KEY AUTOINCREMENT,
+		conversationid TEXT NOT NULL,
+		chatbotid INTEGER NOT NULL,
+		username TEXT NOT NULL,
+		chatbotname TEXT NOT NULL,
+		role TEXT NOT NULL,
+		chat TEXT NOT NULL,
+		createddate TEXT NOT NULL,
+		FOREIGN KEY(chatbotid) REFERENCES chatbots(chatbotid),
+		FOREIGN KEY(username) REFERENCES users(username),
+		FOREIGN KEY(chatbotname) REFERENCES chatbots(chatbotname),
+	);`)
+	if err != nil {
+		log.Printf("Error initalising conversations table: %s\n", err)
+		return false, err
+	}
 	
 	return true, err
 }
@@ -65,7 +84,7 @@ func InitDB() (bool, error) {
 func checktablesexist(db *sql.DB) bool {
 	var answer bool = true
 
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('users', 'chatbots');")
+	rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('users', 'chatbots', 'conversations');")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,6 +93,7 @@ func checktablesexist(db *sql.DB) bool {
 	tableExists := map[string]bool{
 		"users":    false,
 		"chatbots": false,
+		"conversations": false,
 	}
 
 	for rows.Next() {
