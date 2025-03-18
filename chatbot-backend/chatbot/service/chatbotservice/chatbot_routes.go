@@ -58,7 +58,10 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("GET /{username}/{chatbotName}", h.GetChatbot)
 	router.HandleFunc("POST /newchatbot", auth.WithJWTAuth(h.CreateChatbot, h.userstore))
 
+	// conversation routes
+	router.HandleFunc("GET /conversation/start", h.StartConversation)
 	router.HandleFunc("POST /chat/{username}/{chatbotName}", h.ChatWithChatbot)
+	router.HandleFunc("POST /chat/test/{username}/{chatbotName}", h.ChatWithChatbotTest)
 }
 
 // ... (GetUserChatbot and GetChatbot remain the same)
@@ -178,6 +181,25 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		"chatbotid": botID,
 	})
 }
+
+func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
+	conversationID := utils.GenerateUUID().String()
+	utils.WriteJSON(w, http.StatusOK, map[string]string{
+		"conversationid": conversationID,
+	})
+}
+
+func (h *Handler) ChatWithChatbotTest(w http.ResponseWriter, r *http.Request) {
+	log.Println("ChatWithChatbotTest reply with test response")
+	conversation, err := h.conversationStore.GetConversationsByID("2f9328h-fonvh0-2249")
+	if err != nil {
+		log.Println("Error getting test conversation:", err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, types.ChatResponse{Response: conversation[1].Chat})
+}
+
 
 func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")

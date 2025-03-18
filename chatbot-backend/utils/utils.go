@@ -9,6 +9,7 @@ import (
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 var Validate = validator.New()
@@ -55,4 +56,8 @@ func GetCurrentTime() (string, error) {
 	formattedTime := sgtTime.Format(config.Envs.Default_Time)
 	// log.Println("Current Time in SGT:", formattedTime)
 	return formattedTime, nil
+}
+
+func GenerateUUID() uuid.UUID {
+	return uuid.New()
 }

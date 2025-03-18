@@ -13,3 +13,11 @@ export const getChatbotsApi = axios.create({
 export const createChatbotsApi = axios.create({
   baseURL: `${baseURL}/chatbot/newchatbot`
 });
+
+export const getConversationIdApi = axios.create({
+  baseURL: `${baseURL}/chatbot/conversation/start`
+});
+
+export const getTestConversationApi = axios.create({
+  baseURL: `${baseURL}/chatbot/chat/test`
+});
