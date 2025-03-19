@@ -97,3 +97,11 @@ type CreateConversationPayload struct {
 	Chat           string `json:"chat"`
 	Createddate    string `json:"createddate"`
 }
+
+type APIfile struct {
+	Fileid int `json:"fileid"`
+	Chatbotid int `json:"chatbotid"`
+	Createddate string `json:"createddate"`
+	Filepath string `json:"filepath"`
+	Fileuri string `json:"fileuri"`
+}

@@ -22,6 +22,7 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 type Handler struct {
 	chatbotStore      types.ChatbotStoreInterface
 	conversationStore *ConversationStore
+	apifileStore			*APIFileStore
 	genaiCtx          context.Context
 	genaiClient       *genai.Client // Shared Gemini API client
 	genaiModel        *genai.GenerativeModel
@@ -114,9 +115,12 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	h.genaiModel.SetMaxOutputTokens(8192)
 	h.genaiModel.ResponseMIMEType = "text/plain"
 
+	// files provided during configuration of chatbot
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
-		systemFileURIs = []string{uploadToGemini(h.genaiCtx, h.genaiClient, chatbot.Filepath)}
+		systemFileURIs = []string{
+			uploadToGemini(h.genaiCtx, h.genaiClient, chatbot.Filepath),
+		}
 	}
 	h.genaiModel.SystemInstruction = &genai.Content{
 		Parts: getSystemInstructionParts(*chatbot),
@@ -217,6 +221,10 @@ func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Clie
 
 	model := client.GenerativeModel(modelName)
 	return ctx, client, model
+}
+
+func checkAndUploadToGemini(ctx context.Context, client *genai.Client, path string) string {
+	return ""
 }
 
 func uploadToGemini(ctx context.Context, client *genai.Client, path string) string {
