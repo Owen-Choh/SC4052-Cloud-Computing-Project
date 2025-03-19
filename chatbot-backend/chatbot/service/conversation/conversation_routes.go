@@ -4,13 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
-	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
 	"github.com/go-playground/validator/v10"
@@ -25,26 +22,22 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 type Handler struct {
 	chatbotStore      types.ChatbotStoreInterface
 	conversationStore *ConversationStore
-	genaiClient *genai.Client // Shared Gemini API client
-	genaiModel  *genai.GenerativeModel
+	genaiCtx          context.Context
+	genaiClient       *genai.Client // Shared Gemini API client
+	genaiModel        *genai.GenerativeModel
 }
 
 func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore, apiKey string) (*Handler, error) {
-	ctx := context.Background()
-
 	// Initialize the Gemini client
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
-	if err != nil {
-		return nil, fmt.Errorf("error creating Gemini client: %w", err)
-	}
-
-	model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
+	modelName := "gemini-2.0-flash-thinking-exp-01-21"
+	ctx, client, model := setupAiModel(apiKey, modelName)
 
 	return &Handler{
 		chatbotStore:      chatbotStore,
 		conversationStore: conversationStore,
-		genaiClient: client,
-		genaiModel:  model,
+		genaiCtx:          ctx,
+		genaiClient:       client,
+		genaiModel:        model,
 	}, nil
 }
 
@@ -115,34 +108,22 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Initialize Gemini API client
-	log.Printf("Initializing Gemini API client for %s\n", conversationID)
-	apiKey := config.Envs.GEMINI_API_KEY
-	if apiKey == "" {
-		log.Fatalln("Environment variable GEMINI_API_KEY not set")
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("internal server error"))
-		return
-	}
-	modelName := "gemini-2.0-flash-thinking-exp-01-21"
-	ctx, client, model := setupAiModel(apiKey, modelName)
-	defer client.Close()
-
-	model.SetTemperature(0.9)
-	model.SetTopK(40)
-	model.SetTopP(0.95)
-	model.SetMaxOutputTokens(8192)
-	model.ResponseMIMEType = "text/plain"
+	h.genaiModel.SetTemperature(0.9)
+	h.genaiModel.SetTopK(40)
+	h.genaiModel.SetTopP(0.95)
+	h.genaiModel.SetMaxOutputTokens(8192)
+	h.genaiModel.ResponseMIMEType = "text/plain"
 
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
-		systemFileURIs = []string{uploadToGemini(ctx, client, chatbot.Filepath)}
+		systemFileURIs = []string{uploadToGemini(h.genaiCtx, h.genaiClient, chatbot.Filepath)}
 	}
-	model.SystemInstruction = &genai.Content{
+	h.genaiModel.SystemInstruction = &genai.Content{
 		Parts: getSystemInstructionParts(*chatbot),
 	}
 
 	log.Printf("start chatid: %v", chatRequest.Conversationid)
-	session := model.StartChat()
+	session := h.genaiModel.StartChat()
 	// append the file to history as system instruction only allow text
 	session.History = []*genai.Content{
 		{
@@ -158,7 +139,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	session.History = append(session.History, conversationHistory...)
 
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
-	resp, err := session.SendMessage(ctx, genai.Text(chatRequest.Message))
+	resp, err := session.SendMessage(h.genaiCtx, genai.Text(chatRequest.Message))
 	if err != nil {
 		var apiErr *googleapi.Error
 		if errors.As(err, &apiErr) {
