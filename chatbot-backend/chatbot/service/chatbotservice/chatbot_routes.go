@@ -17,14 +17,14 @@ import (
 var ErrChatbotNotFound = errors.New("chatbot not found")
 
 type Handler struct {
-	chatbotStore     types.ChatbotStoreInterface
-	userStore types.UserStoreInterface
+	chatbotStore types.ChatbotStoreInterface
+	userStore    types.UserStoreInterface
 }
 
-func NewHandler(store types.ChatbotStoreInterface, userstore types.UserStoreInterface) *Handler {
+func NewHandler(chatbotStore types.ChatbotStoreInterface, userstore types.UserStoreInterface) *Handler {
 	return &Handler{
-		chatbotStore:     store,
-		userStore: userstore,
+		chatbotStore: chatbotStore,
+		userStore:    userstore,
 	}
 }
 

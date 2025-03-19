@@ -23,13 +23,13 @@ import (
 var ErrChatbotNotFound = errors.New("chatbot not found")
 
 type Handler struct {
-	chatbotStore             types.ChatbotStoreInterface
+	chatbotStore      types.ChatbotStoreInterface
 	conversationStore *ConversationStore
 	// genaiClient *genai.Client // Gemini API client
 	// genaiModel  *genai.GenerativeModel
 }
 
-func NewHandler(store types.ChatbotStoreInterface, conversationStore *ConversationStore) *Handler {
+func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore) *Handler {
 	// ctx := context.Background()
 
 	// Initialize the Gemini client
@@ -41,7 +41,7 @@ func NewHandler(store types.ChatbotStoreInterface, conversationStore *Conversati
 	// model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 	return &Handler{
-		chatbotStore:             store,
+		chatbotStore:      chatbotStore,
 		conversationStore: conversationStore,
 		// genaiClient: client,
 		// genaiModel:  model,
@@ -53,7 +53,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 		fmt.Fprintf(w, "Hello from conversations")
 	})
 
-	router.HandleFunc("GET /conversation/start", h.StartConversation)
+	router.HandleFunc("GET /start", h.StartConversation)
 	router.HandleFunc("POST /chat/{username}/{chatbotName}", h.ChatWithChatbot)
 	router.HandleFunc("POST /chat/test/{username}/{chatbotName}", h.ChatWithChatbotTest)
 }
@@ -193,7 +193,6 @@ func (h *Handler) ChatWithChatbotTest(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.WriteJSON(w, http.StatusOK, types.ChatResponse{Response: conversation[1].Chat})
 }
-
 
 func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
