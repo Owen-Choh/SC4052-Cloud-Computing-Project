@@ -25,27 +25,27 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 type Handler struct {
 	chatbotStore      types.ChatbotStoreInterface
 	conversationStore *ConversationStore
-	// genaiClient *genai.Client // Gemini API client
-	// genaiModel  *genai.GenerativeModel
+	genaiClient *genai.Client // Shared Gemini API client
+	genaiModel  *genai.GenerativeModel
 }
 
-func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore) *Handler {
-	// ctx := context.Background()
+func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore, apiKey string) (*Handler, error) {
+	ctx := context.Background()
 
 	// Initialize the Gemini client
-	// client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error creating Gemini client: %w", err)
-	// }
+	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	if err != nil {
+		return nil, fmt.Errorf("error creating Gemini client: %w", err)
+	}
 
-	// model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
+	model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 	return &Handler{
 		chatbotStore:      chatbotStore,
 		conversationStore: conversationStore,
-		// genaiClient: client,
-		// genaiModel:  model,
-	}
+		genaiClient: client,
+		genaiModel:  model,
+	}, nil
 }
 
 func (h *Handler) RegisterRoutes(router *http.ServeMux) {

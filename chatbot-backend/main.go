@@ -47,13 +47,22 @@ func main() {
 	
 	mainRouter.Handle("/api/chatbot/", http.StripPrefix("/api/chatbot", mainStack(chatbotSubRouter)))
 	
-	
-	conversationSubRouter := http.NewServeMux()
-	conversationStore := conversation.NewConversationStore(dbConnection)
-	conversationHandler := conversation.NewHandler(chatbotStore, conversationStore)
-	conversationHandler.RegisterRoutes(conversationSubRouter)
 
-	mainRouter.Handle("/api/conversation/", http.StripPrefix("/api/conversation", mainStack(chatbotSubRouter)))
+	apiKey := config.Envs.GEMINI_API_KEY
+	if apiKey != "" {
+		conversationSubRouter := http.NewServeMux()
+		conversationStore := conversation.NewConversationStore(dbConnection)
+		conversationHandler, err := conversation.NewHandler(chatbotStore, conversationStore, apiKey)
+		if err != nil {
+			log.Printf("Error when starting conversation service, %v", err)
+		} else {
+			conversationHandler.RegisterRoutes(conversationSubRouter)
+			mainRouter.Handle("/api/conversation/", http.StripPrefix("/api/conversation", mainStack(chatbotSubRouter)))
+		}
+	} else {
+		log.Println("Gemini API key not set, not starting conversation service")
+	}
+	
 		
 	// set server and start
 	server := http.Server{
