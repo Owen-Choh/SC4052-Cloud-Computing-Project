@@ -1,4 +1,4 @@
-package chatbotservice
+package conversation
 
 import (
 	"database/sql"
