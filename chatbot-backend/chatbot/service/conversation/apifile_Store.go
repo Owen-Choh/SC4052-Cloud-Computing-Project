@@ -19,6 +19,7 @@ func (s *APIFileStore) GetAPIFileByFilepath(filepath string) (*types.APIfile, er
 	if err != nil {
 		return nil, err
 	}
+	rows.Next()
 	theFile, err := scanRowsIntoApifile(rows)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,24 @@ func (s *APIFileStore) GetAPIFileByFilepath(filepath string) (*types.APIfile, er
 	return theFile, nil
 }
 
-func (s *APIFileStore) StoreAPIFile(apiFilePayload string) (int, error) {
-	return 0, nil
+func (s *APIFileStore) StoreAPIFile(apiFilePayload types.APIfile) (int, error) {
+	res, dberr := s.db.Exec(
+		"INSERT INTO apifiles (chatbotid, createddate, filepath, fileuri) VALUES (?, ?, ?, ?)",
+		apiFilePayload.Chatbotid,
+		apiFilePayload.Createddate,
+		apiFilePayload.Filepath,
+		apiFilePayload.Fileuri,
+	)
+	if dberr != nil {
+		return 0, dberr
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
 }
 
 func scanRowsIntoApifile(rows *sql.Rows) (*types.APIfile, error) {
