@@ -53,7 +53,7 @@ func GetCurrentTime() (string, error) {
 	}
 
 	// Format the time (YYYY-MM-DD HH:MM:SS)
-	formattedTime := sgtTime.Format(config.Envs.Default_Time)
+	formattedTime := sgtTime.Format(time.RFC822Z)
 	// log.Println("Current Time in SGT:", formattedTime)
 	return formattedTime, nil
 }
