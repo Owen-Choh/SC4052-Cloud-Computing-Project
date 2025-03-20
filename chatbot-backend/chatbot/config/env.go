@@ -15,6 +15,7 @@ type Config struct {
 	JWTExpirationInSeconds int64
 	JWTSecret              string
 	GEMINI_API_KEY         string
+	API_FILE_EXPIRATION_HOUR int64
 }
 
 var Envs = initConfig()
@@ -30,6 +31,7 @@ func initConfig() Config {
 		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*1),
 		JWTSecret:              getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
 		GEMINI_API_KEY:         getEnv("GEMINI_API_KEY", ""),
+		API_FILE_EXPIRATION_HOUR: getEnvInt("API_FILE_EXPIRATION_HOUR", 47),
 	}
 }
 
