@@ -10,11 +10,11 @@ import (
 type Config struct {
 	Port                   string
 	Default_Time           string
-	Time_layout           string
+	Time_layout            string
 	Timezone               string
 	JWTExpirationInSeconds int64
 	JWTSecret              string
-	GEMINI_API_KEY				 string
+	GEMINI_API_KEY         string
 }
 
 var Envs = initConfig()
@@ -25,11 +25,11 @@ func initConfig() Config {
 	return Config{
 		Port:                   getEnv("BACKEND_PORT", "8080"),
 		Default_Time:           "20 Mar 25 15:32 +0800",
-		Time_layout:           "02 Jan 06 15:04 -0700",
+		Time_layout:            "02 Jan 06 15:04 -0700",
 		Timezone:               "Asia/Singapore",
 		JWTExpirationInSeconds: getEnvInt("JWT_EXP", 3600*24*1),
 		JWTSecret:              getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
-		GEMINI_API_KEY:				 getEnv("GEMINI_API_KEY", ""),
+		GEMINI_API_KEY:         getEnv("GEMINI_API_KEY", ""),
 	}
 }
 

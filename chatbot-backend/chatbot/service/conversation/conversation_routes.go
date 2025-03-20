@@ -153,6 +153,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
 
+	log.Printf("session history: %v", session.History)
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
 	resp, err := session.SendMessage(h.genaiCtx, genai.Text(chatRequest.Message))
 	if err != nil {
@@ -236,44 +237,53 @@ func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Clie
 
 func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
 	apiFile, err := h.apiFileStore.GetAPIFileByFilepath(path)
-	
+	// if file not found in db, upload and store in db
 	if err != nil {
 		log.Printf("Error getting file from db: %v", err)
-		fileURI := h.uploadFileAndSaveDb(path, chatbotid)
+		fileURI := uploadToGemini(h.genaiCtx, h.genaiClient, path)
+
+		// store the uri in db to reuse next time
+		go func() {
+			currentTime, _ := utils.GetCurrentTime()
+			apiFile := types.APIfile{
+				Chatbotid:   chatbotid,
+				Createddate: currentTime,
+				Filepath:    path,
+				Fileuri:     fileURI,
+			}
+			_, err := h.apiFileStore.StoreAPIFile(apiFile)
+			if err != nil {
+				log.Printf("Error storing file to db: %v", err)
+			}
+		}()
 		return fileURI
 	}
 
 	storedTime, timeerr := time.Parse(config.Envs.Time_layout, apiFile.Createddate)
-	log.Printf("File found in db: %s created at %s parsed time %s error %v", apiFile.Fileuri, apiFile.Createddate, storedTime, timeerr)
-	// if no error and file is too old
+	// if file exist but file is too old
 	if time.Since(storedTime) > 44*time.Hour {
-		log.Printf("File is too old, reuploading")
-		fileURI := h.uploadFileAndSaveDb(path, chatbotid)
+		log.Printf("File is too old, reuploading. previous stored time %s parsed time %s error %v", apiFile.Createddate, storedTime, timeerr)
+		fileURI := uploadToGemini(h.genaiCtx, h.genaiClient, path)
+
+		// store the uri in db to reuse next time
+		go func() {
+			currentTime, _ := utils.GetCurrentTime()
+			apiFile := types.APIfile{
+				Chatbotid:   chatbotid,
+				Createddate: currentTime,
+				Filepath:    path,
+				Fileuri:     fileURI,
+			}
+			err := h.apiFileStore.UpdateAPIFile(apiFile)
+			if err != nil {
+				log.Printf("Error updating file in db: %v", err)
+			}
+		}()
 		return fileURI
 	}
+
 	log.Printf("File is still valid, using %s created at %s", apiFile.Fileuri, apiFile.Createddate)
-
 	return apiFile.Fileuri
-}
-
-func (h *Handler) uploadFileAndSaveDb(path string, chatbotid int) string {
-	fileURI := uploadToGemini(h.genaiCtx, h.genaiClient, path)
-
-	// store the uri in db to reuse next time
-	go func() {
-		currentTime, _ := utils.GetCurrentTime()
-		apiFile := types.APIfile{
-			Chatbotid:   chatbotid,
-			Createddate: currentTime,
-			Filepath:    path,
-			Fileuri:     fileURI,
-		}
-		_, err := h.apiFileStore.StoreAPIFile(apiFile)
-		if err != nil {
-			log.Printf("Error storing file to db: %v", err)
-		}
-	}()
-	return fileURI
 }
 
 func uploadToGemini(ctx context.Context, client *genai.Client, path string) string {

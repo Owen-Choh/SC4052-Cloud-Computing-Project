@@ -27,6 +27,19 @@ func (s *APIFileStore) GetAPIFileByFilepath(filepath string) (*types.APIfile, er
 	return theFile, nil
 }
 
+func (s *APIFileStore) UpdateAPIFile(apiFilePayload types.APIfile) error {
+	_, dberr := s.db.Exec(
+		"UPDATE apifiles SET chatbotid=?, createddate=?, filepath=?, fileuri=? WHERE fileid=?",
+		apiFilePayload.Chatbotid,
+		apiFilePayload.Createddate,
+		apiFilePayload.Filepath,
+		apiFilePayload.Fileuri,
+		apiFilePayload.Fileid,
+	)
+
+	return dberr
+}
+
 func (s *APIFileStore) StoreAPIFile(apiFilePayload types.APIfile) (int, error) {
 	res, dberr := s.db.Exec(
 		"INSERT INTO apifiles (chatbotid, createddate, filepath, fileuri) VALUES (?, ?, ?, ?)",
