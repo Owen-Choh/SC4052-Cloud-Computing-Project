@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getConversationIdApi, getTestConversationApi } from "../api/apiConfig";
+import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
 
@@ -9,6 +9,7 @@ const ConversationPage = () => {
   const [conversationID, setConversationID] = useState<number | null>(null);
   const [conversation, setConversation] = useState<string[]>([]);
   const [userInput, setUserInput] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const getConversationID = async () => {
     // Fetch conversation ID from server
@@ -17,7 +18,7 @@ const ConversationPage = () => {
     setConversationID(conversationIDresponse.data.conversationid);
   };
 
-  const getTestConversation = async () => {
+  const sendConversation = async () => {
     // Fetch conversation from server, need to be informat /{username}/{chatbotname}
     if (userInput == "") {
       console.log("User input is empty");
@@ -28,20 +29,26 @@ const ConversationPage = () => {
     setConversation((prev) => [...prev, `**You:**\n> ${userInput}`]);
     const userText = userInput; // Store before clearing input
     setUserInput("");
+    setLoading(true);
 
     try {
-      const testConversationResponse = await getTestConversationApi.post(
+      const chatConversationResponse = await chatConversationApi.post(
         `/${username}/${chatbotname}`,
-        { userInput: userText }
+        { 
+          conversationid: conversationID,
+          message: userText
+        }
       );
-      console.log("Test conversation:", testConversationResponse.data.response);
+      console.log("Test conversation:", chatConversationResponse.data.response);
       // Append chatbot response
       setConversation((prev) => [
         ...prev,
-        `**${chatbotname}:**\n> ${testConversationResponse.data.response}`,
+        `**${chatbotname}:**\n> ${chatConversationResponse.data.response}`,
       ]);
     } catch (error) {
       console.error("Error fetching chatbot response:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,6 +84,11 @@ const ConversationPage = () => {
           );
         })}
       </div>
+      {loading && (
+        <div className="border p-4 rounded-lg bg-gray-600 italic text-gray-300">
+          {`${chatbotname} is typing...`}
+        </div>
+      )}
       <div className="border p-4 rounded-lg sticky bottom-0 bg-gray-800 flex">
         <textarea
           className="border rounded flex-grow p-2 "
@@ -86,7 +98,8 @@ const ConversationPage = () => {
         />
         <button
           className="border rounded-lg m-2 flex gap-1 items-center"
-          onClick={getTestConversation}
+          onClick={sendConversation}
+          disabled={loading}
         >
           Send
           <SendIcon />
