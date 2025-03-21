@@ -23,6 +23,7 @@ func (s *UserStore) GetUserByID(id int) (*types.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	user := new(types.User)
 	for rows.Next(){
@@ -63,6 +64,7 @@ func (s *UserStore) GetUserByName(username string) (*types.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	user := new(types.User)
 	for rows.Next(){

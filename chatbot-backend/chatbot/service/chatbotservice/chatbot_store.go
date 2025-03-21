@@ -20,6 +20,7 @@ func (s *ChatbotStore) GetChatbotsByID(chatbotID int) (*types.Chatbot, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	chatbots := new(types.Chatbot)
 	rows.Next()
@@ -37,6 +38,7 @@ func (s *ChatbotStore) GetChatbotsByUsername(username string) ([]types.Chatbot, 
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	chatbots := []types.Chatbot{}
 	for rows.Next() {
@@ -55,6 +57,7 @@ func (s *ChatbotStore) GetChatbotByName(username string, chatbotName string) (*t
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	chatbot := new(types.Chatbot)
 	for rows.Next() {

@@ -20,6 +20,7 @@ func (s *ConversationStore) GetConversationsByID(conversationid string) ([]types
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	conversations := []types.Conversation{}
 	for rows.Next() {

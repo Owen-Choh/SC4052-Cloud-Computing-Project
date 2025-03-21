@@ -19,6 +19,8 @@ func (s *APIFileStore) GetAPIFileByFilepath(filepath string) (*types.APIfile, er
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+	
 	rows.Next()
 	theFile, err := scanRowsIntoApifile(rows)
 	if err != nil {
