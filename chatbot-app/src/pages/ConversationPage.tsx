@@ -45,9 +45,9 @@ const ConversationPage = () => {
     try {
       const chatConversationResponse = await chatConversationApi.post(
         `/${username}/${chatbotname}`,
-        { 
+        {
           conversationid: conversationID,
-          message: userText
+          message: userText,
         }
       );
       console.log("Test conversation:", chatConversationResponse.data.response);
@@ -63,6 +63,28 @@ const ConversationPage = () => {
     }
   };
 
+  const downloadConversationAsText = () => {
+    const content = conversation.join("\n\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${chatbotname}_conversation_${conversationID}.txt`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadConversationAsMarkdown = () => {
+    const content = conversation.join("\n\n"); // Spacing between messages
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${chatbotname}_conversation_${conversationID}.md`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(
     () => {
       getConversationID();
@@ -72,12 +94,38 @@ const ConversationPage = () => {
 
   return (
     <div className="p-4 flex flex-col h-screen gap-2">
-      <div>
-        <h1 className="text-2xl font-bold underline">
-          Chatting with {chatbotname} by user {username}
-        </h1>
-        <p>Conversation ID: {conversationID || conversationID=="" ? conversationID : "Loading..."}</p>
-        <p>Description of chatbot: {chatbotDescription || chatbotDescription=="" ? chatbotDescription : "Loading..."}</p>
+      <div className="flow-root">
+        <div className="float-left w-3/4">
+          <h1 className="text-2xl font-bold underline">
+            Chatting with {chatbotname} by user {username}
+          </h1>
+          <p>
+            Conversation ID:{" "}
+            {conversationID || conversationID == ""
+              ? conversationID
+              : "Loading..."}
+          </p>
+          <p>
+            Description of chatbot:{" "}
+            {chatbotDescription || chatbotDescription == ""
+              ? chatbotDescription
+              : "Loading..."}
+          </p>
+        </div>
+        <div className="float-right flex flex-col gap-2">
+          <button
+            className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
+            onClick={downloadConversationAsMarkdown}
+          >
+            Download as Markdown
+          </button>
+          <button
+            className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
+            onClick={downloadConversationAsText}
+          >
+            Download as Text file
+          </button>
+        </div>
       </div>
       <div className="border-b-2 border-gray-700"></div>
 
@@ -87,9 +135,7 @@ const ConversationPage = () => {
           return (
             <div
               key={index}
-              className={`border p-4 rounded-lg ${
-                isUser ? "bg-gray-700" : ""
-              }`}
+              className={`border p-4 rounded-lg ${isUser ? "bg-gray-700" : ""}`}
             >
               <ReactMarkdown>{line}</ReactMarkdown>
             </div>
@@ -98,7 +144,7 @@ const ConversationPage = () => {
       </div>
       {loading && (
         <div className="border p-4 rounded-lg bg-gray-600 italic text-gray-300">
-          {`${chatbotname} is typing...`}
+          {`${chatbotname} is thinking very hard, this may take up to a minute...`}
         </div>
       )}
       <div className="border p-4 rounded-lg sticky bottom-0 bg-gray-800 flex">
