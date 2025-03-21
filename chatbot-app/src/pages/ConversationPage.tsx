@@ -66,14 +66,18 @@ const ConversationPage = () => {
           message: userText,
         }
       );
-      console.log("Test conversation:", chatConversationResponse.data.response);
       // Append chatbot response
       setConversation((prev) => [
         ...prev,
         `**${chatbotname}:**\n> ${chatConversationResponse.data.response}`,
       ]);
     } catch (error) {
-      console.error("Error fetching chatbot response:", error);
+      if(axios.isAxiosError(error)) {
+        setConversation((prev) => [
+          ...prev,
+          `**${chatbotname}:**\n> Error ${error.response?.status}: ${error.response?.data.error}`,
+        ]);
+      }
     } finally {
       setLoading(false);
     }
