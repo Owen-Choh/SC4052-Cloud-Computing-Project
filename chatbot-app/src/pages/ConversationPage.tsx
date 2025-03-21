@@ -128,20 +128,20 @@ const ConversationPage = () => {
             <>
               <p>
                 Conversation ID:{" "}
-                {conversationID || conversationID != ""
+                {conversationID && conversationID != ""
                   ? conversationID
                   : "Loading..."}
               </p>
               <p>
                 Description of chatbot:{" "}
-                {chatbotDescription || chatbotDescription != ""
+                {chatbotDescription && chatbotDescription != ""
                   ? chatbotDescription
                   : "Loading..."}
               </p>
             </>
           )}
         </div>
-        {error ? null : (
+        {conversationID == "" ? null : (
           <div className="float-right flex flex-col gap-2">
             <button
               className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
