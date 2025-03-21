@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
+import axios from "axios";
 
 export type ConversationSuccessResponse = {
   conversationid: string;
@@ -16,17 +17,32 @@ const ConversationPage = () => {
   const [userInput, setUserInput] = useState<string>("");
   const [chatbotDescription, setChatbotDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getConversationID = async () => {
-    // Fetch conversation ID from server
-    const response = await getConversationIdApi.get(
-      `/${username}/${chatbotname}`
-    );
+    try {
+      // Fetch conversation ID from server
+      const response = await getConversationIdApi.get(
+        `/${username}/${chatbotname}`
+      );
 
-    const conversationResponse = response.data as ConversationSuccessResponse;
-    console.log("Conversation start response object:", conversationResponse);
-    setConversationID(conversationResponse.conversationid);
-    setChatbotDescription(conversationResponse.description);
+      const conversationResponse = response.data as ConversationSuccessResponse;
+      console.log("Conversation start response object:", conversationResponse);
+      setConversationID(conversationResponse.conversationid);
+      setChatbotDescription(conversationResponse.description);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          setError("This chatbot does not exist. Is your url correct?");
+        } else if (error.response?.status === 500) {
+          setError(
+            "An error occurred while starting the conversation. Please try again later :("
+          );
+        } else {
+          setError("An unknown error occurred. Please try again later :(");
+        }
+      }
+    }
   };
 
   const sendConversation = async () => {
@@ -99,33 +115,41 @@ const ConversationPage = () => {
           <h1 className="text-2xl font-bold underline">
             Chatting with {chatbotname} by user {username}
           </h1>
-          <p>
-            Conversation ID:{" "}
-            {conversationID || conversationID == ""
-              ? conversationID
-              : "Loading..."}
-          </p>
-          <p>
-            Description of chatbot:{" "}
-            {chatbotDescription || chatbotDescription == ""
-              ? chatbotDescription
-              : "Loading..."}
-          </p>
+          {error ? (
+            <div className="text-red-500 font-bold text-1xl">{error}</div>
+          ) : (
+            <>
+              <p>
+                Conversation ID:{" "}
+                {conversationID || conversationID == ""
+                  ? conversationID
+                  : "Loading..."}
+              </p>
+              <p>
+                Description of chatbot:{" "}
+                {chatbotDescription || chatbotDescription == ""
+                  ? chatbotDescription
+                  : "Loading..."}
+              </p>
+            </>
+          )}
         </div>
-        <div className="float-right flex flex-col gap-2">
-          <button
-            className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
-            onClick={downloadConversationAsMarkdown}
-          >
-            Download as Markdown
-          </button>
-          <button
-            className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
-            onClick={downloadConversationAsText}
-          >
-            Download as Text file
-          </button>
-        </div>
+        {error ? null : (
+          <div className="float-right flex flex-col gap-2">
+            <button
+              className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
+              onClick={downloadConversationAsMarkdown}
+            >
+              Download as Markdown
+            </button>
+            <button
+              className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
+              onClick={downloadConversationAsText}
+            >
+              Download as Text file
+            </button>
+          </div>
+        )}
       </div>
       <div className="border-b-2 border-gray-700"></div>
 
