@@ -183,9 +183,9 @@ const ConversationPage = () => {
           onChange={(e) => setUserInput(e.target.value)}
         />
         <button
-          className="border rounded-lg m-2 flex gap-1 items-center"
+          className="border rounded-lg m-2 flex gap-1 items-center disabled:opacity-50"
           onClick={sendConversation}
-          disabled={loading}
+          disabled={loading || userInput == ""}
         >
           Send
           <SendIcon />
