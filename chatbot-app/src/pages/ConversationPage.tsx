@@ -4,20 +4,29 @@ import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
 
+export type ConversationSuccessResponse = {
+  conversationid: string;
+  description: string;
+};
+
 const ConversationPage = () => {
   const { username, chatbotname } = useParams(); // Extract URL params
-  const [conversationID, setConversationID] = useState<number | null>(null);
+  const [conversationID, setConversationID] = useState<string>("");
   const [conversation, setConversation] = useState<string[]>([]);
   const [userInput, setUserInput] = useState<string>("");
+  const [chatbotDescription, setChatbotDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const getConversationID = async () => {
     // Fetch conversation ID from server
-    const conversationIDresponse = await getConversationIdApi.get(
+    const response = await getConversationIdApi.get(
       `/${username}/${chatbotname}`
     );
-    console.log("Conversation ID:", conversationIDresponse);
-    setConversationID(conversationIDresponse.data.conversationid);
+
+    const conversationResponse = response.data as ConversationSuccessResponse;
+    console.log("Conversation start response object:", conversationResponse);
+    setConversationID(conversationResponse.conversationid);
+    setChatbotDescription(conversationResponse.description);
   };
 
   const sendConversation = async () => {
@@ -64,10 +73,11 @@ const ConversationPage = () => {
   return (
     <div className="p-4 flex flex-col h-screen gap-2">
       <div>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold underline">
           Chatting with {chatbotname} by user {username}
         </h1>
-        <p>Conversation ID: {conversationID ? conversationID : "Loading..."}</p>
+        <p>Conversation ID: {conversationID || conversationID=="" ? conversationID : "Loading..."}</p>
+        <p>Description of chatbot: {chatbotDescription || chatbotDescription=="" ? chatbotDescription : "Loading..."}</p>
       </div>
       <div className="border-b-2 border-gray-700"></div>
 
