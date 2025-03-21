@@ -15,7 +15,15 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	
+	// "database_files/uploads/hi/myfirstbot/Project_2025.pdf"
+	// testerr := os.Remove("Project_2025.pdf")
+  //   if testerr != nil {
+  //       fmt.Println("Manual Remove Error:", testerr)
+  //   } else {
+  //       fmt.Println("Manual Remove Successful")
+  //   }
+	// 	return
+
 
 	dbConnection, dberr := validate.CheckAndInitDB()
 	if dberr != nil {

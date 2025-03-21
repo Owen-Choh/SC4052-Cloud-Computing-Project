@@ -20,6 +20,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
   const [success, setSuccess] = React.useState("");
   const [error, setError] = React.useState("");
   const [originalFilepath, setOriginalFilepath] = React.useState(chatbot.filepath);
+  const [excludeFile, setExcludeFile] = React.useState(false);
 
   const updateChatbotLink = (chatbotName: string) => {
     setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
@@ -52,9 +53,14 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     });
   }
 
+  const toggleExcludeFile = () => {
+    setExcludeFile(!excludeFile);
+  };
+
   const saveChatbot = async () => {
     // Save the chatbot to the database
     console.log("Chatbot saved: ", currentChatbot);
+    console.log("removefile: ", excludeFile);
     const formData = new FormData();
     formData.append("chatbotname", currentChatbot.chatbotname);
     formData.append("description", currentChatbot.description);
@@ -64,6 +70,9 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     
     if (currentChatbot.file) {
       formData.append("file", currentChatbot.file); // Append file if available
+    } 
+    if (excludeFile) {
+      formData.append("removeFile", "true"); // user wants to remove the old file
     }
 
     try {
@@ -148,6 +157,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
             chatbotBehaviour={currentChatbot.behaviour}
             chatbotContext={currentChatbot.usercontext}
             chatbotDocument={originalFilepath}
+            excludeFile={excludeFile}
+            toggleExcludeFile={() => toggleExcludeFile()}
             updateChatbotCustomisation={(behaviour, context) => updateChatbotCustomisation(behaviour, context)}
             updateChatbotFile={(document) => updateChatbotFile(document)}
             saveChatbotCustomisation={() => saveChatbot()}

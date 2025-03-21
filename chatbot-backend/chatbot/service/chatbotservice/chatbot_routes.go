@@ -116,7 +116,8 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		// Save the uploaded file
 		filepath = fullDirPath + "/" + header.Filename
 		log.Println("Saving file to:", filepath)
-		out, err := os.Create(filepath)
+		out, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+		// out, err := os.Create(filepath)
 		if err != nil {
 			log.Println("Error saving file:", err)
 			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
@@ -180,7 +181,6 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	oldChatbot, err := h.chatbotStore.GetChatbotsByID(chatbotIDInt)
 	if username != oldChatbot.Username {
 		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
@@ -193,6 +193,28 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	behaviour := r.FormValue("behaviour")
 	usercontext := r.FormValue("usercontext")
 	isShared := r.FormValue("isShared") == "true"
+	removeFile := r.FormValue("removeFile") == "true"
+
+	if removeFile {
+		oldfilepath := oldChatbot.Filepath
+		if oldfilepath != "" {
+			log.Println("Attempting to remove file:", oldfilepath)
+			// Check if file is locked
+			f, err := os.OpenFile(oldfilepath, os.O_RDWR, 0666)
+			if err != nil {
+				log.Println("File seems locked or inaccessible:", err)
+			} else {
+				f.Close()
+			}
+
+			err = os.Remove(oldfilepath)
+			if err != nil {
+				log.Println("Error removing file:", err)
+				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove file"))
+				return
+			}
+		}
+	}
 
 	// Handle file upload
 	file, header, err := r.FormFile("file")
