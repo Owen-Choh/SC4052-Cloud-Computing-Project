@@ -69,6 +69,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     try {
       var response = null;
       if(currentChatbot.chatbotid == null) {
+        console.log("Creating new chatbot");
         response = await chatbotsApi.post("", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +77,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
           },
         });
       } else {
-        response = await chatbotsApi.put("", formData, {
+        console.log("Updating chatbot with id: ", currentChatbot.chatbotid);
+        response = await chatbotsApi.put(`/${currentChatbot.chatbotid}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",

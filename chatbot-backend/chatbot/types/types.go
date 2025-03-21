@@ -6,7 +6,7 @@ type ChatbotStoreInterface interface {
 	GetChatbotsByUsername(username string) ([]Chatbot, error)
 	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
 	CreateChatbot(userPayload NewChatbot) (int, error)
-	GetChatbotsByID(chatbotID int) (Chatbot, error)
+	GetChatbotsByID(chatbotID int) (*Chatbot, error)
 	UpdateChatbot(chatbotPayload UpdateChatbot) error
 }
 

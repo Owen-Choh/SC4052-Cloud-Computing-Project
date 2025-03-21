@@ -37,14 +37,13 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
         />
       </div>
       <div className="flex flex-row gap-4 items-center">
-        <p className="text-lg">Description: </p>
-        <input
-          type="text"
+        <p className="text-lg">Description of chatbot: </p>
+        <textarea
           value={description}
           onChange={(e) => {
             updateChatbotInfo(chatbotName, isShared, e.target.value);
           }}
-          className="p-2 border rounded bg-gray-900 text-white"
+          className="flex-grow p-2 border rounded bg-gray-900 text-white"
         />
       </div>
       <div className="flex flex-row items-center gap-4">
