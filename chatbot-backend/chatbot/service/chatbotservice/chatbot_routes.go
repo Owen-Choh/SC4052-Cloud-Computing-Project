@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
@@ -33,8 +34,9 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 		fmt.Fprintf(w, "Hello from chatbot")
 	})
 	router.HandleFunc("GET /list", auth.WithJWTAuth(h.GetUserChatbot, h.userStore))
-	router.HandleFunc("GET /{username}/{chatbotName}", h.GetChatbot)
-	router.HandleFunc("POST /newchatbot", auth.WithJWTAuth(h.CreateChatbot, h.userStore))
+	router.HandleFunc("GET /details/{username}/{chatbotName}", h.GetChatbot)
+	router.HandleFunc("POST /", auth.WithJWTAuth(h.CreateChatbot, h.userStore))
+	router.HandleFunc("PUT /{chatbotid}", auth.WithJWTAuth(h.UpdateChatbot, h.userStore))
 }
 
 func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
@@ -150,5 +152,102 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"chatbotid": botID,
+	})
+}
+
+func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
+	username := auth.GetUsernameFromContext(r.Context())
+	if username == "" {
+		log.Println("username missing in request context set by jwt")
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request"))
+		return
+	}
+
+	chatbotID := r.PathValue("chatbotid")
+	if chatbotID == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot ID"))
+		return
+	}
+	chatbotIDInt, converr := strconv.Atoi(chatbotID)
+	if converr != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot ID"))
+		return
+	}
+
+	err := r.ParseMultipartForm(10 << 20) // 10MB limit
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to parse form"))
+		return
+	}
+
+	
+	oldChatbot, err := h.chatbotStore.GetChatbotsByID(chatbotIDInt)
+	if username != oldChatbot.Username {
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
+		return
+	}
+
+	// Extract chatbot fields from form
+	chatbotname := r.FormValue("chatbotname")
+	description := r.FormValue("description")
+	behaviour := r.FormValue("behaviour")
+	usercontext := r.FormValue("usercontext")
+	isShared := r.FormValue("isShared") == "true"
+
+	// Handle file upload
+	file, header, err := r.FormFile("file")
+	var filepath string
+	if err == nil {
+		defer file.Close()
+
+		fullDirPath := "database_files/uploads/" + username + "/" + chatbotname
+		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
+		if err != nil {
+			log.Println("Error creating directory:", err)
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+			return
+		}
+
+		// Save the uploaded file
+		filepath = fullDirPath + "/" + header.Filename
+		log.Println("Saving file to:", filepath)
+		out, err := os.Create(filepath)
+		if err != nil {
+			log.Println("Error saving file:", err)
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+			return
+		}
+		defer out.Close()
+		io.Copy(out, file)
+	} else {
+		filepath = "" // No file uploaded
+	}
+
+	// Create chatbot struct
+	updateChatbot := types.UpdateChatbot{
+		Chatbotid:   chatbotIDInt,
+		Username:    username,
+		Chatbotname: chatbotname,
+		Description: description,
+		Behaviour:   behaviour,
+		IsShared:    isShared,
+		Usercontext: usercontext,
+		File:        filepath,
+	}
+	if err := utils.Validate.Struct(updateChatbot); err != nil {
+		validate_error := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
+	}
+
+	err = h.chatbotStore.UpdateChatbot(updateChatbot)
+	if err != nil {
+		log.Println("Error updating chatbot:", err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message": "Chatbot updated successfully",
 	})
 }

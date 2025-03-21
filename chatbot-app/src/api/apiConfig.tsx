@@ -6,12 +6,12 @@ export const loginApi = axios.create({
   baseURL: `${baseURL}/user/login`,
 });
 
-export const getChatbotsApi = axios.create({
+export const getChatbotsListApi = axios.create({
   baseURL: `${baseURL}/chatbot/list`
 });
 
-export const createChatbotsApi = axios.create({
-  baseURL: `${baseURL}/chatbot/newchatbot`
+export const chatbotsApi = axios.create({
+  baseURL: `${baseURL}/chatbot`
 });
 
 export const getConversationIdApi = axios.create({

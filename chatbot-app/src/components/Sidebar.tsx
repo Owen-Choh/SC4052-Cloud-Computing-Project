@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../auth/useAuth";
 import { Link, useNavigate } from "react-router-dom";
-import { getChatbotsApi } from "../api/apiConfig";
+import { getChatbotsListApi } from "../api/apiConfig";
 import { Chatbot } from "../api/chatbot";
 
 interface SidebarProps {

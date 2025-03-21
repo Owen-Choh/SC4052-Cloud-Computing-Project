@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Botconfigs from "../components/Botconfigs";
 
-import { getChatbotsApi } from "../api/apiConfig";
+import { getChatbotsListApi } from "../api/apiConfig";
 import { Chatbot } from "../api/chatbot";
 
 function Dashboard() {
@@ -16,9 +16,10 @@ function Dashboard() {
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
 
   const newBot: Chatbot = {
-    chatbotid: 0,
+    chatbotid: null,
     userid: currentUser?.userid ? currentUser.userid : 0,
     chatbotname: "",
+    description: "",
     behaviour: "",
     usercontext: "",
     isShared: false,
@@ -33,7 +34,7 @@ function Dashboard() {
 
   const fetchChatbots = async () => {
     try {
-      const response = await getChatbotsApi.get("", {
+      const response = await getChatbotsListApi.get("", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setChatbots(response.data);

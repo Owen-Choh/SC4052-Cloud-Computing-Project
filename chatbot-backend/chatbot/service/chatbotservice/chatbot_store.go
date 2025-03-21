@@ -15,6 +15,23 @@ func NewStore(db *sql.DB) *ChatbotStore {
 	return &ChatbotStore{db: db}
 }
 
+func (s *ChatbotStore) GetChatbotsByID(chatbotID int) (*types.Chatbot, error) {
+	rows, err := s.db.Query("SELECT * FROM chatbots WHERE chatbotid=?", chatbotID)
+	if err != nil {
+		return nil, err
+	}
+
+	chatbots := new(types.Chatbot)
+	rows.Next()
+	chatbots, err = scanRowsIntoChatbot(rows)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return chatbots, nil
+}
+
 func (s *ChatbotStore) GetChatbotsByUsername(username string) ([]types.Chatbot, error) {
 	rows, err := s.db.Query("SELECT * FROM chatbots WHERE username=?", username)
 	if err != nil {
@@ -81,6 +98,23 @@ func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) 
 	}
 
 	return int(id), nil
+}
+
+func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
+	currentTime, _ := utils.GetCurrentTime()
+
+	_, err := s.db.Exec(
+		"UPDATE chatbots SET chatbotname=?, behaviour=?, usercontext=?, updateddate=?, isShared=?, filepath=? WHERE chatbotid=? AND username=?",
+		chatbotPayload.Chatbotname,
+		chatbotPayload.Behaviour,
+		chatbotPayload.Usercontext,
+		currentTime,
+		chatbotPayload.IsShared,
+		chatbotPayload.File,
+		chatbotPayload.Chatbotid,
+		chatbotPayload.Username,
+	)
+	return err
 }
 
 func scanRowsIntoChatbot(rows *sql.Rows) (*types.Chatbot, error) {

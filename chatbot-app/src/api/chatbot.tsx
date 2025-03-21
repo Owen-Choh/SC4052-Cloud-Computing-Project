@@ -1,7 +1,8 @@
 export interface Chatbot {
-  chatbotid: number;
+  chatbotid: number | null;
   userid: number;
   chatbotname: string;
+  description: string;
   behaviour: string;
   usercontext: string;
   isShared: boolean;

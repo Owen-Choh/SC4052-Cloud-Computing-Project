@@ -6,6 +6,8 @@ type ChatbotStoreInterface interface {
 	GetChatbotsByUsername(username string) ([]Chatbot, error)
 	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
 	CreateChatbot(userPayload NewChatbot) (int, error)
+	GetChatbotsByID(chatbotID int) (Chatbot, error)
+	UpdateChatbot(chatbotPayload UpdateChatbot) error
 }
 
 type NewChatbot struct {
@@ -26,9 +28,20 @@ type CreateChatbotPayload struct {
 	File        string `json:"file"`
 }
 
+type UpdateChatbot struct {
+	Chatbotid   int    `json:"chatbotid" validate:"required"`
+	Username    string `json:"Username" validate:"required"`
+	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Description string `json:"description"`
+	Behaviour   string `json:"behaviour"`
+	Usercontext string `json:"usercontext"`
+	IsShared    bool   `json:"isShared"`
+	File        string `json:"file"`
+}
+
 type Chatbot struct {
 	Chatbotid   int    `json:"chatbotid"`
-	Username      string    `json:"username"`
+	Username    string `json:"username"`
 	Chatbotname string `json:"chatbotname"`
 	Description string `json:"description"`
 	Behaviour   string `json:"behaviour"`
@@ -72,7 +85,7 @@ type LoginUserPayload struct {
 // ChatRequest defines the request body for chatting with a chatbot.
 type ChatRequest struct {
 	Conversationid string `json:"conversationid" validate:"required"`
-	Message string `json:"message" validate:"required"`
+	Message        string `json:"message" validate:"required"`
 }
 
 // ChatResponse defines the response body for chatting with a chatbot.
@@ -88,7 +101,7 @@ type Conversation struct {
 	Chatbotname    string `json:"chatbotname"`
 	Role           string `json:"role"`
 	Chat           string `json:"chat"`
-	Createddate    string `json:"createddate"`	
+	Createddate    string `json:"createddate"`
 }
 
 type CreateConversationPayload struct {
@@ -102,9 +115,9 @@ type CreateConversationPayload struct {
 }
 
 type APIfile struct {
-	Fileid int `json:"fileid"`
-	Chatbotid int `json:"chatbotid"`
+	Fileid      int    `json:"fileid"`
+	Chatbotid   int    `json:"chatbotid"`
 	Createddate string `json:"createddate"`
-	Filepath string `json:"filepath"`
-	Fileuri string `json:"fileuri"`
+	Filepath    string `json:"filepath"`
+	Fileuri     string `json:"fileuri"`
 }

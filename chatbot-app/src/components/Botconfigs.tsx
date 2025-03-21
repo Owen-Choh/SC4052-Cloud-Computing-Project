@@ -3,8 +3,8 @@ import Tab from "./ui/Tab";
 import TabPanel from "./ui/TabPanel";
 import ChatbotInformation from "./ChatbotInformation";
 import ChatbotCustomisation from "./ChatbotCustomisation";
-import { Chatbot, CreateChatbotPayload } from "../api/chatbot";
-import { createChatbotsApi } from "../api/apiConfig";
+import { Chatbot } from "../api/chatbot";
+import { chatbotsApi } from "../api/apiConfig";
 import useAuth from "../auth/useAuth";
 
 interface BotconfigsProps {
@@ -56,6 +56,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     console.log("Chatbot saved: ", currentChatbot);
     const formData = new FormData();
     formData.append("chatbotname", currentChatbot.chatbotname);
+    formData.append("description", currentChatbot.description);
     formData.append("behaviour", currentChatbot.behaviour);
     formData.append("usercontext", currentChatbot.usercontext);
     formData.append("isShared", currentChatbot.isShared.toString());
@@ -65,12 +66,21 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     }
 
     try {
-      const response = await createChatbotsApi.post("", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      if(currentChatbot.chatbotid == null) {
+        const response = await chatbotsApi.post("", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        const response = await chatbotsApi.put("", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
   
       console.log("Chatbot saved successfully:", response.data);
       setSuccess("Chatbot saved successfully!");
