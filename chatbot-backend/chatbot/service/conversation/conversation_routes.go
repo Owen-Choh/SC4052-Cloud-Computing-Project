@@ -24,13 +24,13 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 type Handler struct {
 	chatbotStore      types.ChatbotStoreInterface
 	conversationStore *ConversationStore
-	apiFileStore			*APIFileStore
+	apiFileStore      *APIFileStore
 	genaiCtx          context.Context
 	genaiClient       *genai.Client // Shared Gemini API client
 	genaiModel        *genai.GenerativeModel
 }
 
-func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore, apifileStore  *APIFileStore, apiKey string) (*Handler, error) {
+func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore, apifileStore *APIFileStore, apiKey string) (*Handler, error) {
 	// Initialize the Gemini client
 	// modelName := "gemini-2.0-flash-thinking-exp-01-21"
 	modelName := "gemini-2.0-pro-exp-02-05"
@@ -39,7 +39,7 @@ func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *Con
 	return &Handler{
 		chatbotStore:      chatbotStore,
 		conversationStore: conversationStore,
-		apiFileStore: apifileStore,
+		apiFileStore:      apifileStore,
 		genaiCtx:          ctx,
 		genaiClient:       client,
 		genaiModel:        model,
@@ -51,7 +51,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 		fmt.Fprintf(w, "Hello from conversations")
 	})
 
-	router.HandleFunc("GET /start", h.StartConversation)
+	router.HandleFunc("POST /start/{username}/{chatbotName}", h.StartConversation)
 	router.HandleFunc("POST /chat/{username}/{chatbotName}", h.ChatWithChatbot)
 	router.HandleFunc("POST /chat/test/{username}/{chatbotName}", h.ChatWithChatbotTest)
 
@@ -64,9 +64,26 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 }
 
 func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
+	// Get username and chatbot name from request
+	username := r.PathValue("username")
+	chatbotName := r.PathValue("chatbotName")
+	if username == "" || chatbotName == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid parameters"))
+		return
+	}
+
+	chatbot, err := h.chatbotStore.GetChatbotByName(username, chatbotName)
+	if err != nil {
+		log.Println("Error getting chatbot to start conversation:", err)
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// Generate a new conversation ID to track this conversation in db
 	conversationID := utils.GenerateUUID().String()
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"conversationid": conversationID,
+		"description":    chatbot.Description,
 	})
 }
 
@@ -301,5 +318,3 @@ func uploadToGemini(ctx context.Context, client *genai.Client, path string) stri
 	log.Printf("Uploaded file %s as: %s", fileData.DisplayName, fileData.URI)
 	return fileData.URI
 }
-
-

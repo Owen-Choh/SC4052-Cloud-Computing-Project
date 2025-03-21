@@ -11,6 +11,7 @@ type ChatbotStoreInterface interface {
 type NewChatbot struct {
 	Username    string `json:"Username" validate:"required"`
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Description string `json:"description"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
 	IsShared    bool   `json:"isShared"`
@@ -18,6 +19,7 @@ type NewChatbot struct {
 }
 type CreateChatbotPayload struct {
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
+	Description string `json:"description"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
 	IsShared    bool   `json:"isShared" validate:"required"`
@@ -28,6 +30,7 @@ type Chatbot struct {
 	Chatbotid   int    `json:"chatbotid"`
 	Username      string    `json:"username"`
 	Chatbotname string `json:"chatbotname"`
+	Description string `json:"description"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`
 	Createddate string `json:"createddate"`
