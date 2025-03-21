@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, HttpStatusCode } from "axios";
 
 export type ConversationSuccessResponse = {
   conversationid: string;
@@ -33,11 +33,18 @@ const ConversationPage = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // if error is due to timeout
-        if (error.code === AxiosError.ECONNABORTED || error.code === AxiosError.ERR_NETWORK) {
+        if (
+          error.code === AxiosError.ECONNABORTED ||
+          error.code === AxiosError.ERR_NETWORK
+        ) {
           setError("Unable to reach chatbot server. Please try again later :(");
-        } else if (error.response?.status === 404) {
+        } else if (error.response?.status === HttpStatusCode.NotFound) {
           setError("This chatbot does not exist. Is your url correct?");
-        } else if (error.response?.status === 500) {
+        } else if (error.response?.status === HttpStatusCode.Forbidden) {
+          setError("This chatbot is not shared. Please check with the owner.");
+        } else if (
+          error.response?.status === HttpStatusCode.InternalServerError
+        ) {
           setError(
             "An error occurred while starting the conversation. Please try again later :("
           );
@@ -75,7 +82,7 @@ const ConversationPage = () => {
         `**${chatbotname}:**\n> ${chatConversationResponse.data.response}`,
       ]);
     } catch (error) {
-      if(axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error)) {
         setConversation((prev) => [
           ...prev,
           `**${chatbotname}:**\n> Error ${error.response?.status}: ${error.response?.data.error}`,

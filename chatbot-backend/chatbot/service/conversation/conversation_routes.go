@@ -79,6 +79,11 @@ func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !chatbot.IsShared {
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("chatbot is not shared"))
+		return
+	}
+
 	// Generate a new conversation ID to track this conversation in db
 	conversationID := utils.GenerateUUID().String()
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
@@ -115,6 +120,10 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		} else {
 			utils.WriteError(w, http.StatusInternalServerError, err)
 		}
+		return
+	}
+	if !chatbot.IsShared {
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("chatbot is not shared"))
 		return
 	}
 
