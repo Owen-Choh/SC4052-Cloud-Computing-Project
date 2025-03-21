@@ -44,7 +44,7 @@ func InitDB() (bool, error) {
 		chatbotid INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT NOT NULL,
 		chatbotname TEXT NOT NULL,
-		description TEXT NOT NULL,
+		description TEXT NOT NULL Default '',
 		behaviour TEXT NOT NULL,
 		usercontext TEXT NOT NULL,
 		createddate TEXT NOT NULL,
