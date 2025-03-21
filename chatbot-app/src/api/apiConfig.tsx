@@ -15,7 +15,8 @@ export const createChatbotsApi = axios.create({
 });
 
 export const getConversationIdApi = axios.create({
-  baseURL: `${baseURL}/conversation/start`
+  baseURL: `${baseURL}/conversation/start`,
+  timeout: 10000,
 });
 
 export const chatConversationApi = axios.create({

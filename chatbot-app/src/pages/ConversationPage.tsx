@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export type ConversationSuccessResponse = {
   conversationid: string;
@@ -32,7 +32,10 @@ const ConversationPage = () => {
       setChatbotDescription(conversationResponse.description);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 404) {
+        // if error is due to timeout
+        if (error.code === AxiosError.ECONNABORTED || error.code === AxiosError.ERR_NETWORK) {
+          setError("Unable to reach chatbot server. Please try again later :(");
+        } else if (error.response?.status === 404) {
           setError("This chatbot does not exist. Is your url correct?");
         } else if (error.response?.status === 500) {
           setError(
@@ -125,13 +128,13 @@ const ConversationPage = () => {
             <>
               <p>
                 Conversation ID:{" "}
-                {conversationID || conversationID == ""
+                {conversationID || conversationID != ""
                   ? conversationID
                   : "Loading..."}
               </p>
               <p>
                 Description of chatbot:{" "}
-                {chatbotDescription || chatbotDescription == ""
+                {chatbotDescription || chatbotDescription != ""
                   ? chatbotDescription
                   : "Loading..."}
               </p>
