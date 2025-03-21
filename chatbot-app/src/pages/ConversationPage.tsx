@@ -13,7 +13,9 @@ const ConversationPage = () => {
 
   const getConversationID = async () => {
     // Fetch conversation ID from server
-    const conversationIDresponse = await getConversationIdApi.get("");
+    const conversationIDresponse = await getConversationIdApi.get(
+      `/${username}/${chatbotname}`
+    );
     console.log("Conversation ID:", conversationIDresponse);
     setConversationID(conversationIDresponse.data.conversationid);
   };

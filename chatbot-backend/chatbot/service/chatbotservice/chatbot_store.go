@@ -59,9 +59,10 @@ func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) 
 	// temp_filepath := "tempfilepath.pdf"
 
 	res, dberr := s.db.Exec(
-		"INSERT INTO chatbots (username, chatbotname, behaviour, usercontext, createddate, updateddate, lastused, isShared ,filepath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO chatbots (username, chatbotname, description, behaviour, usercontext, createddate, updateddate, lastused, isShared ,filepath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		userPayload.Username,
 		userPayload.Chatbotname,
+		userPayload.Description,
 		userPayload.Behaviour,
 		userPayload.Usercontext,
 		currentTime,
@@ -89,6 +90,7 @@ func scanRowsIntoChatbot(rows *sql.Rows) (*types.Chatbot, error) {
 		&chatbot.Chatbotid,
 		&chatbot.Username,
 		&chatbot.Chatbotname,
+		&chatbot.Description,
 		&chatbot.Behaviour,
 		&chatbot.Usercontext,
 		&chatbot.Createddate,

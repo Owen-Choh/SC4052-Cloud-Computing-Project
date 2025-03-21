@@ -51,7 +51,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 		fmt.Fprintf(w, "Hello from conversations")
 	})
 
-	router.HandleFunc("POST /start/{username}/{chatbotName}", h.StartConversation)
+	router.HandleFunc("GET /start/{username}/{chatbotName}", h.StartConversation)
 	router.HandleFunc("POST /chat/{username}/{chatbotName}", h.ChatWithChatbot)
 	router.HandleFunc("POST /chat/test/{username}/{chatbotName}", h.ChatWithChatbotTest)
 
@@ -75,7 +75,7 @@ func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
 	chatbot, err := h.chatbotStore.GetChatbotByName(username, chatbotName)
 	if err != nil {
 		log.Println("Error getting chatbot to start conversation:", err)
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, http.StatusNotFound, err)
 		return
 	}
 
