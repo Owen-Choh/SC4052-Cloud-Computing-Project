@@ -6,8 +6,9 @@ interface ChatbotInformationProps {
   chatbotName: string;
   isShared: boolean;
   chatbotEndpoint: string;
+  description: string;
   updateChatbotLink: (chatbotName: string) => void;
-  updateChatbotInfo: (chatbotName: string, isShared: boolean) => void;
+  updateChatbotInfo: (chatbotName: string, isShared: boolean, description: string) => void;
   saveChatbot: () => void;
 }
 
@@ -15,6 +16,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
   chatbotName,
   isShared,
   chatbotEndpoint,
+  description,
   updateChatbotLink,
   updateChatbotInfo,
   saveChatbot,
@@ -28,8 +30,19 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
           type="text"
           value={chatbotName}
           onChange={(e) => {
-            updateChatbotInfo(e.target.value, isShared);
+            updateChatbotInfo(e.target.value, isShared, description);
             updateChatbotLink(e.target.value);
+          }}
+          className="p-2 border rounded bg-gray-900 text-white"
+        />
+      </div>
+      <div className="flex flex-row gap-4 items-center">
+        <p className="text-lg">Description: </p>
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => {
+            updateChatbotInfo(chatbotName, isShared, e.target.value);
           }}
           className="p-2 border rounded bg-gray-900 text-white"
         />
@@ -40,7 +53,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
           type="checkbox"
           checked={isShared}
           onChange={(e) => {
-            updateChatbotInfo(chatbotName, e.target.checked);
+            updateChatbotInfo(chatbotName, e.target.checked, description);
           }}
           className="w-5 h-5"
         />

@@ -25,11 +25,12 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
   };
 
-  const updateChatbotInfo = (chatbotName: string, isShared: boolean) => {
+  const updateChatbotInfo = (chatbotName: string, isShared: boolean, description: string) => {
     setCurrentChatbot({
       ...currentChatbot,
       chatbotname: chatbotName,
       isShared: isShared,
+      description: description,
     });
     console.log("Chatbot updated: ", currentChatbot);
   };
@@ -66,15 +67,16 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
     }
 
     try {
+      var response = null;
       if(currentChatbot.chatbotid == null) {
-        const response = await chatbotsApi.post("", formData, {
+        response = await chatbotsApi.post("", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         });
       } else {
-        const response = await chatbotsApi.put("", formData, {
+        response = await chatbotsApi.put("", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -133,8 +135,9 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
             chatbotName={currentChatbot.chatbotname}
             isShared={currentChatbot.isShared}
             chatbotEndpoint={chatbotLink}
+            description={currentChatbot.description}
             updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
-            updateChatbotInfo={(chatbotName, isShared) => updateChatbotInfo(chatbotName, isShared)}
+            updateChatbotInfo={(chatbotName, isShared, description) => updateChatbotInfo(chatbotName, isShared, description)}
             saveChatbot={() => saveChatbot()}
           />
         </TabPanel>
