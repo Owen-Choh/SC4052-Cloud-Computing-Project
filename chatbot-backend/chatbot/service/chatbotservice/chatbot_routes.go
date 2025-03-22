@@ -195,8 +195,9 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	isShared := r.FormValue("isShared") == "true"
 	removeFile := r.FormValue("removeFile") == "true"
 
+	// Handle file removal
+	oldfilepath := oldChatbot.Filepath
 	if removeFile {
-		oldfilepath := oldChatbot.Filepath
 		if oldfilepath != "" {
 			log.Println("Attempting to remove file:", oldfilepath)
 			// Check if file is locked
@@ -218,7 +219,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	// Handle file upload
 	file, header, err := r.FormFile("file")
-	var filepath string
+	var newFilepath string
 	if err == nil {
 		defer file.Close()
 
@@ -226,23 +227,32 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
-			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save new file"))
 			return
 		}
 
+		if header.Filename == "" {
+			log.Println("No filename detected")
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("failed to save new file"))
+			return
+		}
 		// Save the uploaded file
-		filepath = fullDirPath + "/" + header.Filename
-		log.Println("Saving file to:", filepath)
-		out, err := os.Create(filepath)
+		newFilepath = fullDirPath + "/" + header.Filename
+		log.Println("Saving file to:", newFilepath)
+		out, err := os.Create(newFilepath)
 		if err != nil {
 			log.Println("Error saving file:", err)
-			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save file"))
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to save new file"))
 			return
 		}
 		defer out.Close()
 		io.Copy(out, file)
 	} else {
-		filepath = "" // No file uploaded
+		newFilepath = "" // No file uploaded
+	}
+
+	if newFilepath == "" {
+		newFilepath = oldfilepath
 	}
 
 	// Create chatbot struct
@@ -254,7 +264,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		Behaviour:   behaviour,
 		IsShared:    isShared,
 		Usercontext: usercontext,
-		File:        filepath,
+		File:        newFilepath,
 	}
 	if err := utils.Validate.Struct(updateChatbot); err != nil {
 		validate_error := err.(validator.ValidationErrors)
