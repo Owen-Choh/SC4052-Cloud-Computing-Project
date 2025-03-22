@@ -314,13 +314,6 @@ func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request) {
 
 	oldfilepath := chatbot.Filepath
 	if oldfilepath != "" {
-		// log.Println("Attempting to remove file:", oldfilepath)
-		// err = os.Remove(oldfilepath)
-		// if err != nil {
-		// 	log.Println("Error removing file:", err)
-		// 	utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
-		// 	return
-		// }
 		err = os.RemoveAll("database_files/uploads/" + chatbot.Username + "/" + chatbot.Chatbotname)
 		if err != nil {
 			log.Println("Error removing directory:", err)

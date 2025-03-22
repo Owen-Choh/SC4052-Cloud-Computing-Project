@@ -39,7 +39,7 @@ func CreateJWT(secret []byte, userid int, username string) (string, error) {
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
-		if tokenString == "" {
+		if tokenString == "" || len(tokenString) < 7 || tokenString[7:] != "Bearer " {
 			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
 			return
 		}

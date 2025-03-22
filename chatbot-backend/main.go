@@ -15,7 +15,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	
+
 	dbConnection, dberr := validate.CheckAndInitDB()
 	if dberr != nil {
 		return
@@ -35,17 +35,15 @@ func main() {
 	userStore := user.NewStore(dbConnection)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(userSubRouter)
-	
-	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
 
+	mainRouter.Handle("/api/user/", http.StripPrefix("/api/user", mainStack(userSubRouter)))
 
 	chatbotSubRouter := http.NewServeMux()
 	chatbotStore := chatbotservice.NewStore(dbConnection)
 	chatbotHandler := chatbotservice.NewHandler(chatbotStore, userStore)
 	chatbotHandler.RegisterRoutes(chatbotSubRouter)
-	
+
 	mainRouter.Handle("/api/chatbot/", http.StripPrefix("/api/chatbot", mainStack(chatbotSubRouter)))
-	
 
 	apiKey := config.Envs.GEMINI_API_KEY
 	if apiKey != "" {
@@ -62,8 +60,7 @@ func main() {
 	} else {
 		log.Println("Gemini API key not set, not starting conversation service")
 	}
-	
-		
+
 	// set server and start
 	server := http.Server{
 		Addr:    ":" + config.Envs.Port,
