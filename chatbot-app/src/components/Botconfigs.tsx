@@ -7,6 +7,7 @@ import { Chatbot } from "../api/chatbot";
 import { chatbotsApi } from "../api/apiConfig";
 import useAuth from "../auth/useAuth";
 import { useChatbotContext } from "../context/ChatbotContext";
+import DeleteModal from "./DeleteModal";
 
 interface BotconfigsProps {
   chatbot: Chatbot;
@@ -36,6 +37,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [resetMessages, setResetMessages] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const updateChatbotInfo = (
     chatbotName: string,
@@ -204,10 +206,16 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         </button>
         <button
           className="bg-red-600 p-2 rounded hover:bg-red-700"
-          onClick={deleteChatbot}
+          onClick={() => setDeleteModalOpen(true)}
         >
           Delete Chatbot
         </button>
+        <DeleteModal
+          open={deleteModalOpen}
+          handleClose={() => setDeleteModalOpen(false)}
+          handleDelete={() => deleteChatbot()}
+          title={"chatbot"}
+        ></DeleteModal>
       </div>
     </div>
   );
