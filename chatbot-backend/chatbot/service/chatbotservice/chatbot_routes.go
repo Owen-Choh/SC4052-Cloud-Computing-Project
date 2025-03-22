@@ -182,6 +182,11 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	oldChatbot, err := h.chatbotStore.GetChatbotsByID(chatbotIDInt)
+	if err != nil {
+		log.Printf("Error getting chatbot %d: %v\n", chatbotIDInt, err)
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
+		return
+	}
 	if username != oldChatbot.Username {
 		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
 		return
