@@ -8,8 +8,11 @@ interface ChatbotInformationProps {
   chatbotEndpoint: string;
   description: string;
   updateChatbotLink: (chatbotName: string) => void;
-  updateChatbotInfo: (chatbotName: string, isShared: boolean, description: string) => void;
-  saveChatbot: () => void;
+  updateChatbotInfo: (
+    chatbotName: string,
+    isShared: boolean,
+    description: string
+  ) => void;
 }
 
 const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
@@ -19,7 +22,6 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
   description,
   updateChatbotLink,
   updateChatbotInfo,
-  saveChatbot,
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -57,18 +59,10 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
           className="w-5 h-5"
         />
       </div>
-
       <div className="flex flex-row items-center gap-4">
         <p className="text-lg">Your Chatbot's unique link:</p>
         <div>{window.location.origin + chatbotEndpoint}</div>
       </div>
-
-      <button
-        className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
-        onClick={() => saveChatbot()}
-      >
-        Save Changes
-      </button>
     </div>
   );
 };

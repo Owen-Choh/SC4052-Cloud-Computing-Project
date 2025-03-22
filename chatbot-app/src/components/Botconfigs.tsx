@@ -106,7 +106,6 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             description={chatbot.description}
             updateChatbotLink={setChatbotLink}
             updateChatbotInfo={updateChatbotInfo}
-            saveChatbot={saveChatbot}
           />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
@@ -118,13 +117,19 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             toggleExcludeFile={() => setExcludeFile(prev => !prev)}
             updateChatbotCustomisation={updateChatbotCustomisation}
             updateChatbotFile={updateChatbotFile}
-            saveChatbotCustomisation={saveChatbot}
           />
         </TabPanel>
         {success && <p className="p-4 text-green-500">{success}</p>}
         {error && <p className="p-4 text-red-500">{error}</p>}
       </div>
-    </div>
+      <div className="border-b-2 border-gray-700"></div>
+      <button
+        className="bg-green-600 p-2 rounded hover:bg-green-700"
+        onClick={saveChatbot}
+      >
+        Save Changes
+      </button>
+      </div>
   );
 };
 

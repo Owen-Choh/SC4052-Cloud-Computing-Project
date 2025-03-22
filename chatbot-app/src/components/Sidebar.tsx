@@ -5,7 +5,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
-  const { chatbots, setSelectedChatbot, setIsCreatingChatbot } = useChatbotContext();
+  const { chatbots, setSelectedChatbot, setIsCreatingChatbot } =
+    useChatbotContext();
 
   return (
     <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
@@ -19,7 +20,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
       >
         + New Chatbot
       </button>
-
       <ul className="flex-grow overflow-y-auto">
         {chatbots.map((chatbot) => (
           <li

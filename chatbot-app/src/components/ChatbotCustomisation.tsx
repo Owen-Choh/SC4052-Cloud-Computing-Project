@@ -7,7 +7,6 @@ interface ChatbotCustomisationProps {
   chatbotDocument: string;
   updateChatbotCustomisation: (behaviour: string, context: string) => void;
   updateChatbotFile: (document: File | null) => void;
-  saveChatbotCustomisation: () => void;
   excludeFile: boolean;
   toggleExcludeFile: () => void;
 }
@@ -18,7 +17,6 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
   chatbotDocument,
   updateChatbotCustomisation,
   updateChatbotFile,
-  saveChatbotCustomisation,
   excludeFile,
   toggleExcludeFile,
 }) => {
@@ -54,7 +52,10 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         />
       </div>
       <div className="flex flex-col gap-4">
-        <p className="text-xl">Any documents that your chatbot should use? (There can only be one at any time)</p>
+        <p className="text-xl">
+          Any documents that your chatbot should use? (There can only be one at
+          any time)
+        </p>
         {chatbotDocument ? (
           <div className="flex flex-row gap-2 items-center">
             <p>
@@ -77,12 +78,6 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         )}
         <FileUpload onFileSelect={updateChatbotFile} />
       </div>
-      <button
-        className="bg-blue-600 p-2 rounded mt-4 hover:bg-blue-700"
-        onClick={() => saveChatbotCustomisation()}
-      >
-        Save Changes
-      </button>
     </div>
   );
 };

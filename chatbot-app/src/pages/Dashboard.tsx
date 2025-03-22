@@ -57,10 +57,9 @@ function Dashboard() {
   useEffect(() => {
     if (isCreatingChatbot) {
       setCurrentChatbot(newBot);
-    }
-    else if (selectedChatbot) {
+    } else if (selectedChatbot) {
       setCurrentChatbot(selectedChatbot);
-    };
+    }
   }, [isCreatingChatbot, selectedChatbot]);
 
   return (
