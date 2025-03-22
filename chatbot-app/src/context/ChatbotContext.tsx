@@ -10,6 +10,7 @@ interface ChatbotContextType {
   setIsCreatingChatbot: React.Dispatch<React.SetStateAction<boolean>>;
   addChatbotInContext: (newBot: Chatbot) => void;
   updateChatbotInContext: (updatedBot: Chatbot) => void;
+  deleteChatbotInContext: (deletedBot: Chatbot) => void;
 }
 
 const ChatbotContext = createContext<ChatbotContextType | undefined>(undefined);
@@ -37,6 +38,10 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const deleteChatbotInContext = (deletedBot: Chatbot) => {
+    setChatbots(prev => prev.filter(bot => bot.chatbotid !== deletedBot.chatbotid));
+  }
+
   return (
     <ChatbotContext.Provider
       value={{
@@ -48,6 +53,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         setIsCreatingChatbot,
         addChatbotInContext,
         updateChatbotInContext,
+        deleteChatbotInContext,
       }}
     >
       {children}

@@ -27,24 +27,43 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     setIsCreatingChatbot,
     addChatbotInContext,
     updateChatbotInContext,
+    deleteChatbotInContext,
   } = useChatbotContext();
   const [activeTab, setActiveTab] = useState("chatInfo");
-  const [chatbotLink, setChatbotLink] = useState(`/chat/${currentUser?.username}/${chatbot.chatbotname}`);
+  const [chatbotLink, setChatbotLink] = useState(
+    `/chat/${currentUser?.username}/${chatbot.chatbotname}`
+  );
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [resetMessages, setResetMessages] = useState(true);
-  
-  const updateChatbotInfo = (chatbotName: string, isShared: boolean, description: string) => {
-    setChatbot(prev => prev ? { ...prev, chatbotname: chatbotName, isShared, description } : prev);
+
+  const updateChatbotInfo = (
+    chatbotName: string,
+    isShared: boolean,
+    description: string
+  ) => {
+    setChatbot((prev) =>
+      prev ? { ...prev, chatbotname: chatbotName, isShared, description } : prev
+    );
     setChatbotLink(`/chat/${currentUser?.username}/${chatbotName}`);
   };
 
   const updateChatbotCustomisation = (behaviour: string, context: string) => {
-    setChatbot(prev => prev ? { ...prev, behaviour, usercontext: context } : prev);
+    setChatbot((prev) =>
+      prev ? { ...prev, behaviour, usercontext: context } : prev
+    );
   };
 
   const updateChatbotFile = (document: File | null) => {
-    setChatbot(prev => prev ? { ...prev, filepath: document ? document.name : prev.filepath, file: document } : prev);
+    setChatbot((prev) =>
+      prev
+        ? {
+            ...prev,
+            filepath: document ? document.name : prev.filepath,
+            file: document,
+          }
+        : prev
+    );
   };
 
   const saveChatbot = async () => {
@@ -61,10 +80,16 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     try {
       const response = !isCreatingChatbot
         ? await chatbotsApi.put(`/${chatbot.chatbotid}`, formData, {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
           })
         : await chatbotsApi.post("/", formData, {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
           });
 
       console.log("Chatbot saved successfully:", response.data);
@@ -72,7 +97,10 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       setError("");
       if (isCreatingChatbot) {
         // Update chatbot id if user create new chatbot
-        const updatedChatbot = { ...chatbot, chatbotid: response.data.chatbotid };
+        const updatedChatbot = {
+          ...chatbot,
+          chatbotid: response.data.chatbotid,
+        };
         setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
         addChatbotInContext(updatedChatbot);
@@ -80,17 +108,44 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         setIsCreatingChatbot(false);
         updateChatbotInContext(chatbot);
       }
-      setResetMessages(prev => !prev);
+      setResetMessages((prev) => !prev);
     } catch (err: any) {
       console.error("Failed to save chatbot:", err);
       setSuccess("");
-      setError("Failed to save chatbot. " + (err.response?.data?.error || "Unknown error"));
+      setError(
+        "Failed to save chatbot. " +
+          (err.response?.data?.error || "Unknown error")
+      );
     }
   };
 
-  useEffect(()=>{
-    if(resetMessages){
-      setResetMessages(prev => !prev);
+  const deleteChatbot = async () => {
+    if (!chatbot) return;
+    try {
+      const response = await chatbotsApi.delete(`/${chatbot.chatbotid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Chatbot deleted successfully:", response.data);
+      setSuccess("Chatbot deleted successfully!");
+      setError("");
+      setChatbot(null);
+      setIsCreatingChatbot(false);
+      setResetMessages((prev) => !prev);
+      deleteChatbotInContext(chatbot);
+      alert("Chatbot deleted successfully!");
+    } catch (err: any) {
+      console.error("Failed to delete chatbot:", err);
+      setSuccess("");
+      setError(
+        "Failed to delete chatbot. " +
+          (err.response?.data?.error || "Unknown error")
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (resetMessages) {
+      setResetMessages((prev) => !prev);
     } else {
       setSuccess("");
       setError("");
@@ -100,8 +155,16 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   return (
     <div className="flex flex-col w-full h-full p-4 bg-gray-900 gap-4">
       <div className="flex gap-4">
-        <Tab label="Chatbot information" isActive={activeTab === "chatInfo"} onClick={() => setActiveTab("chatInfo")} />
-        <Tab label="Customise" isActive={activeTab === "customisation"} onClick={() => setActiveTab("customisation")} />
+        <Tab
+          label="Chatbot information"
+          isActive={activeTab === "chatInfo"}
+          onClick={() => setActiveTab("chatInfo")}
+        />
+        <Tab
+          label="Customise"
+          isActive={activeTab === "customisation"}
+          onClick={() => setActiveTab("customisation")}
+        />
       </div>
 
       <div className="border-b-2 border-gray-700"></div>
@@ -123,7 +186,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             chatbotContext={chatbot.usercontext}
             chatbotDocument={chatbot.filepath}
             excludeFile={excludeFile}
-            toggleExcludeFile={() => setExcludeFile(prev => !prev)}
+            toggleExcludeFile={() => setExcludeFile((prev) => !prev)}
             updateChatbotCustomisation={updateChatbotCustomisation}
             updateChatbotFile={updateChatbotFile}
           />
@@ -132,13 +195,21 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         {error && <p className="p-4 text-red-500">{error}</p>}
       </div>
       <div className="border-b-2 border-gray-700"></div>
-      <button
-        className="bg-green-600 p-2 rounded hover:bg-green-700"
-        onClick={saveChatbot}
-      >
-        Save Changes
-      </button>
+      <div className="flex w-full justify-end gap-4">
+        <button
+          className="bg-green-600 p-2 rounded hover:bg-green-700"
+          onClick={saveChatbot}
+        >
+          Save Changes
+        </button>
+        <button
+          className="bg-red-600 p-2 rounded hover:bg-red-700"
+          onClick={deleteChatbot}
+        >
+          Delete Chatbot
+        </button>
       </div>
+    </div>
   );
 };
 

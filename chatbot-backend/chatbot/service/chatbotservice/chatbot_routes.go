@@ -206,18 +206,10 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	if removeFile {
 		if oldfilepath != "" {
 			log.Println("Attempting to remove file:", oldfilepath)
-			// Check if file is locked
-			f, err := os.OpenFile(oldfilepath, os.O_RDWR, 0666)
-			if err != nil {
-				log.Println("File seems locked or inaccessible:", err)
-			} else {
-				f.Close()
-			}
-
 			err = os.Remove(oldfilepath)
 			if err != nil {
 				log.Println("Error removing file:", err)
-				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove file"))
+				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
 				return
 			}
 		}
@@ -290,7 +282,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request){
+func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request) {
 	username := auth.GetUsernameFromContext(r.Context())
 	if username == "" {
 		log.Println("username missing in request context set by jwt")
@@ -318,6 +310,23 @@ func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request){
 	if username != chatbot.Username {
 		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
 		return
+	}
+
+	oldfilepath := chatbot.Filepath
+	if oldfilepath != "" {
+		// log.Println("Attempting to remove file:", oldfilepath)
+		// err = os.Remove(oldfilepath)
+		// if err != nil {
+		// 	log.Println("Error removing file:", err)
+		// 	utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
+		// 	return
+		// }
+		err = os.RemoveAll("database_files/uploads/" + chatbot.Username + "/" + chatbot.Chatbotname)
+		if err != nil {
+			log.Println("Error removing directory:", err)
+			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove directory of chatbot"))
+			return
+		}
 	}
 
 	err = h.chatbotStore.DeleteChatbot(chatbotIDInt)
