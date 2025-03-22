@@ -41,7 +41,9 @@ const ConversationPage = () => {
         } else if (error.response?.status === HttpStatusCode.NotFound) {
           setError("This chatbot does not exist. Is your url correct?");
         } else if (error.response?.status === HttpStatusCode.Forbidden) {
-          setError("This chatbot is not shared. Please check with the owner.");
+          setError(
+            "This chatbot is not available to use. Please check with the owner."
+          );
         } else if (
           error.response?.status === HttpStatusCode.InternalServerError
         ) {
@@ -130,7 +132,7 @@ const ConversationPage = () => {
             Chatting with {chatbotname} by user {username}
           </h1>
           {error ? (
-            <div className="text-red-500 font-bold text-1xl">{error}</div>
+            <div className="text-red-500 font-bold text-2xl">{error}</div>
           ) : (
             <>
               <p>
@@ -139,12 +141,16 @@ const ConversationPage = () => {
                   ? conversationID
                   : "Loading..."}
               </p>
-              <p>
-                Description of chatbot:{" "}
-                {chatbotDescription && chatbotDescription != ""
-                  ? chatbotDescription
-                  : "Loading..."}
-              </p>
+              {conversationID != "" && chatbotDescription == "" ? (
+                <p>No chatbot description provided</p>
+              ) : (
+                <p>
+                  Description of chatbot:{" "}
+                  {chatbotDescription && chatbotDescription != ""
+                    ? chatbotDescription
+                    : "Loading..."}
+                </p>
+              )}
             </>
           )}
         </div>
@@ -154,13 +160,13 @@ const ConversationPage = () => {
               className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
               onClick={downloadConversationAsMarkdown}
             >
-              Download as Markdown
+              Download chat as <span className="font-bold">md</span> file
             </button>
             <button
               className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
               onClick={downloadConversationAsText}
             >
-              Download as Text file
+              Download chat as <span className="font-bold">txt</span> file
             </button>
           </div>
         )}
