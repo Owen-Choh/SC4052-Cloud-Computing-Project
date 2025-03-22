@@ -84,13 +84,13 @@ function Dashboard() {
         }}
       />
       <div className="w-full">
-      {isCreatingChatbot ? (
-        <Botconfigs username={username} chatbot={newBot} />
-      ) : selectedChatbotID && selectedChatbot ? (
-        <Botconfigs username={username} chatbot={selectedChatbot} />
-      ) : (
-        <h1 className="text-2xl font-bold p-4">Select a chatbot to view</h1>
-      )}
+        {isCreatingChatbot ? (
+          <Botconfigs username={username} chatbot={newBot} />
+        ) : selectedChatbotID && selectedChatbot ? (
+          <Botconfigs username={username} chatbot={selectedChatbot} />
+        ) : (
+          <h1 className="text-2xl font-bold p-4">Select a chatbot to view</h1>
+        )}
       </div>
     </div>
   );

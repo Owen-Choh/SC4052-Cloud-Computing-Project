@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
-import useAuth from "../auth/useAuth";
-import { Link, useNavigate } from "react-router-dom";
-import { getChatbotsListApi } from "../api/apiConfig";
+import React from "react";
 import { Chatbot } from "../api/chatbot";
 
 interface SidebarProps {
   currentUsername: string | undefined;
   chatbots: Chatbot[];
   onCreateNewChatbot: () => void;
-  selectChatbot: (chatbotid: number) => void;
+  selectChatbot: (chatbotid: number | null) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -28,12 +25,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           + New Chatbot
         </button>
-        <li className="p-4 hover:bg-gray-700">
+        {/* <li className="p-4 hover:bg-gray-700">
           <Link to="/Dashboard">Dashboard</Link>
         </li>
         <li className="p-4 hover:bg-gray-700">
           <Link to="/TempPage">TempPage</Link>
-        </li>
+        </li> */}
 
         {/* Dynamically list chatbots */}
         {chatbots.map((chatbot) => (
@@ -45,8 +42,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             {chatbot.chatbotname}
           </li>
         ))}
-
-        <li className="p-4 hover:bg-gray-700">temporary item</li>
       </ul>
 
       <p className="p-4">Logged in as: {currentUsername}</p>
