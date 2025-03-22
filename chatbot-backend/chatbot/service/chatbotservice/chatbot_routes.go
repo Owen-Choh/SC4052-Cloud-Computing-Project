@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
@@ -55,6 +56,10 @@ func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for index := range chatbots {
+		chatbots[index].Filepath = filepath.Base(chatbots[index].Filepath)
+	}
+
 	utils.WriteJSON(w, http.StatusOK, chatbots)
 }
 
@@ -77,6 +82,7 @@ func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	chatbot.Filepath = filepath.Base(chatbot.Filepath)
 	utils.WriteJSON(w, http.StatusOK, chatbot)
 }
 
