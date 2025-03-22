@@ -107,8 +107,9 @@ func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
 	currentTime, _ := utils.GetCurrentTime()
 
 	_, err := s.db.Exec(
-		"UPDATE chatbots SET chatbotname=?, behaviour=?, usercontext=?, updateddate=?, isShared=?, filepath=? WHERE chatbotid=? AND username=?",
+		"UPDATE chatbots SET chatbotname=?, description=?, behaviour=?, usercontext=?, updateddate=?, isShared=?, filepath=? WHERE chatbotid=? AND username=?",
 		chatbotPayload.Chatbotname,
+		chatbotPayload.Description,
 		chatbotPayload.Behaviour,
 		chatbotPayload.Usercontext,
 		currentTime,
