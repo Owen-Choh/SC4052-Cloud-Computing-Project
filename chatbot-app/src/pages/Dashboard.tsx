@@ -5,15 +5,15 @@ import Botconfigs from "../components/Botconfigs";
 
 import { getChatbotsListApi } from "../api/apiConfig";
 import { Chatbot } from "../api/chatbot";
+import { useChatbotContext } from "../context/ChatbotContext";
 
 function Dashboard() {
-  const { currentUser, token } = useAuth();
-  const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
-  const [selectedChatbotID, setSelectedChatbotID] = useState<number | null>(
-    null
-  );
-  const [isCreatingChatbot, setIsCreatingChatbot] = useState(false);
-  const [chatbots, setChatbots] = useState<Chatbot[]>([]);
+  const { currentUser, doLogout, token } = useAuth();
+  const { setChatbots, selectedChatbot, isCreatingChatbot } =
+    useChatbotContext();
+
+  const [currentChatbot, setCurrentChatbot] = useState<Chatbot | null>(null);
+  const [excludeFile, setExcludeFile] = useState(false);
 
   const newBot: Chatbot = {
     chatbotid: null,
@@ -30,7 +30,11 @@ function Dashboard() {
     file: null,
   };
 
-  const username = currentUser?.username ? currentUser.username : "";
+  if (!currentUser) {
+    doLogout();
+    return;
+  }
+  const username = currentUser.username;
 
   const fetchChatbots = async () => {
     try {
@@ -44,21 +48,6 @@ function Dashboard() {
     }
   };
 
-  const findSelectedChatbot = (chatbotID: number | null) => {
-    console.log("findSelectedChatbot: ", chatbotID);
-    if (!chatbotID) {
-      return null;
-    }
-    const found = chatbots.find((chatbot) => chatbot.chatbotid === chatbotID);
-
-    if (found) {
-      return { ...found };
-    } else {
-      console.log("error: Chatbot id not found");
-      return null;
-    }
-  };
-
   useEffect(() => {
     if (currentUser) {
       fetchChatbots();
@@ -66,28 +55,26 @@ function Dashboard() {
   }, [currentUser]);
 
   useEffect(() => {
-    setSelectedChatbot(findSelectedChatbot(selectedChatbotID));
-  }, [selectedChatbotID, chatbots]);
+    if (isCreatingChatbot) {
+      setCurrentChatbot(newBot);
+    }
+    else if (selectedChatbot) {
+      setCurrentChatbot(selectedChatbot);
+    };
+  }, [isCreatingChatbot, selectedChatbot]);
 
   return (
     <div className="flex h-screen flex-1 w-full">
-      <Sidebar
-        currentUsername={username}
-        chatbots={chatbots}
-        onCreateNewChatbot={() => {
-          setIsCreatingChatbot(true);
-          setSelectedChatbotID(null);
-        }}
-        selectChatbot={(selectedChatbotID) => {
-          setIsCreatingChatbot(false);
-          setSelectedChatbotID(selectedChatbotID);
-        }}
-      />
+      <Sidebar currentUsername={currentUser?.username} />
       <div className="w-full">
-        {isCreatingChatbot ? (
-          <Botconfigs username={username} chatbot={newBot} />
-        ) : selectedChatbotID && selectedChatbot ? (
-          <Botconfigs username={username} chatbot={selectedChatbot} />
+        {currentChatbot ? (
+          <Botconfigs
+            username={username}
+            chatbot={currentChatbot}
+            setChatbot={setCurrentChatbot}
+            excludeFile={excludeFile}
+            setExcludeFile={setExcludeFile}
+          />
         ) : (
           <h1 className="text-2xl font-bold p-4">Select a chatbot to view</h1>
         )}

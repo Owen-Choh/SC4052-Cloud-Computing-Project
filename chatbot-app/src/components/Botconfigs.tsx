@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Tab from "./ui/Tab";
 import TabPanel from "./ui/TabPanel";
 import ChatbotInformation from "./ChatbotInformation";
@@ -10,132 +10,72 @@ import useAuth from "../auth/useAuth";
 interface BotconfigsProps {
   username: string;
   chatbot: Chatbot;
+  setChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>;
+  excludeFile: boolean;
+  setExcludeFile: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
+const Botconfigs: React.FC<BotconfigsProps> = ({
+  username,
+  chatbot,
+  setChatbot,
+  excludeFile,
+  setExcludeFile,
+}) => {
   const { token } = useAuth();
-  const [activeTab, setActiveTab] = React.useState("chatInfo");
-  const [chatbotLink, setChatbotEndpoint] = React.useState("/chat/" + username + "/" + chatbot.chatbotname);
-  const [currentChatbot, setCurrentChatbot] = React.useState(chatbot);
-  const [success, setSuccess] = React.useState("");
-  const [error, setError] = React.useState("");
-  const [originalFilepath, setOriginalFilepath] = React.useState(chatbot.filepath);
-  const [excludeFile, setExcludeFile] = React.useState(false);
-
-  const updateChatbotLink = (chatbotName: string) => {
-    setChatbotEndpoint("/chat/" + username + "/" + chatbotName);
-  };
+  const [activeTab, setActiveTab] = useState("chatInfo");
+  const [chatbotLink, setChatbotLink] = useState(`/chat/${username}/${chatbot.chatbotname}`);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   const updateChatbotInfo = (chatbotName: string, isShared: boolean, description: string) => {
-    setCurrentChatbot({
-      ...currentChatbot,
-      chatbotname: chatbotName,
-      isShared: isShared,
-      description: description,
-    });
-    console.log("Chatbot updated: ", currentChatbot);
+    setChatbot(prev => prev ? { ...prev, chatbotname: chatbotName, isShared, description } : prev);
+    setChatbotLink(`/chat/${username}/${chatbotName}`);
   };
 
   const updateChatbotCustomisation = (behaviour: string, context: string) => {
-    setCurrentChatbot({
-      ...currentChatbot,
-      behaviour: behaviour,
-      usercontext: context,
-    });
-    console.log("Chatbot customisation updated: ", currentChatbot);
+    setChatbot(prev => prev ? { ...prev, behaviour, usercontext: context } : prev);
   };
 
   const updateChatbotFile = (document: File | null) => {
-    setCurrentChatbot({
-      ...currentChatbot,
-      filepath: document ? document.name : currentChatbot.filepath,
-      file: document ? document : currentChatbot.file,
-    });
-  }
-
-  const toggleExcludeFile = () => {
-    setExcludeFile(!excludeFile);
+    setChatbot(prev => prev ? { ...prev, filepath: document ? document.name : prev.filepath, file: document } : prev);
   };
 
   const saveChatbot = async () => {
-    // Save the chatbot to the database
-    console.log("Chatbot saved: ", currentChatbot);
-    console.log("removefile: ", excludeFile);
+    if (!chatbot) return;
     const formData = new FormData();
-    formData.append("chatbotname", currentChatbot.chatbotname);
-    formData.append("description", currentChatbot.description);
-    formData.append("behaviour", currentChatbot.behaviour);
-    formData.append("usercontext", currentChatbot.usercontext);
-    formData.append("isShared", currentChatbot.isShared.toString());
-    
-    if (currentChatbot.file) {
-      formData.append("file", currentChatbot.file); // Append file if available
-    } 
-    if (excludeFile) {
-      formData.append("removeFile", "true"); // user wants to remove the old file
-    }
+    formData.append("chatbotname", chatbot.chatbotname);
+    formData.append("description", chatbot.description);
+    formData.append("behaviour", chatbot.behaviour);
+    formData.append("usercontext", chatbot.usercontext);
+    formData.append("isShared", chatbot.isShared.toString());
+    if (chatbot.file) formData.append("file", chatbot.file);
+    if (excludeFile) formData.append("removeFile", "true");
 
     try {
-      var response = null;
-      if(currentChatbot.chatbotid == null) {
-        console.log("Creating new chatbot");
-        response = await chatbotsApi.post("", formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      } else {
-        console.log("Updating chatbot with id: ", currentChatbot.chatbotid);
-        response = await chatbotsApi.put(`/${currentChatbot.chatbotid}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      }
-  
+      const response = chatbot.chatbotid
+        ? await chatbotsApi.put(`/${chatbot.chatbotid}`, formData, {
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+          })
+        : await chatbotsApi.post("", formData, {
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+          });
+
       console.log("Chatbot saved successfully:", response.data);
       setSuccess("Chatbot saved successfully!");
       setError("");
     } catch (err: any) {
-      setSuccess("");
       console.error("Failed to save chatbot:", err);
-      if (err.response?.status) {
-        setError("Failed to save chatbot. Error: "+err.response?.status + " " + err.response?.data?.error);
-      } else {
-        setError("Failed to save chatbot. Unknown Error occured");
-      }
+      setSuccess("");
+      setError("Failed to save chatbot. " + (err.response?.data?.error || "Unknown error"));
     }
   };
-  
-  useEffect(() => {
-    setCurrentChatbot(chatbot);
-    updateChatbotLink(chatbot.chatbotname);
-    setSuccess("");
-    setError("");
-    setOriginalFilepath(chatbot.filepath);
-    console.log("Chatbot updated: ", currentChatbot);
-  }, [chatbot]);
 
   return (
     <div className="flex flex-col w-full h-full p-4 bg-gray-900 gap-4">
       <div className="flex gap-4">
-        <Tab
-          label="Chatbot information"
-          isActive={activeTab === "chatInfo"}
-          onClick={() => setActiveTab("chatInfo")}
-        />
-        <Tab
-          label="Customise"
-          isActive={activeTab === "customisation"}
-          onClick={() => setActiveTab("customisation")}
-        />
-        <Tab
-          label={chatbot.chatbotname}
-          isActive={activeTab === "customisation"}
-          onClick={() => setActiveTab("customisation")}
-        />
+        <Tab label="Chatbot information" isActive={activeTab === "chatInfo"} onClick={() => setActiveTab("chatInfo")} />
+        <Tab label="Customise" isActive={activeTab === "customisation"} onClick={() => setActiveTab("customisation")} />
       </div>
 
       <div className="border-b-2 border-gray-700"></div>
@@ -143,25 +83,25 @@ const Botconfigs: React.FC<BotconfigsProps> = ({ username, chatbot }) => {
       <div className="w-full flex-grow overflow-y-auto">
         <TabPanel activeTab={activeTab} tabKey="chatInfo">
           <ChatbotInformation
-            chatbotName={currentChatbot.chatbotname}
-            isShared={currentChatbot.isShared}
+            chatbotName={chatbot.chatbotname}
+            isShared={chatbot.isShared}
             chatbotEndpoint={chatbotLink}
-            description={currentChatbot.description}
-            updateChatbotLink={(chatbotName) => updateChatbotLink(chatbotName)}
-            updateChatbotInfo={(chatbotName, isShared, description) => updateChatbotInfo(chatbotName, isShared, description)}
-            saveChatbot={() => saveChatbot()}
+            description={chatbot.description}
+            updateChatbotLink={setChatbotLink}
+            updateChatbotInfo={updateChatbotInfo}
+            saveChatbot={saveChatbot}
           />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="customisation">
           <ChatbotCustomisation
-            chatbotBehaviour={currentChatbot.behaviour}
-            chatbotContext={currentChatbot.usercontext}
-            chatbotDocument={originalFilepath}
+            chatbotBehaviour={chatbot.behaviour}
+            chatbotContext={chatbot.usercontext}
+            chatbotDocument={chatbot.filepath}
             excludeFile={excludeFile}
-            toggleExcludeFile={() => toggleExcludeFile()}
-            updateChatbotCustomisation={(behaviour, context) => updateChatbotCustomisation(behaviour, context)}
-            updateChatbotFile={(document) => updateChatbotFile(document)}
-            saveChatbotCustomisation={() => saveChatbot()}
+            toggleExcludeFile={() => setExcludeFile(prev => !prev)}
+            updateChatbotCustomisation={updateChatbotCustomisation}
+            updateChatbotFile={updateChatbotFile}
+            saveChatbotCustomisation={saveChatbot}
           />
         </TabPanel>
         {success && <p className="p-4 text-green-500">{success}</p>}
