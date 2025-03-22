@@ -121,6 +121,11 @@ func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
 	return err
 }
 
+func (s *ChatbotStore) DeleteChatbot(chatbotID int) error {
+	_, err := s.db.Exec("DELETE FROM chatbots WHERE chatbotid=?", chatbotID)
+	return err
+}
+
 func scanRowsIntoChatbot(rows *sql.Rows) (*types.Chatbot, error) {
 	chatbot := new(types.Chatbot)
 

@@ -37,6 +37,7 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("GET /details/{username}/{chatbotName}", h.GetChatbot)
 	router.HandleFunc("POST /", auth.WithJWTAuth(h.CreateChatbot, h.userStore))
 	router.HandleFunc("PUT /{chatbotid}", auth.WithJWTAuth(h.UpdateChatbot, h.userStore))
+	router.HandleFunc("DELETE /{chatbotid}", auth.WithJWTAuth(h.DeleteChatbot, h.userStore))
 }
 
 func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
@@ -286,5 +287,47 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "Chatbot updated successfully",
+	})
+}
+
+func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request){
+	username := auth.GetUsernameFromContext(r.Context())
+	if username == "" {
+		log.Println("username missing in request context set by jwt")
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid request"))
+		return
+	}
+
+	chatbotID := r.PathValue("chatbotid")
+	if chatbotID == "" {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot ID"))
+		return
+	}
+	chatbotIDInt, converr := strconv.Atoi(chatbotID)
+	if converr != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot ID"))
+		return
+	}
+
+	chatbot, err := h.chatbotStore.GetChatbotsByID(chatbotIDInt)
+	if err != nil {
+		log.Printf("Error getting chatbot %d for deletion: %v\n", chatbotIDInt, err)
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
+		return
+	}
+	if username != chatbot.Username {
+		utils.WriteError(w, http.StatusForbidden, fmt.Errorf("unauthorized"))
+		return
+	}
+
+	err = h.chatbotStore.DeleteChatbot(chatbotIDInt)
+	if err != nil {
+		log.Println("Error deleting chatbot:", err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"message": "Chatbot deleted successfully",
 	})
 }

@@ -8,6 +8,7 @@ type ChatbotStoreInterface interface {
 	CreateChatbot(userPayload NewChatbot) (int, error)
 	GetChatbotsByID(chatbotID int) (*Chatbot, error)
 	UpdateChatbot(chatbotPayload UpdateChatbot) error
+	DeleteChatbot(chatbotID int) error
 }
 
 type NewChatbot struct {
