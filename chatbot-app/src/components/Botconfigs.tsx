@@ -6,6 +6,7 @@ import ChatbotCustomisation from "./ChatbotCustomisation";
 import { Chatbot } from "../api/chatbot";
 import { chatbotsApi } from "../api/apiConfig";
 import useAuth from "../auth/useAuth";
+import { useChatbotContext } from "../context/ChatbotContext";
 
 interface BotconfigsProps {
   username: string;
@@ -23,11 +24,16 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   setExcludeFile,
 }) => {
   const { token } = useAuth();
+  const {
+    isCreatingChatbot,
+    setIsCreatingChatbot,
+    updateChatbotInContext,
+  } = useChatbotContext();
   const [activeTab, setActiveTab] = useState("chatInfo");
   const [chatbotLink, setChatbotLink] = useState(`/chat/${username}/${chatbot.chatbotname}`);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-
+  
   const updateChatbotInfo = (chatbotName: string, isShared: boolean, description: string) => {
     setChatbot(prev => prev ? { ...prev, chatbotname: chatbotName, isShared, description } : prev);
     setChatbotLink(`/chat/${username}/${chatbotName}`);
@@ -53,23 +59,34 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     if (excludeFile) formData.append("removeFile", "true");
 
     try {
-      const response = chatbot.chatbotid
+      const response = !isCreatingChatbot
         ? await chatbotsApi.put(`/${chatbot.chatbotid}`, formData, {
             headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
           })
-        : await chatbotsApi.post("", formData, {
+        : await chatbotsApi.post("/", formData, {
             headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
           });
 
       console.log("Chatbot saved successfully:", response.data);
       setSuccess("Chatbot saved successfully!");
       setError("");
+      if (isCreatingChatbot) {
+        // Update chatbot id if user create new chatbot
+        setChatbot(response.data.chatbotid);
+        setIsCreatingChatbot(false);
+      }
+      updateChatbotInContext(chatbot);
     } catch (err: any) {
       console.error("Failed to save chatbot:", err);
       setSuccess("");
       setError("Failed to save chatbot. " + (err.response?.data?.error || "Unknown error"));
     }
   };
+
+  useEffect(()=>{
+    setSuccess("");
+    setError("");
+  }, [chatbot]);
 
   return (
     <div className="flex flex-col w-full h-full p-4 bg-gray-900 gap-4">
