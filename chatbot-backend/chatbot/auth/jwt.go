@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -39,7 +40,7 @@ func CreateJWT(secret []byte, userid int, username string) (string, error) {
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
-		if tokenString == "" || len(tokenString) < 7 || tokenString[7:] != "Bearer " {
+		if tokenString == "" || len(tokenString) < 7 || tokenString[:7] != "Bearer " {
 			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
 			return
 		}
@@ -85,7 +86,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 func GetTokenFromRequest(r *http.Request) string {
 	tokenAuth := r.Header.Get("Authorization")
 	if tokenAuth != "" {
-		return tokenAuth
+		return strings.TrimSpace(tokenAuth)
 	}
 
 	return ""
