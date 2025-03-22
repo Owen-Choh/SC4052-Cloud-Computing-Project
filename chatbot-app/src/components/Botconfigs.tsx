@@ -9,7 +9,6 @@ import useAuth from "../auth/useAuth";
 import { useChatbotContext } from "../context/ChatbotContext";
 
 interface BotconfigsProps {
-  username: string;
   chatbot: Chatbot;
   setChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>;
   excludeFile: boolean;
@@ -17,26 +16,27 @@ interface BotconfigsProps {
 }
 
 const Botconfigs: React.FC<BotconfigsProps> = ({
-  username,
   chatbot,
   setChatbot,
   excludeFile,
   setExcludeFile,
 }) => {
-  const { token } = useAuth();
+  const { currentUser, token } = useAuth();
   const {
     isCreatingChatbot,
     setIsCreatingChatbot,
+    addChatbotInContext,
     updateChatbotInContext,
   } = useChatbotContext();
   const [activeTab, setActiveTab] = useState("chatInfo");
-  const [chatbotLink, setChatbotLink] = useState(`/chat/${username}/${chatbot.chatbotname}`);
+  const [chatbotLink, setChatbotLink] = useState(`/chat/${currentUser?.username}/${chatbot.chatbotname}`);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [resetMessages, setResetMessages] = useState(true);
   
   const updateChatbotInfo = (chatbotName: string, isShared: boolean, description: string) => {
     setChatbot(prev => prev ? { ...prev, chatbotname: chatbotName, isShared, description } : prev);
-    setChatbotLink(`/chat/${username}/${chatbotName}`);
+    setChatbotLink(`/chat/${currentUser?.username}/${chatbotName}`);
   };
 
   const updateChatbotCustomisation = (behaviour: string, context: string) => {
@@ -72,10 +72,15 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       setError("");
       if (isCreatingChatbot) {
         // Update chatbot id if user create new chatbot
-        setChatbot(response.data.chatbotid);
+        const updatedChatbot = { ...chatbot, chatbotid: response.data.chatbotid };
+        setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
+        addChatbotInContext(updatedChatbot);
+      } else {
+        setIsCreatingChatbot(false);
+        updateChatbotInContext(chatbot);
       }
-      updateChatbotInContext(chatbot);
+      setResetMessages(prev => !prev);
     } catch (err: any) {
       console.error("Failed to save chatbot:", err);
       setSuccess("");
@@ -84,8 +89,12 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   };
 
   useEffect(()=>{
-    setSuccess("");
-    setError("");
+    if(resetMessages){
+      setResetMessages(prev => !prev);
+    } else {
+      setSuccess("");
+      setError("");
+    }
   }, [chatbot]);
 
   return (

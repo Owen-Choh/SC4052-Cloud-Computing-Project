@@ -8,6 +8,7 @@ interface ChatbotContextType {
   setSelectedChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>;
   isCreatingChatbot: boolean;
   setIsCreatingChatbot: React.Dispatch<React.SetStateAction<boolean>>;
+  addChatbotInContext: (newBot: Chatbot) => void;
   updateChatbotInContext: (updatedBot: Chatbot) => void;
 }
 
@@ -26,6 +27,10 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
   const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
   const [isCreatingChatbot, setIsCreatingChatbot] = useState(false);
 
+  const addChatbotInContext = (newBot: Chatbot) => {
+    setChatbots(prev => [newBot, ...prev]);
+  };
+
   const updateChatbotInContext = (updatedBot: Chatbot) => {
     setChatbots(prev =>
       prev.map(bot => (bot.chatbotid === updatedBot.chatbotid ? updatedBot : bot))
@@ -41,6 +46,7 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
         setSelectedChatbot,
         isCreatingChatbot,
         setIsCreatingChatbot,
+        addChatbotInContext,
         updateChatbotInContext,
       }}
     >

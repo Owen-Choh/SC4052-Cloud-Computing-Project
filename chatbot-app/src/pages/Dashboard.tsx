@@ -34,7 +34,6 @@ function Dashboard() {
     doLogout();
     return;
   }
-  const username = currentUser.username;
 
   const fetchChatbots = async () => {
     try {
@@ -68,7 +67,6 @@ function Dashboard() {
       <div className="w-full">
         {currentChatbot ? (
           <Botconfigs
-            username={username}
             chatbot={currentChatbot}
             setChatbot={setCurrentChatbot}
             excludeFile={excludeFile}
