@@ -152,6 +152,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       setSuccess("");
       setError("");
     }
+    setChatbotLink(`/chat/${currentUser?.username}/${chatbot.chatbotname}`);
   }, [chatbot]);
 
   return (
@@ -204,18 +205,22 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         >
           Save Changes
         </button>
-        <button
-          className="bg-red-600 p-2 rounded hover:bg-red-700"
-          onClick={() => setDeleteModalOpen(true)}
-        >
-          Delete Chatbot
-        </button>
-        <DeleteModal
-          open={deleteModalOpen}
-          handleClose={() => setDeleteModalOpen(false)}
-          handleDelete={() => deleteChatbot()}
-          title={"chatbot"}
-        ></DeleteModal>
+        {!isCreatingChatbot && (
+          <>
+            <button
+              className="bg-red-600 p-2 rounded hover:bg-red-700"
+              onClick={() => setDeleteModalOpen(true)}
+            >
+              Delete Chatbot
+            </button>
+            <DeleteModal
+              open={deleteModalOpen}
+              handleClose={() => setDeleteModalOpen(false)}
+              handleDelete={() => deleteChatbot()}
+              title={"chatbot"}
+            ></DeleteModal>
+          </>
+        )}
       </div>
     </div>
   );
