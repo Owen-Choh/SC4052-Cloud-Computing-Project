@@ -1,16 +1,5 @@
 package types
 
-import ()
-
-type ChatbotStoreInterface interface {
-	GetChatbotsByUsername(username string) ([]Chatbot, error)
-	GetChatbotByName(username string, chatbotName string) (*Chatbot, error)
-	CreateChatbot(userPayload NewChatbot) (int, error)
-	GetChatbotsByID(chatbotID int) (*Chatbot, error)
-	UpdateChatbot(chatbotPayload UpdateChatbot) error
-	DeleteChatbot(chatbotID int) error
-}
-
 type NewChatbot struct {
 	Username    string `json:"Username" validate:"required"`
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
@@ -52,12 +41,6 @@ type Chatbot struct {
 	Lastused    string `json:"lastused"`
 	IsShared    bool   `json:"isShared"`
 	Filepath    string `json:"filepath"`
-}
-
-type UserStoreInterface interface {
-	GetUserByName(username string) (*User, error)
-	GetUserByID(id int) (*User, error)
-	CreateUser(RegisterUserPayload) error
 }
 
 type User struct {
@@ -105,7 +88,7 @@ type Conversation struct {
 	Createddate    string `json:"createddate"`
 }
 
-type CreateConversationPayload struct {
+type NewConversation struct {
 	Conversationid string `json:"conversationid"`
 	Chatbotid      int    `json:"chatbotid"`
 	Username       string `json:"username"`
@@ -115,7 +98,32 @@ type CreateConversationPayload struct {
 	Createddate    string `json:"createddate"`
 }
 
-type APIfile struct {
+type UpdateConversation struct {
+	Conversationid string `json:"conversationid"`
+	Chatbotid      int    `json:"chatbotid"`
+	Username       string `json:"username"`
+	Chatbotname    string `json:"chatbotname"`
+	Role           string `json:"role"`
+	Chat           string `json:"chat"`
+	Createddate    string `json:"createddate"`
+}
+
+type APIFile struct {
+	Fileid      int    `json:"fileid"`
+	Chatbotid   int    `json:"chatbotid"`
+	Createddate string `json:"createddate"`
+	Filepath    string `json:"filepath"`
+	Fileuri     string `json:"fileuri"`
+}
+
+type NewAPIFile struct {
+	Chatbotid   int    `json:"chatbotid"`
+	Createddate string `json:"createddate"`
+	Filepath    string `json:"filepath"`
+	Fileuri     string `json:"fileuri"`
+}
+
+type UpdateAPIFile struct {
 	Fileid      int    `json:"fileid"`
 	Chatbotid   int    `json:"chatbotid"`
 	Createddate string `json:"createddate"`
