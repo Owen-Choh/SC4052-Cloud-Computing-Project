@@ -6,6 +6,10 @@ export const loginApi = axios.create({
   baseURL: `${baseURL}/user/login`,
 });
 
+export const registerApi = axios.create({
+  baseURL: `${baseURL}/user/register`,
+});
+
 export const getChatbotsListApi = axios.create({
   baseURL: `${baseURL}/chatbot/list`
 });

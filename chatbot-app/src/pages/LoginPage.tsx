@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Tab from "../components/ui/Tab";
 import TabPanel from "../components/ui/TabPanel";
+import axios from "axios";
+import { registerApi } from "../api/apiConfig";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -13,7 +15,7 @@ const LoginPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const submitLoginForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
 
@@ -21,13 +23,33 @@ const LoginPage: React.FC = () => {
     try {
       await login(formData);
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
+      if (axios.isAxiosError(error)) {
+        const errormsg = error.message + " " + error.response?.data.error;
+        setError(errormsg);
       } else {
         setError("Unknown error occurred");
       }
     }
   };
+
+  const submitRegisterForm = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    const formData = new FormData(event.target as HTMLFormElement);
+    try {
+      const response = await registerApi.post("", formData);
+      if (response.status === 201) {
+        await login(formData);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errormsg = error.message + " " + error.response?.data.error;
+        setError(errormsg);
+      } else {
+        setError("Unknown error occurred");
+      }
+    }
+  }
 
   useEffect(() => {
     console.log("login check user", currentUser);
@@ -38,23 +60,29 @@ const LoginPage: React.FC = () => {
   }, [currentUser, navigate]); // Runs when currentUser changes
 
   return (
-    <div className="flex flex-col w-fit h-full p-4 bg-gray-900 m-auto rounded-lg">
-      <div className="flex gap-1 text-xl font-bold mb-4">
+    <div className="flex flex-col w-1/2 h-full p-4 bg-gray-900 m-auto rounded-lg">
+      <div className="flex gap-1 text-xl font-bold mb-4 p-4">
         <Tab
           label="Login"
           isActive={activeTab === "login"}
-          onClick={() => setActiveTab("login")}
+          onClick={() => {
+            setActiveTab("login");
+            setError("");
+          }}
         />
         <Tab
           label="Register"
           isActive={activeTab === "register"}
-          onClick={() => setActiveTab("register")}
+          onClick={() => {
+            setActiveTab("register");
+            setError("");
+          }}
         />
       </div>
       <div className="border-b-2 border-gray-700"></div>
-      <div>
+      <div className="p-4">
         <TabPanel activeTab={activeTab} tabKey="login">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+          <form onSubmit={submitLoginForm} className="flex flex-col space-y-4">
             <input
               type="text"
               name="username"
@@ -75,14 +103,14 @@ const LoginPage: React.FC = () => {
             />
             <button
               type="submit"
-              className="bg-blue-800 text-white p-2 rounded"
+              className="bg-blue-800 text-white p-2 rounded mt-2"
             >
               Login
             </button>
           </form>
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="register">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+          <form onSubmit={submitRegisterForm} className="flex flex-col space-y-4">
             <input
               type="text"
               name="username"
@@ -103,7 +131,7 @@ const LoginPage: React.FC = () => {
             />
             <button
               type="submit"
-              className="bg-blue-800 text-white p-2 rounded"
+              className="bg-blue-800 text-white p-2 rounded mt-2"
             >
               Register
             </button>
@@ -111,7 +139,7 @@ const LoginPage: React.FC = () => {
         </TabPanel>
       </div>
 
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-red-500 mt-2 m-auto">{error}</p>}
     </div>
   );
 };
