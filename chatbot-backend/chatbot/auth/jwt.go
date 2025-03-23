@@ -40,7 +40,7 @@ func CreateJWT(secret []byte, userid int, username string) (string, error) {
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
-		if tokenString == "" || len(tokenString) < 7 || tokenString[:7] != "Bearer " {
+		if tokenString == "" {
 			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
 			return
 		}
@@ -74,6 +74,18 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 			return
 		}
 
+		if u == nil {
+			log.Printf("user not found")
+			permissionDenied(w)
+			return
+		}
+
+		if u.Username != claims["username"].(string) || u.Userid != userID {
+			log.Printf("jwt claims mismatched for userid %d, wrong userid %t, wrong username %t ", u.Userid, u.Userid != userID, u.Username != claims["username"].(string))
+			permissionDenied(w)
+			return
+		}
+
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, UserIDKey, u.Userid)
 		ctx = context.WithValue(ctx, UsernameKey, u.Username)
@@ -84,12 +96,19 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 }
 
 func GetTokenFromRequest(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
 	tokenAuth := r.Header.Get("Authorization")
 	if tokenAuth != "" {
-		return strings.TrimSpace(tokenAuth)
+		tokenAuth = strings.TrimSpace(tokenAuth)
 	}
 
-	return ""
+	if len(tokenAuth) < 7 || tokenAuth[:7] != "Bearer " {
+		return ""
+	} else {
+		return tokenAuth
+	}
 }
 
 func validateToken(t string) (*jwt.Token, error) {
