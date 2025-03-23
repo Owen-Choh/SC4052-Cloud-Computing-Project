@@ -2,7 +2,7 @@ build:
 	@go build -o bin/chatbot-backend main.go
 
 testfast:
-	@go test -v ./... -failfast
+	@go test ./... -failfast
 
 test:
 	@go test -v ./...
