@@ -179,7 +179,6 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
 
-	log.Printf("session history: %v", session.History)
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
 	resp, err := session.SendMessage(h.genaiCtx, genai.Text(chatRequest.Message))
 	if err != nil {
@@ -230,6 +229,9 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 
 func getSystemInstructionParts(chatbot types.Chatbot) []genai.Part {
 	parts := []genai.Part{} // Initialize empty slice
+	if chatbot.Description != "" {
+		parts = append(parts, genai.Text("This is a description of what you are: "+chatbot.Description))
+	}
 	if chatbot.Behaviour != "" {
 		parts = append(parts, genai.Text("This is how you should behave: "+chatbot.Behaviour))
 	}
