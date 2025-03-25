@@ -218,7 +218,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
               open={deleteModalOpen}
               handleClose={() => setDeleteModalOpen(false)}
               handleDelete={() => deleteChatbot()}
-              title={"chatbot"}
+              title={chatbot.chatbotname}
             ></DeleteModal>
           </>
         )}

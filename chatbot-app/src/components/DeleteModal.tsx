@@ -18,11 +18,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     <Modal
       open={open}
       onClose={handleClose}
-      className="flex m-auto bg-blue-300 w-fit h-fit font-bold rounded-lg overflow-hidden"
+      className="flex m-auto bg-blue-300 w-fit max-w-1/2 h-fit font-bold rounded-lg overflow-hidden"
     >
-      <div>
-        <h2 className="bg-blue-800 p-4">Delete {title}</h2>
-        <h2 className="flex-grow p-4 pb-0">
+      <div className="w-full">
+        <h2 className="bg-blue-800 p-4 truncate w-full">Delete {title}</h2>
+        <h2 className="flex-grow p-4 pb-0 text-wrap">
           Are you sure you want to delete {title}?
         </h2>
         <div className="flex w-full justify-center gap-4 p-4">
