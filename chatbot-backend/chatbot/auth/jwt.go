@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -40,11 +39,11 @@ func CreateJWT(secret []byte, userid int, username string) (string, error) {
 func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
-		if tokenString == "" || len(tokenString) < 7 || tokenString[:7] != "Bearer " {
+		if tokenString == "" {
 			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
 			return
 		}
-		tokenString = tokenString[7:] //remove the bearer prefix
+		// tokenString = tokenString[7:] //remove the bearer prefix
 		token, err := validateToken(tokenString)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
@@ -84,12 +83,19 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 }
 
 func GetTokenFromRequest(r *http.Request) string {
-	tokenAuth := r.Header.Get("Authorization")
-	if tokenAuth != "" {
-		return strings.TrimSpace(tokenAuth)
+	// This code is getting the token from cookie
+	token, err := r.Cookie("token")
+	if err != nil {
+		return ""
 	}
+	return token.Value
+	// This code is getting the token from header
+	// tokenAuth := r.Header.Get("Authorization")
+	// if tokenAuth != "" {
+	// 	return strings.TrimSpace(tokenAuth)
+	// }
 
-	return ""
+	// return ""
 }
 
 func validateToken(t string) (*jwt.Token, error) {

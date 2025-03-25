@@ -22,7 +22,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   excludeFile,
   setExcludeFile,
 }) => {
-  const { currentUser, token } = useAuth();
+  const { currentUser } = useAuth();
   const {
     isCreatingChatbot,
     setIsCreatingChatbot,
@@ -83,15 +83,15 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       const response = !isCreatingChatbot
         ? await chatbotsApi.put(`/${chatbot.chatbotid}`, formData, {
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
+            withCredentials: true,
           })
         : await chatbotsApi.post("/", formData, {
             headers: {
-              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
+            withCredentials: true,
           });
 
       console.log("Chatbot saved successfully:", response.data);
@@ -125,7 +125,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     if (!chatbot) return;
     try {
       const response = await chatbotsApi.delete(`/${chatbot.chatbotid}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       console.log("Chatbot deleted successfully:", response.data);
       setSuccess("Chatbot deleted successfully!");

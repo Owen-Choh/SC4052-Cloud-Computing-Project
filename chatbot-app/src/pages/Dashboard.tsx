@@ -8,7 +8,7 @@ import { Chatbot } from "../api/chatbot";
 import { useChatbotContext } from "../context/ChatbotContext";
 
 function Dashboard() {
-  const { currentUser, doLogout, token } = useAuth();
+  const { currentUser, doLogout } = useAuth();
   const { setChatbots, selectedChatbot, isCreatingChatbot } =
     useChatbotContext();
 
@@ -38,7 +38,7 @@ function Dashboard() {
   const fetchChatbots = async () => {
     try {
       const response = await getChatbotsListApi.get("", {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       setChatbots(response.data);
       console.log("Chatbots fetched:", response.data);
