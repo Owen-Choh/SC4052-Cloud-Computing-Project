@@ -1,5 +1,7 @@
 import React from "react";
 import { useChatbotContext } from "../context/ChatbotContext";
+import LogoutIcon from "@mui/icons-material/Logout";
+import useAuth from "../auth/useAuth";
 interface SidebarProps {
   currentUsername: string | undefined;
 }
@@ -8,9 +10,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
   const { chatbots, setSelectedChatbot, setIsCreatingChatbot } =
     useChatbotContext();
 
+  const { doLogout } = useAuth();
+
   return (
     <div className="bg-gray-800 text-white w-64 flex flex-col h-screen">
-      <h1 className="text-2xl font-bold p-4">Welcome</h1>
       <button
         onClick={() => {
           setIsCreatingChatbot(true);
@@ -28,14 +31,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
               setSelectedChatbot(chatbot);
               setIsCreatingChatbot(false);
             }}
-            className="p-4 hover:bg-gray-700 cursor-pointer"
+            className="m-2 rounded-lg p-4 hover:bg-gray-700 cursor-pointer"
           >
             {chatbot.chatbotname}
           </li>
         ))}
       </ul>
-
-      <p className="p-4">Logged in as: {currentUsername}</p>
+      <div className="flex justify-center items-center p-4">
+        <button onClick={doLogout} className="!p-1 m-0 flex">
+          <LogoutIcon />
+        </button>
+        <p className="p-4">Logged in as: {currentUsername}</p>
+      </div>
     </div>
   );
 };

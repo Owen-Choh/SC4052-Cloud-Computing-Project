@@ -62,7 +62,7 @@ function Dashboard() {
   }, [isCreatingChatbot, selectedChatbot]);
 
   return (
-    <div className="flex h-screen flex-1 w-full">
+    <div className="flex h-screen flex-1 w-full items-center">
       <Sidebar currentUsername={currentUser?.username} />
       <div className="w-full">
         {currentChatbot ? (
@@ -73,7 +73,7 @@ function Dashboard() {
             setExcludeFile={setExcludeFile}
           />
         ) : (
-          <h1 className="text-2xl font-bold p-4">Select a chatbot to view</h1>
+          <h1 className="m-auto w-1/2 text-2xl font-bold p-4 text-center">Create a new chatbot or <br/> Select an existing chatbot to view your customisations</h1>
         )}
       </div>
     </div>

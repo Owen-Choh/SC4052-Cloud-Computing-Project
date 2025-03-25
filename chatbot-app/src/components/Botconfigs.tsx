@@ -142,6 +142,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         "Failed to delete chatbot. " +
           (err.response?.data?.error || "Unknown error")
       );
+      setDeleteModalOpen(false);
     }
   };
 
