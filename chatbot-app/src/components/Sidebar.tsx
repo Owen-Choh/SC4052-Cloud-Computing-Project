@@ -19,10 +19,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
           setIsCreatingChatbot(true);
           setSelectedChatbot(null);
         }}
-        className="m-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 m-4 px-4 rounded"
       >
         + New Chatbot
       </button>
+      <div className="border-b-2 border-gray-700"></div>
       <ul className="flex-grow overflow-y-auto">
         {chatbots.map((chatbot) => (
           <li
@@ -31,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUsername }) => {
               setSelectedChatbot(chatbot);
               setIsCreatingChatbot(false);
             }}
-            className="m-2 rounded-lg p-4 hover:bg-gray-700 cursor-pointer"
+            className="rounded-lg hover:bg-gray-700 cursor-pointer py-2 m-4 px-4 rounded truncate"
           >
             {chatbot.chatbotname}
           </li>
