@@ -8,7 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GetDBConnection() (*sql.DB, error){
+func GetDBConnection() (*sql.DB, error) {
 	return sql.Open("sqlite3", "./database_files/chatbot.db")
 }
 
@@ -92,7 +92,7 @@ func InitDB() (bool, error) {
 		log.Printf("Error initalising conversations table: %s\n", err)
 		return false, err
 	}
-	
+
 	return true, err
 }
 
@@ -106,10 +106,10 @@ func checktablesexist(db *sql.DB) bool {
 	defer rows.Close()
 	// Read results into a map
 	tableExists := map[string]bool{
-		"users":    false,
-		"chatbots": false,
+		"users":         false,
+		"chatbots":      false,
 		"conversations": false,
-		"apifiles": false,
+		"apifiles":      false,
 	}
 
 	for rows.Next() {
