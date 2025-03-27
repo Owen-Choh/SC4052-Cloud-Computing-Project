@@ -62,8 +62,8 @@ type RegisterUserPayload struct {
 }
 
 type LoginUserPayload struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required,min=3"`
 }
 
 // ChatRequest defines the request body for chatting with a chatbot.

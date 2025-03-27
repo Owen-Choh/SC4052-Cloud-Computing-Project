@@ -128,8 +128,9 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Parse the form for both application/x-www-form-urlencoded and multipart/form-data
+	log.Println(r.Header.Get("Content-Type"))
 	if err := r.ParseMultipartForm(1000); err != nil {
-		log.Println("Error parsing login form:", err)
+		log.Println("Error parsing register form:", err)
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -148,6 +149,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// check if user exists
 	_, err := h.store.GetUserByName(payload.Username)
 	if err == nil {
+		log.Printf("user %s already exists\n", payload.Username)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user %s already exists", payload.Username))
 		return
 	}
