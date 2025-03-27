@@ -24,7 +24,10 @@ const LoginPage: React.FC = () => {
       await login(formData);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errormsg = error.message + " " + error.response?.data.error;
+        let errormsg = error.message;
+        if (error.response?.data.error) {
+          errormsg = errormsg + " " + error.response?.data.error;
+        }
         setError(errormsg);
       } else {
         setError("Unknown error occurred");
@@ -61,7 +64,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="flex flex-col w-1/2 h-full p-4 bg-gray-900 m-auto rounded-lg">
-      <div className="flex gap-1 text-xl font-bold mb-4 p-4">
+      <div className="flex gap-1 text-xl font-bold p-4">
         <Tab
           label="Login"
           isActive={activeTab === "login"}
@@ -80,7 +83,7 @@ const LoginPage: React.FC = () => {
         />
       </div>
       <div className="border-b-2 border-gray-700"></div>
-      <div className="p-4">
+      <div>
         <TabPanel activeTab={activeTab} tabKey="login">
           <form onSubmit={submitLoginForm} className="flex flex-col space-y-4">
             <input
@@ -139,7 +142,7 @@ const LoginPage: React.FC = () => {
         </TabPanel>
       </div>
 
-      {error && <p className="text-red-500 mt-2 m-auto">{error}</p>}
+      {error && <p className="text-red-500 m-auto">{error}</p>}
     </div>
   );
 };

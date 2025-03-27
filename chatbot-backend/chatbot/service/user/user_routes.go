@@ -28,8 +28,43 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	})
 	router.HandleFunc("POST /login", h.handleLogin)
 	router.HandleFunc("POST /register", h.handleRegister)
+	router.HandleFunc("GET /logout", h.logout)
+	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
 
 	// admin routes
+}
+
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",            // Empty value
+		Path:     "/",           // Match the original path
+		HttpOnly: true,
+		Secure:   true,          // Keep this for HTTPS
+		MaxAge:   -1,            // Tells browser to delete cookie
+		Expires:  time.Unix(0, 0), // Optional extra
+	})
+	utils.WriteJSON(w, http.StatusOK, nil)
+}
+
+func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
+	// auth should be handled by middleware, if it reaches here, it means auth is successful
+	userid := auth.GetUserIDFromContext(r.Context())
+	username := auth.GetUsernameFromContext(r.Context())
+	if userid == -1 || username == "" {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))	
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"user": map[string]interface{}{
+			"userid":   strconv.Itoa(userid),
+			"username": username,
+		},
+		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
+	})
+
+	log.Printf("checked cookie for user %s\n", username)
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -71,14 +106,24 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+    Value:    token,
+    HttpOnly: true,
+    Secure:   true, // Ensure it's only sent over HTTPS
+    Path:     "/",
+    Expires:  time.Now().Add(auth.GetExpirationDuration()),
+	})
+
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"user": map[string]interface{}{
 			"userid":   strconv.Itoa(u.Userid),
 			"username": u.Username,
 		},
-		"token":    token,
 		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
 	})
+
+	log.Printf("user %s logged in\n", u.Username)
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {

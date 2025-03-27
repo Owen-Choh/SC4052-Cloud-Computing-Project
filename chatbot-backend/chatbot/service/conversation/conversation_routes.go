@@ -27,14 +27,13 @@ type Handler struct {
 	apiFileStore      types.APIFileStoreInterface
 	genaiCtx          context.Context
 	genaiClient       *genai.Client // Shared Gemini API client
-	genaiModel        *genai.GenerativeModel
 }
 
 func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore types.ConversationStoreInterface, apifileStore types.APIFileStoreInterface, apiKey string) (*Handler, error) {
 	// Initialize the Gemini client
 	// modelName := "gemini-2.0-flash-thinking-exp-01-21"
-	modelName := "gemini-2.0-pro-exp-02-05"
-	ctx, client, model := setupAiModel(apiKey, modelName)
+	// modelName := "gemini-2.0-pro-exp-02-05"
+	ctx, client := setupAiCtxAndClient(apiKey)
 
 	return &Handler{
 		chatbotStore:      chatbotStore,
@@ -42,7 +41,6 @@ func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore type
 		apiFileStore:      apifileStore,
 		genaiCtx:          ctx,
 		genaiClient:       client,
-		genaiModel:        model,
 	}, nil
 }
 
@@ -146,11 +144,15 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.genaiModel.SetTemperature(0.9)
-	h.genaiModel.SetTopK(40)
-	h.genaiModel.SetTopP(0.95)
-	h.genaiModel.SetMaxOutputTokens(8192)
-	h.genaiModel.ResponseMIMEType = "text/plain"
+	// Initialize the Gemini model
+	modelName := "gemini-2.0-pro-exp-02-05"
+	genaiModel := h.genaiClient.GenerativeModel(modelName)
+
+	genaiModel.SetTemperature(0.9)
+	genaiModel.SetTopK(40)
+	genaiModel.SetTopP(0.95)
+	genaiModel.SetMaxOutputTokens(8192)
+	genaiModel.ResponseMIMEType = "text/plain"
 
 	// files provided during configuration of chatbot
 	systemFileURIs := []string{}
@@ -159,12 +161,12 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 			h.checkAndUploadToGemini(chatbot.Filepath, chatbot.Chatbotid),
 		}
 	}
-	h.genaiModel.SystemInstruction = &genai.Content{
+	genaiModel.SystemInstruction = &genai.Content{
 		Parts: getSystemInstructionParts(*chatbot),
 	}
 
 	log.Printf("start chatid: %v", chatRequest.Conversationid)
-	session := h.genaiModel.StartChat()
+	session := genaiModel.StartChat()
 	// append the file to history as system instruction only allow text
 	session.History = []*genai.Content{
 		{
@@ -254,7 +256,7 @@ func getContentFromConversions(conversations []types.Conversation) []*genai.Cont
 	return content
 }
 
-func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Client, *genai.GenerativeModel) {
+func setupAiCtxAndClient(apiKey string) (context.Context, *genai.Client) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
@@ -262,8 +264,8 @@ func setupAiModel(apiKey string, modelName string) (context.Context, *genai.Clie
 		log.Fatalf("Error creating client: %v", err)
 	}
 
-	model := client.GenerativeModel(modelName)
-	return ctx, client, model
+	// model := client.GenerativeModel(modelName)
+	return ctx, client
 }
 
 func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
