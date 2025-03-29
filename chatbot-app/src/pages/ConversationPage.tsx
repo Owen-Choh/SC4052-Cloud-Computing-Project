@@ -8,6 +8,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
 import axios, { AxiosError, HttpStatusCode } from "axios";
+import remarkGfm from "remark-gfm";
 
 export type ConversationSuccessResponse = {
   conversationid: string;
@@ -37,7 +38,8 @@ const ConversationPage = () => {
 
       const conversationResponse = response.data as ConversationSuccessResponse;
       console.log("Conversation start response object:", conversationResponse);
-      setConversationID(conversationResponse.conversationid);
+      // setConversationID(conversationResponse.conversationid);
+      setConversationID("6176875e-e0ca-4bf8-a8f2-8f1a59ba36b5");
       setChatbotDescription(conversationResponse.description);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -122,6 +124,7 @@ const ConversationPage = () => {
             .then(({ done, value }) => {
               if (done) {
                 console.log("Stream completed.");
+                console.log("Full response:", chatbotFullResponse);
                 setConversation((prev) => [
                   ...prev,
                   { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
@@ -132,10 +135,32 @@ const ConversationPage = () => {
               }
               const decodedChunk = decoder.decode(value, { stream: true });
               // remove data: prefix from the decoded chunk
-              const cleanedChunk = decodedChunk.replace(/^data:\s*/, "");
+              console.log("Decoded chunk:", decodedChunk);
+              var cleanedChunk = decodedChunk.replace(/^data:\s/, "");
+              console.log("Cleaned chunk:", cleanedChunk);
+
+              if (cleanedChunk.endsWith('\n\n')) {
+                console.log("the pair of trailing newlines detected, removing them.");
+                cleanedChunk = cleanedChunk.slice(0, -2); // Remove trailing \n\n if it exists
+              }
+
+              if (cleanedChunk === "event: close\ndata: done") {
+                console.log("Stream completed.");
+                console.log("Full response:", chatbotFullResponse);
+                setConversation((prev) => [
+                  ...prev,
+                  { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
+                ]);
+                setLoading(false); // Remove loading state
+                setGeminiResponse("");
+                return;
+              }
 
               accumulatedResponse += cleanedChunk;
               chatbotFullResponse += cleanedChunk; // Append to full response
+              
+              console.log("Accumulated response:", accumulatedResponse);
+
               setGeminiResponse(accumulatedResponse); // Update streaming UI
               processStream(); // Continue reading the stream
             })
@@ -287,20 +312,17 @@ const ConversationPage = () => {
           return (
             <div
               key={index}
-              className={`border p-4 rounded-lg ${isUser ? "bg-gray-700" : ""}`}
+              className={`border p-4  rounded-lg markdown-body !py-0 ${isUser ? "bg-gray-700" : ""}`}
             >
-              <ReactMarkdown>{`**${isUser ? "You" : chatbotname}:**\n> ${
-                msg.content
-              }`}</ReactMarkdown>
+              <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]}>{`**${
+                isUser ? "You" : chatbotname
+              }:**\n> ${msg.content}`}</ReactMarkdown>
             </div>
           );
         })}
         {loading && isStreaming && (
-          <div
-            ref={responseAreaRef}
-            className="border p-4 rounded-lg"
-          >
-            <ReactMarkdown>{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
+          <div ref={responseAreaRef} className="border p-4 rounded-lg">
+            <ReactMarkdown skipHtml={true}>{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
           </div>
         )}
       </div>

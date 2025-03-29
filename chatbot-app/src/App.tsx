@@ -30,8 +30,8 @@ function App() {
             element={<ConversationPage />}
           />
 
+          <Route path="/TempPage" element={<TempPage />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/TempPage" element={<TempPage />} />
             <Route
               path="/Dashboard"
               element={
