@@ -11,12 +11,18 @@ import { AuthProvider } from "./auth/useAuth";
 import Dashboard from "./pages/Dashboard";
 import ConversationPage from "./pages/ConversationPage";
 import { ChatbotProvider } from "./context/ChatbotContext";
+import GeminiStreamDisplay from "./pages/GeminiStreamDisplay";
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
+          <Route
+            path="/test/chat/:username/:chatbotname"
+            element={<GeminiStreamDisplay />}
+          />
+
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route
