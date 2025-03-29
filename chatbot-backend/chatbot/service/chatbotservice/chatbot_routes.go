@@ -133,7 +133,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check file name, cannot have some special characters
-	if !validate.ValidFileNameRegex.MatchString(header.Filename) {
+	if filepath != "" && !validate.ValidFileNameRegex.MatchString(header.Filename) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file name"))
 		return
 	}
@@ -247,7 +247,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// check file name, cannot have some special characters
-	if !validate.ValidFileNameRegex.MatchString(header.Filename) {
+	if newFilepath != "" && !validate.ValidFileNameRegex.MatchString(header.Filename) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file name"))
 		return
 	}
