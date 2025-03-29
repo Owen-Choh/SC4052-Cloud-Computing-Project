@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { getConversationIdApi, chatConversationApi } from "../api/apiConfig";
+import {
+  getConversationIdApi,
+  chatConversationApi,
+  chatStreamConversationApiUrl, // Import the streaming API
+} from "../api/apiConfig";
 import ReactMarkdown from "react-markdown";
 import SendIcon from "@mui/icons-material/Send";
 import axios, { AxiosError, HttpStatusCode } from "axios";
@@ -13,12 +17,16 @@ export type ConversationSuccessResponse = {
 const ConversationPage = () => {
   const { username, chatbotname } = useParams(); // Extract URL params
   const [conversationID, setConversationID] = useState<string>("");
-  const [conversation, setConversation] = useState<string[]>([]);
+  const [conversation, setConversation] = useState<
+    { role: "user" | "chatbot"; content: string }[]
+  >([]); // Array of objects to manage user/chatbot messages
   const [userInput, setUserInput] = useState<string>("");
   const [chatbotDescription, setChatbotDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false); // For streaming response
+  const [geminiResponse, setGeminiResponse] = useState(""); // For streaming response display
+  const responseAreaRef = useRef(null); // Ref for response display area during streaming
 
   const getConversationID = async () => {
     try {
@@ -59,45 +67,142 @@ const ConversationPage = () => {
   };
 
   const sendConversation = async () => {
-    // Fetch conversation from server, need to be informat /{username}/{chatbotname}
-    if (userInput == "") {
+    if (userInput === "") {
       console.log("User input is empty");
       return;
     }
 
-    // Add user input as a new message (from the user)
-    setConversation((prev) => [...prev, `**You:**\n> ${userInput}`]);
-    const userText = userInput; // Store before clearing input
+    const userMessage = userInput;
     setUserInput("");
     setLoading(true);
+    setError(null); // Clear any previous errors
+    setGeminiResponse(""); // Clear previous streaming response
+    setConversation((prev) => [
+      ...prev,
+      { role: "user", content: userMessage }, // Add user message to conversation state
+    ]);
 
-    try {
-      const chatConversationResponse = await chatConversationApi.post(
-        `/${username}/${chatbotname}`,
-        {
-          conversationid: conversationID,
-          message: userText,
+    if (isStreaming) {
+      try {
+        const response = await fetch(
+          chatStreamConversationApiUrl + `/${username}/${chatbotname}`, // Use absolute URL
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              conversationid: conversationID,
+              message: userMessage,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          console.error("HTTP error!", response.status, response.statusText);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-      );
-      // Append chatbot response
-      setConversation((prev) => [
-        ...prev,
-        `**${chatbotname}:**\n> ${chatConversationResponse.data.response}`,
-      ]);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
+
+        if (!response.body) {
+          console.error("Response body is null or undefined.");
+          setError(
+            "Error: Response body is null or undefined. Please try again."
+          );
+          return;
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedResponse = "";
+        let chatbotFullResponse = ""; // To store the full response for conversation history
+
+        const processStream = () => {
+          reader
+            .read()
+            .then(({ done, value }) => {
+              if (done) {
+                console.log("Stream completed.");
+                setConversation((prev) => [
+                  ...prev,
+                  { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
+                ]);
+                setLoading(false); // Remove loading state
+                setGeminiResponse("");
+                return;
+              }
+              const decodedChunk = decoder.decode(value, { stream: true });
+              // remove data: prefix from the decoded chunk
+              const cleanedChunk = decodedChunk.replace(/^data:\s*/, "");
+
+              accumulatedResponse += cleanedChunk;
+              chatbotFullResponse += cleanedChunk; // Append to full response
+              setGeminiResponse(accumulatedResponse); // Update streaming UI
+              processStream(); // Continue reading the stream
+            })
+            .catch((streamError) => {
+              console.error("Stream reading error:", streamError);
+              setError(
+                "Error streaming response from chatbot. Please try again."
+              );
+              setIsStreaming(false); // Streaming stopped due to error
+              setLoading(false);
+              reader.cancel(); // Cancel the reader on error
+            });
+        };
+
+        processStream(); // Start streaming
+
+        // Clear geminiResponse here, before stream starts to ensure clean UI
+        setGeminiResponse("");
+      } catch (fetchError) {
+        console.error("Fetch error:", fetchError);
+        setError(
+          "Error fetching streaming response. Please check your network and try again."
+        );
+        setIsStreaming(false); // Streaming stopped due to fetch error
+        setLoading(false);
+      }
+    } else {
+      // Non-streaming API call
+      try {
+        const chatConversationResponse = await chatConversationApi.post(
+          `/${username}/${chatbotname}`,
+          {
+            conversationid: conversationID,
+            message: userMessage,
+          }
+        );
+        // Append chatbot response
         setConversation((prev) => [
           ...prev,
-          `**${chatbotname}:**\n> Error ${error.response?.status}: ${error.response?.data.error}`,
+          {
+            role: "chatbot",
+            content: chatConversationResponse.data.response,
+          },
         ]);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          setConversation((prev) => [
+            ...prev,
+            {
+              role: "chatbot",
+              content: `Error ${error.response?.status}: ${error.response?.data.error}`,
+            },
+          ]);
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   const downloadConversationAsText = () => {
-    const content = conversation.join("\n\n");
+    const content = conversation
+      .map(
+        (msg) =>
+          `**${msg.role === "user" ? "You" : chatbotname}:**\n> ${msg.content}`
+      )
+      .join("\n\n");
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -108,7 +213,12 @@ const ConversationPage = () => {
   };
 
   const downloadConversationAsMarkdown = () => {
-    const content = conversation.join("\n\n"); // Spacing between messages
+    const content = conversation
+      .map(
+        (msg) =>
+          `**${msg.role === "user" ? "You" : chatbotname}:**\n> ${msg.content}`
+      )
+      .join("\n\n");
     const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -118,12 +228,9 @@ const ConversationPage = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  useEffect(
-    () => {
-      getConversationID();
-    },
-    [] // Run once
-  );
+  useEffect(() => {
+    getConversationID();
+  }, []); // Run once on component mount
 
   return (
     <div className="p-4 flex flex-col h-screen gap-2">
@@ -138,16 +245,16 @@ const ConversationPage = () => {
             <>
               <p>
                 Conversation ID:{" "}
-                {conversationID && conversationID != ""
+                {conversationID && conversationID !== ""
                   ? conversationID
                   : "Loading..."}
               </p>
-              {conversationID != "" && chatbotDescription == "" ? (
+              {conversationID !== "" && chatbotDescription === "" ? (
                 <p>No chatbot description provided</p>
               ) : (
                 <p>
                   Description of chatbot:{" "}
-                  {chatbotDescription && chatbotDescription != ""
+                  {chatbotDescription && chatbotDescription !== ""
                     ? chatbotDescription
                     : "Loading..."}
                 </p>
@@ -155,7 +262,7 @@ const ConversationPage = () => {
             </>
           )}
         </div>
-        {conversationID == "" ? null : (
+        {conversationID === "" ? null : (
           <div className="float-right flex flex-col gap-2">
             <button
               className="border rounded-lg p-1 bg-green-600 hover:bg-green-700 text-white"
@@ -175,23 +282,40 @@ const ConversationPage = () => {
       <div className="border-b-2 border-gray-700"></div>
 
       <div className="flex flex-col flex-grow gap-2">
-        {conversation.map((line, index) => {
-          const isUser = line.startsWith("**You:**");
+        {conversation.map((msg, index) => {
+          const isUser = msg.role === "user";
           return (
             <div
               key={index}
               className={`border p-4 rounded-lg ${isUser ? "bg-gray-700" : ""}`}
             >
-              <ReactMarkdown>{line}</ReactMarkdown>
+              <ReactMarkdown>{`**${isUser ? "You" : chatbotname}:**\n> ${
+                msg.content
+              }`}</ReactMarkdown>
             </div>
           );
         })}
+        {loading && isStreaming && (
+          <div
+            ref={responseAreaRef}
+            className="border p-4 rounded-lg"
+          >
+            <ReactMarkdown>{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
+          </div>
+        )}
       </div>
-      {loading && (
-        <div className="border p-4 rounded-lg bg-gray-600 italic text-gray-300">
-          {`${chatbotname} is thinking very hard, this may take up to a minute...`}
-        </div>
-      )}
+      {loading &&
+        !isStreaming && ( // Show loading only for non-streaming
+          <div className="border p-4 rounded-lg bg-gray-600 italic text-gray-300">
+            {`${chatbotname} is thinking very hard, this may take up to a minute...`}
+          </div>
+        )}
+      {loading &&
+        isStreaming && ( // Show streaming loading message
+          <div className="border p-4 rounded-lg bg-gray-600 italic text-gray-300">
+            {`${chatbotname} is responding in real-time...`}
+          </div>
+        )}
       <div className="border p-4 rounded-lg sticky bottom-0 bg-gray-800 flex">
         <textarea
           className="border rounded flex-grow p-2 "
@@ -203,7 +327,7 @@ const ConversationPage = () => {
           <button
             className="border rounded-lg flex gap-1 items-center m-auto disabled:opacity-50"
             onClick={sendConversation}
-            disabled={loading || userInput == ""}
+            disabled={loading || userInput === ""}
           >
             Send
             <SendIcon />

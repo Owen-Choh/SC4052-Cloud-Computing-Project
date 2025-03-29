@@ -35,6 +35,4 @@ export const chatConversationApi = axios.create({
   baseURL: `${baseURL}/conversation/chat`
 });
 
-export const chatStreamConversationApi = axios.create({
-  baseURL: `${baseURL}/conversation/chat/stream`
-});
+export const chatStreamConversationApiUrl = `${baseURL}/conversation/chat/stream`;
