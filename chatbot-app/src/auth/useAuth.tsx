@@ -1,6 +1,7 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { LoginResponse, User } from "./auth";
 import { checkAuthApi, loginApi, logoutApi } from "../api/apiConfig";
+import axios, { HttpStatusCode } from "axios";
 
 export interface AuthContextType {
   currentUser: User | null;
@@ -51,15 +52,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const logindata: LoginResponse = response.data;
         setCurrentUser(logindata.user);
         setIsAuthenticated(true);
+      } 
+    } catch (error) {
+      if(axios.isAxiosError(error)) {
+        if (error.response?.status === HttpStatusCode.ImATeapot) {
+          // 418 is returned when theres no cookie
+          setIsAuthenticated(false);
+          setCurrentUser(null);
+        } else {
+          setIsAuthenticated(false);
+          setCurrentUser(null);
+          doLogout();
+        }
       } else {
         setIsAuthenticated(false);
         setCurrentUser(null);
         doLogout();
       }
-    } catch (error) {
-      setIsAuthenticated(false);
-      setCurrentUser(null);
-      doLogout();
     }
   };
 

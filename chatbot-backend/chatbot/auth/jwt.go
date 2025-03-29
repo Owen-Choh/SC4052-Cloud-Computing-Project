@@ -40,7 +40,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
 		if tokenString == "" {
-			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
+			utils.WriteError(w, http.StatusTeapot, fmt.Errorf("token missing, permission denied"))
 			return
 		}
 		// tokenString = tokenString[7:] //remove the bearer prefix
