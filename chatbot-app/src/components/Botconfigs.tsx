@@ -85,8 +85,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       if (chatbot.file.size > 10 * 1024 * 1024) {
         setError("File size exceeds 10MB limit.");
         return;
-      } else if (/^[a-zA-Z0-9_\\-\\. ]+$/.test(chatbot.file.name) === false) {
-        setError(`Chatbot name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`);
+      } else if (/^[a-zA-Z0-9_\-\. ]+$/.test(chatbot.file.name) === false) {
+        setError(`File name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`);
         return;
       } else if (!["application/pdf", "text/plain", "image/jpeg", "audio/mpeg", "video/mp4"].includes(chatbot.file.type)) {
         // can only be pdf, txt, jpg, mp3, mp4
@@ -127,6 +127,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         const updatedChatbot = {
           ...chatbot,
           chatbotid: response.data.chatbotid,
+          prevFilePath: chatbot.filepath,
         };
         setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
@@ -213,7 +214,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
           <ChatbotCustomisation
             chatbotBehaviour={chatbot.behaviour}
             chatbotContext={chatbot.usercontext}
-            chatbotDocument={chatbot.filepath}
+            chatbotDocument={chatbot.prevFilePath}
             excludeFile={excludeFile}
             toggleExcludeFile={() => setExcludeFile((prev) => !prev)}
             updateChatbotCustomisation={updateChatbotCustomisation}
