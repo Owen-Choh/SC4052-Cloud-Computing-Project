@@ -90,13 +90,13 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	u, err := h.store.GetUserByName(payload.Username)
 	if err != nil {
 		log.Printf("error querying by username: %s\n", err)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 
 	if !auth.ComparePassword(u.Password, []byte(payload.Password)) {
 		log.Printf("someone tried to login with wrong password\n")
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 

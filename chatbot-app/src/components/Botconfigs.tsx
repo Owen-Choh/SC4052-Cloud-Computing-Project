@@ -70,6 +70,31 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
 
   const saveChatbot = async () => {
     if (!chatbot) return;
+    setSuccess("");
+    setError("");
+    
+    if (!chatbot.chatbotname || chatbot.chatbotname.length < 1) {
+      setError("Chatbot name is required.");
+      return;
+    } else if (/^[a-zA-Z0-9]*$/.test(chatbot.chatbotname) === false) {
+      setError(`Chatbot name ${chatbot.chatbotname} must be alphanumeric and cannot contain special characters or spaces.`);
+      return;
+    }
+
+    if (chatbot.file){
+      if (chatbot.file.size > 10 * 1024 * 1024) {
+        setError("File size exceeds 10MB limit.");
+        return;
+      } else if (/^[a-zA-Z0-9_\\-\\. ]+$/.test(chatbot.file.name) === false) {
+        setError(`Chatbot name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`);
+        return;
+      } else if (!["application/pdf", "text/plain", "image/jpeg", "audio/mpeg", "video/mp4"].includes(chatbot.file.type)) {
+        // can only be pdf, txt, jpg, mp3, mp4
+        setError("Invalid file type. Please upload a valid file. Only pdf, txt, jpg, mp3, mp4 are allowed.");
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append("chatbotname", chatbot.chatbotname);
     formData.append("description", chatbot.description);
