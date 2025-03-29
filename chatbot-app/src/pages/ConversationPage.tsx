@@ -18,6 +18,7 @@ const ConversationPage = () => {
   const [chatbotDescription, setChatbotDescription] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false); // For streaming response
 
   const getConversationID = async () => {
     try {
@@ -198,14 +199,25 @@ const ConversationPage = () => {
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
         />
-        <button
-          className="border rounded-lg m-2 flex gap-1 items-center disabled:opacity-50"
-          onClick={sendConversation}
-          disabled={loading || userInput == ""}
-        >
-          Send
-          <SendIcon />
-        </button>
+        <div className="w-fit">
+          <button
+            className="border rounded-lg flex gap-1 items-center m-auto disabled:opacity-50"
+            onClick={sendConversation}
+            disabled={loading || userInput == ""}
+          >
+            Send
+            <SendIcon />
+          </button>
+          <input
+            type="checkbox"
+            className="m-2"
+            id="streamingCheckbox"
+            checked={isStreaming}
+            disabled={loading}
+            onChange={(e) => setIsStreaming(e.target.checked)}
+          />
+          <label htmlFor="streamingCheckbox">Stream Response?</label>
+        </div>
       </div>
     </div>
   );

@@ -34,3 +34,7 @@ export const getConversationIdApi = axios.create({
 export const chatConversationApi = axios.create({
   baseURL: `${baseURL}/conversation/chat`
 });
+
+export const chatStreamConversationApi = axios.create({
+  baseURL: `${baseURL}/conversation/chat/stream`
+});
