@@ -82,6 +82,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
+		log.Printf("error validating login payload %s: %s\n", payload.Username, err)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
 		return
 	}
@@ -134,13 +135,13 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := types.LoginUserPayload{
+	payload := types.RegisterUserPayload{
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
-	
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
+		log.Printf("error validating register payload %s: %s\n", payload.Username, err)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
 		return
 	}
@@ -148,7 +149,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// check if user exists
 	_, err := h.store.GetUserByName(payload.Username)
 	if err == nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user %s already exists", payload.Username))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("username %s already exists", payload.Username))
 		return
 	}
 
