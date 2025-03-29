@@ -9,6 +9,7 @@ import { registerApi } from "../api/apiConfig";
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [error, setError] = useState("");
   const { currentUser, login } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
@@ -38,6 +39,11 @@ const LoginPage: React.FC = () => {
   const submitRegisterForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
+    if (password !== password2) {
+      setError("Passwords do not match");
+      return;
+    }
+
     const formData = new FormData(event.target as HTMLFormElement);
     try {
       const response = await registerApi.post("", formData);
@@ -46,7 +52,12 @@ const LoginPage: React.FC = () => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errormsg = error.message + " " + error.response?.data.error;
+        var errormsg = error.message
+        if (errormsg === "Network Error") {
+          errormsg = "Network Error: Please check your connection";
+        } else if (error.response?.data.error) {
+          errormsg = errormsg + " " + error.response?.data.error;
+        }
         setError(errormsg);
       } else {
         setError("Unknown error occurred");
@@ -125,11 +136,20 @@ const LoginPage: React.FC = () => {
             />
             <input
               type="password"
-              name="password"
+              name="password-1"
               placeholder="Password"
               className="border rounded p-2"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              name="password-2"
+              placeholder="Confirm Password"
+              className="border rounded p-2"
+              value={password2}
+              onChange={(e) => setPassword2(e.target.value)}
               required
             />
             <button
