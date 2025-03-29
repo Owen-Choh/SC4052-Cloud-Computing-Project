@@ -253,6 +253,30 @@ const ConversationPage = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const renderers = {
+    code({ node, inline, className, children, ...props }: any) {
+      if (inline) {
+        return <code className="inline-code">{children}</code>; // Correctly renders inline code
+      }
+  
+      const match = /language-(\w+)/.exec(className || "");
+      const language = match ? match[1].toUpperCase() : null; // Detect language
+  
+      if (!language) {
+        return <code className="inline-code">{children}</code>; // Return inline code if no language is specified
+      }
+
+      return (
+        <div className="code-block-container m-2">
+          {language && <div className="code-language-label w-full">{language}</div>}
+          <pre {...props} className={className}>
+            <code className="!p-2">{children}</code>
+          </pre>
+        </div>
+      );
+    },
+  };
+
   useEffect(() => {
     getConversationID();
   }, []); // Run once on component mount
@@ -314,9 +338,13 @@ const ConversationPage = () => {
               key={index}
               className={`border p-4  rounded-lg markdown-body !py-0 ${isUser ? "bg-gray-700" : ""}`}
             >
-              <ReactMarkdown skipHtml={true} remarkPlugins={[remarkGfm]}>{`**${
+              <ReactMarkdown 
+              skipHtml={true} 
+              remarkPlugins={[remarkGfm]}
+              components={renderers} 
+              >{`**${
                 isUser ? "You" : chatbotname
-              }:**\n> ${msg.content}`}</ReactMarkdown>
+              }:**\n\n ${msg.content}`}</ReactMarkdown>
             </div>
           );
         })}

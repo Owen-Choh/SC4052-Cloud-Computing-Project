@@ -3,7 +3,6 @@
 /* Base markdown container */
 .markdown-body {
   font-family: Arial, sans-serif;
-  font-size: 16px;
   line-height: 1.6;
   color: #dcdcdc;
   background-color: #1e1e1e;
@@ -87,7 +86,6 @@
 /* Inline code */
 .markdown-body code {
   font-family: "Fira Code", "Courier New", monospace;
-  font-size: 14px;
   background-color: #282c34;
   color: #dcdcdc;
   padding: 0.2em 0.4em;
@@ -97,14 +95,13 @@
 /* Block code */
 .markdown-body pre {
   background-color: #282c34;
-  padding: 1em;
+  margin: 1em 0;
   border-radius: 8px;
   overflow-x: auto;
 }
 
 .markdown-body pre code {
   display: block;
-  font-size: 14px;
   line-height: 1.5;
   color: #ffffff;
   overflow-x: auto;
@@ -139,7 +136,6 @@
 /* General styling for code blocks */
 code {
   font-family: "Fira Code", "Courier New", monospace;
-  font-size: 14px;
   background-color: #1e1e1e;
   color: #dcdcdc;
   padding: 0.2em 0.4em;
@@ -188,4 +184,25 @@ code.language-caddyfile .token.string {
 /* Numbers (port numbers, etc.) */
 code.language-caddyfile .token.number {
   color: #d19a66;
+}
+
+.inline-code {
+  background-color: rgba(27, 31, 35, 0.05);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.code-block-container {
+  position: relative;
+  background-color: #282c34;
+  border-radius: 6px;
+}
+
+.code-language-label {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+  padding: 2px 6px;
+  font-weight: bold;
+  border-radius: 4px;
 }
