@@ -38,8 +38,7 @@ const ConversationPage = () => {
 
       const conversationResponse = response.data as ConversationSuccessResponse;
       // console.log("Conversation start response object:", conversationResponse);
-      // setConversationID(conversationResponse.conversationid);
-      setConversationID("6176875e-e0ca-4bf8-a8f2-8f1a59ba36b5");
+      setConversationID(conversationResponse.conversationid);
       setChatbotDescription(conversationResponse.description);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -338,7 +337,7 @@ const ConversationPage = () => {
           return (
             <div
               key={index}
-              className={`border p-4  rounded-lg markdown-body !py-0 ${
+              className={`border p-4 rounded-lg markdown-body !py-0 ${
                 isUser ? "bg-gray-700" : ""
               }`}
             >
@@ -353,10 +352,10 @@ const ConversationPage = () => {
           );
         })}
         {loading && isStreaming && (
-          <div ref={responseAreaRef} className="border p-4 rounded-lg">
+          <div ref={responseAreaRef} className="border p-4 rounded-lg markdown-body !py-0">
             <ReactMarkdown
               skipHtml={true}
-            >{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
+            >{`**${chatbotname} (Streaming):**\n\n${geminiResponse}`}</ReactMarkdown>
           </div>
         )}
       </div>
