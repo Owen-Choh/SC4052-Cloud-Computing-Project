@@ -11,13 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// secret: jwt-secret
-//
-//	"userid":    2,
-//	"username":  "testuser",
-//	"expiredAt": "2125-03-20T12:18:41+08:00"
-const invalidUserToken string = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJleHBpcmVkQXQiOiIyMTI1LTAzLTIwVDEyOjE4OjQxKzA4OjAwIn0.BBAGT2RXbt1OZo67Mq6iEsUMl4ScEZzi0c2FyycDb7U"
-
+// test token created using secret: jwt-secret
 // "userid":    1,
 // "username":  "test-user",
 // "expiredAt": "2025-03-20T12:18:41+08:00"
@@ -161,15 +155,20 @@ func TestValidateToken(t *testing.T) {
 
 func TestValidateTokenMiddleware(t *testing.T) {
 	secret := []byte(config.Envs.JWTSecret)
-	validToken, err := CreateJWT(secret, 1, "test-user")
+	validToken, err := CreateJWT(secret, 1, "testuser")
 	if err != nil {
 		t.Fatalf("error creating validToken jwt: %v", err)
 	}
-	mismatchUsernameToken, err := CreateJWT(secret, 1, "test user")
+	nonUserToken, err := CreateJWT(secret, 2, "differentuser")
+	if err != nil {
+		t.Fatalf("error creating mismatchUsernameToken jwt: %v", err)
+	}
+	mismatchUsernameToken, err := CreateJWT(secret, 1, "differentuser")
 	if err != nil {
 		t.Fatalf("error creating mismatchUsernameToken jwt: %v", err)
 	}
 
+	var expectedUsername = "testuser"
 	tests := []struct {
 		name       string
 		authHeader bool
@@ -186,18 +185,18 @@ func TestValidateTokenMiddleware(t *testing.T) {
 			name:       "no header",
 			authHeader: false,
 			token:      "",
-			expected:   http.StatusForbidden,
+			expected:   http.StatusTeapot,
 		},
 		{
 			name:       "no token",
 			authHeader: true,
 			token:      "",
-			expected:   http.StatusForbidden,
+			expected:   http.StatusTeapot,
 		},
 		{
 			name:       "invalid user",
 			authHeader: true,
-			token:      invalidUserToken,
+			token:      nonUserToken,
 			expected:   http.StatusForbidden,
 		},
 		{
@@ -257,8 +256,8 @@ func TestValidateTokenMiddleware(t *testing.T) {
 				if username == nil {
 					t.Error("expected username to be set in context")
 				} else {
-					if username != "test-user" {
-						t.Errorf("expected username to be test-user, got %v", username)
+					if username != expectedUsername {
+						t.Errorf("expected username to be %s, got %v", expectedUsername, username)
 					}
 				}
 			}
@@ -275,7 +274,7 @@ func (m *mockUserStore) GetUserByName(username string) (*types.User, error) {
 func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 	return &types.User{
 		Userid:      1,
-		Username:    "test-user",
+		Username:    "testuser",
 		Password:    "does not matter",
 		Createddate: "2021-03-20T12:00:00+08:00",
 		Lastlogin:   "2021-03-20T12:00:00+08:00",

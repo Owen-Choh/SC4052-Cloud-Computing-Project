@@ -26,7 +26,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 		{
 			name: "json payload",
 			payload: types.RegisterUserPayload{
-				Username: "test-user",
+				Username: "testuser",
 				Password: "test-password",
 			},
 			payloadType: "application/json",
@@ -35,7 +35,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 		{
 			name: "multipart form payload",
 			payload: types.RegisterUserPayload{
-				Username: "test-user",
+				Username: "testuser",
 				Password: "test-password",
 			},
 			payloadType: "multipart/form-data",

@@ -69,39 +69,6 @@ func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
 	log.Printf("checked cookie for user %s\n", username)
 }
 
-func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
-		Value:    "",  // Empty value
-		Path:     "/", // Match the original path
-		HttpOnly: true,
-		Secure:   true,            // Keep this for HTTPS
-		MaxAge:   -1,              // Tells browser to delete cookie
-		Expires:  time.Unix(0, 0), // Optional extra
-	})
-	utils.WriteJSON(w, http.StatusOK, nil)
-}
-
-func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
-	// auth should be handled by middleware, if it reaches here, it means auth is successful
-	userid := auth.GetUserIDFromContext(r.Context())
-	username := auth.GetUsernameFromContext(r.Context())
-	if userid == -1 || username == "" {
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"user": map[string]interface{}{
-			"userid":   strconv.Itoa(userid),
-			"username": username,
-		},
-		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
-	})
-
-	log.Printf("checked cookie for user %s\n", username)
-}
-
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// Parse the form for both application/x-www-form-urlencoded and multipart/form-data
 	if err := r.ParseMultipartForm(1000); err != nil {
