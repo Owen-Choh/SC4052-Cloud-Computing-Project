@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/validate"
@@ -112,7 +113,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var filepath string
 	if err == nil {
-		fullDirPath = "database_files/uploads/" + username + "/" + chatbotname
+		fullDirPath = config.Envs.FILES_PATH + username + "/" + chatbotname
 		filepath = fullDirPath + "/" + header.Filename
 	} else {
 		filepath = ""
@@ -232,7 +233,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var newFilepath string
 	if err == nil {
-		fullDirPath = "database_files/uploads/" + username + "/" + chatbotname
+		fullDirPath = config.Envs.FILES_PATH + username + "/" + chatbotname
 		newFilepath = fullDirPath + "/" + header.Filename
 	} else {
 		newFilepath = ""
@@ -290,7 +291,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		defer file.Close()
 
-		fullDirPath := "database_files/uploads/" + username + "/" + chatbotname
+		fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
@@ -366,7 +367,7 @@ func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request) {
 
 	oldfilepath := chatbot.Filepath
 	if oldfilepath != "" {
-		err = os.RemoveAll("database_files/uploads/" + chatbot.Username + "/" + chatbot.Chatbotname)
+		err = os.RemoveAll(config.Envs.FILES_PATH + chatbot.Username + "/" + chatbot.Chatbotname)
 		if err != nil {
 			log.Println("Error removing directory:", err)
 			utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove directory of chatbot"))
