@@ -1,13 +1,13 @@
 package types
 
 type NewChatbot struct {
-	Username    string `json:"Username" validate:"required,min=3,alphanum"`
-	Chatbotname string `json:"chatbotname" validate:"required,min=1"`
-	Description string `json:"description"`
-	Behaviour   string `json:"behaviour"`
-	Usercontext string `json:"usercontext"`
-	IsShared    bool   `json:"isShared"`
-	File        string `json:"file"`
+	Username        string `json:"Username" validate:"required,min=3,alphanum"`
+	Chatbotname     string `json:"chatbotname" validate:"required,min=1"`
+	Description     string `json:"description"`
+	Behaviour       string `json:"behaviour"`
+	Usercontext     string `json:"usercontext"`
+	IsShared        bool   `json:"isShared"`
+	File            string `json:"file"`
 	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 type CreateChatbotPayload struct {
@@ -25,29 +25,29 @@ type UpdateChatbotLastused struct {
 }
 
 type UpdateChatbot struct {
-	Chatbotid   int    `json:"chatbotid" validate:"required"`
-	Username    string `json:"Username" validate:"required"`
-	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
-	Description string `json:"description"`
-	Behaviour   string `json:"behaviour"`
-	Usercontext string `json:"usercontext"`
-	IsShared    bool   `json:"isShared"`
-	File        string `json:"file"`
+	Chatbotid       int    `json:"chatbotid" validate:"required"`
+	Username        string `json:"Username" validate:"required"`
+	Chatbotname     string `json:"chatbotname" validate:"required,min=3"`
+	Description     string `json:"description"`
+	Behaviour       string `json:"behaviour"`
+	Usercontext     string `json:"usercontext"`
+	IsShared        bool   `json:"isShared"`
+	File            string `json:"file"`
 	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 
 type Chatbot struct {
-	Chatbotid   int    `json:"chatbotid"`
-	Username    string `json:"username"`
-	Chatbotname string `json:"chatbotname"`
-	Description string `json:"description"`
-	Behaviour   string `json:"behaviour"`
-	Usercontext string `json:"usercontext"`
-	Createddate string `json:"createddate"`
-	Updateddate string `json:"updateddate"`
-	Lastused    string `json:"lastused"`
-	IsShared    bool   `json:"isShared"`
-	Filepath    string `json:"filepath"`
+	Chatbotid       int    `json:"chatbotid"`
+	Username        string `json:"username"`
+	Chatbotname     string `json:"chatbotname"`
+	Description     string `json:"description"`
+	Behaviour       string `json:"behaviour"`
+	Usercontext     string `json:"usercontext"`
+	Createddate     string `json:"createddate"`
+	Updateddate     string `json:"updateddate"`
+	Lastused        string `json:"lastused"`
+	IsShared        bool   `json:"isShared"`
+	Filepath        string `json:"filepath"`
 	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 
