@@ -11,7 +11,7 @@ type ChatbotStore struct {
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *ChatbotStore {
+func NewStore(db *sql.DB) types.ChatbotStoreInterface {
 	return &ChatbotStore{db: db}
 }
 

@@ -14,7 +14,7 @@ type UserStore struct {
 	store *sql.DB
 }
 
-func NewStore(db *sql.DB) *UserStore {
+func NewStore(db *sql.DB) types.UserStoreInterface {
 	return &UserStore{store: db}
 }
 
