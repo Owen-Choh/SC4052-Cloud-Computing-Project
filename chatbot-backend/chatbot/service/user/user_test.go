@@ -41,6 +41,33 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 			payloadType: "multipart/form-data",
 			expected: http.StatusCreated, // Assuming successful registration
 		},
+		{
+			name: "username with special characters",
+			payload: types.RegisterUserPayload{
+				Username: "test\\user",
+				Password: "test-password",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
+		{
+			name: "username with spaces",
+			payload: types.RegisterUserPayload{
+				Username: "test user",
+				Password: "test-password",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
+		{
+			name: "password too short",
+			payload: types.RegisterUserPayload{
+				Username: "testuser",
+				Password: "test",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
 	}
 
 	for _, test := range tests {
