@@ -2,7 +2,7 @@ package types
 
 type NewChatbot struct {
 	Username    string `json:"Username" validate:"required,min=3,alphanum"`
-	Chatbotname string `json:"chatbotname" validate:"required,min=1,alphanum"`
+	Chatbotname string `json:"chatbotname" validate:"required,min=1"`
 	Description string `json:"description"`
 	Behaviour   string `json:"behaviour"`
 	Usercontext string `json:"usercontext"`

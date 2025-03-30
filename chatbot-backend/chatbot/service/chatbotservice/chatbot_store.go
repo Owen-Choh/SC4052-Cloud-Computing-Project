@@ -116,9 +116,9 @@ func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
 		currentTime,
 		chatbotPayload.IsShared,
 		chatbotPayload.File,
+		chatbotPayload.FileUpdatedDate,
 		chatbotPayload.Chatbotid,
 		chatbotPayload.Username,
-		chatbotPayload.FileUpdatedDate,
 	)
 	return err
 }

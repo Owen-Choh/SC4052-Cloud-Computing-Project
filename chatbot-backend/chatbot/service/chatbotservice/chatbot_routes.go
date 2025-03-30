@@ -104,6 +104,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	// Extract chatbot fields from form
 	chatbotname := r.FormValue("chatbotname")
+	description := r.FormValue("description")
 	behaviour := r.FormValue("behaviour")
 	usercontext := r.FormValue("usercontext")
 	isShared := r.FormValue("isShared") == "true"
@@ -130,6 +131,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	newChatbot := types.NewChatbot{
 		Username:        username,
 		Chatbotname:     chatbotname,
+		Description:     description,
 		Behaviour:       behaviour,
 		IsShared:        isShared,
 		Usercontext:     usercontext,
@@ -139,6 +141,11 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	if err := utils.Validate.Struct(newChatbot); err != nil {
 		validate_error := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
+	}
+	// check chatbot name, cannot have some special characters
+	if chatbotname == "" || !validate.ValidChatbotNameRegex.MatchString(chatbotname) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot name"))
 		return
 	}
 	// check file name, cannot have some special characters
@@ -261,6 +268,11 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	if err := utils.Validate.Struct(updateChatbot); err != nil {
 		validate_error := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
+	}
+	// check chatbot name, cannot have some special characters
+	if chatbotname == "" || !validate.ValidChatbotNameRegex.MatchString(chatbotname) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid chatbot name"))
 		return
 	}
 	// check file name, cannot have some special characters

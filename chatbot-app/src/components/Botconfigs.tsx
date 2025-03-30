@@ -76,8 +76,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     if (!chatbot.chatbotname || chatbot.chatbotname.length < 1) {
       setError("Chatbot name is required.");
       return;
-    } else if (/^[a-zA-Z0-9]*$/.test(chatbot.chatbotname) === false) {
-      setError(`Chatbot name ${chatbot.chatbotname} must be alphanumeric and cannot contain special characters or spaces.`);
+    } else if (/^[a-zA-Z0-9_-]*$/.test(chatbot.chatbotname) === false) {
+      setError(`Chatbot name ${chatbot.chatbotname} can only contain alphanumeric, _ or - characters. It cannot contain special characters or spaces.`);
       return;
     }
 
@@ -127,6 +127,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         const updatedChatbot = {
           ...chatbot,
           chatbotid: response.data.chatbotid,
+          file: null,
           prevFilePath: chatbot.filepath,
         };
         setChatbot(updatedChatbot);

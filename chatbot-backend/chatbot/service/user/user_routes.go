@@ -30,8 +30,6 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("POST /register", h.handleRegister)
 	router.HandleFunc("GET /logout", h.logout)
 	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
-	router.HandleFunc("GET /logout", h.logout)
-	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
 
 	// admin routes
 }
@@ -102,7 +100,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func ()  {
+	go func() {
 		err := h.store.UpdateUserLastlogin(u.Userid)
 		if err != nil {
 			log.Printf("error updating last login time for user %s: %s\n", u.Username, err)
