@@ -1,5 +1,5 @@
 import { useState, useContext, createContext, useEffect } from "react";
-import { LoginResponse, User } from "./auth";
+import { LoginResponse, User } from "./auth_interface";
 import { checkAuthApi, loginApi, logoutApi } from "../api/apiConfig";
 import axios, { HttpStatusCode } from "axios";
 
