@@ -26,6 +26,7 @@ function Dashboard() {
     createddate: "",
     updateddate: "",
     lastused: "",
+    prevFilePath: "",
     filepath: "",
     file: null,
   };
