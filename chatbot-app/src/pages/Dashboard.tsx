@@ -26,6 +26,7 @@ function Dashboard() {
     createddate: "",
     updateddate: "",
     lastused: "",
+    prevFilePath: "",
     filepath: "",
     file: null,
   };
@@ -51,7 +52,7 @@ function Dashboard() {
           })
         : [];
       setChatbots(chatbotsData);
-      console.log("Chatbots fetched:", response.data);
+      // console.log("Chatbots fetched:", response.data);
     } catch (error) {
       console.error("Failed to fetch chatbots:", error);
     }

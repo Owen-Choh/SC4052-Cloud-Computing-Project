@@ -137,7 +137,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file name"))
 		return
 	}
-	
+
 	// Handle file upload
 	if fullDirPath != "" && filepath != "" {
 		defer file.Close()
@@ -305,7 +305,6 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	if newFilepath == "" {
 		newFilepath = oldfilepath
 	}
-
 
 	err = h.chatbotStore.UpdateChatbot(updateChatbot)
 	if err != nil {

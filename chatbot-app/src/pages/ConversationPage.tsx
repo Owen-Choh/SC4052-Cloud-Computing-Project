@@ -37,7 +37,7 @@ const ConversationPage = () => {
       );
 
       const conversationResponse = response.data as ConversationSuccessResponse;
-      console.log("Conversation start response object:", conversationResponse);
+      // console.log("Conversation start response object:", conversationResponse);
       // setConversationID(conversationResponse.conversationid);
       setConversationID("6176875e-e0ca-4bf8-a8f2-8f1a59ba36b5");
       setChatbotDescription(conversationResponse.description);
@@ -124,7 +124,7 @@ const ConversationPage = () => {
             .then(({ done, value }) => {
               if (done) {
                 console.log("Stream completed.");
-                console.log("Full response:", chatbotFullResponse);
+                // console.log("Full response:", chatbotFullResponse);
                 setConversation((prev) => [
                   ...prev,
                   { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
@@ -133,20 +133,22 @@ const ConversationPage = () => {
                 setGeminiResponse("");
                 return;
               }
-              const decodedChunk = decoder.decode(value, { stream: true });
-              // remove data: prefix from the decoded chunk
-              console.log("Decoded chunk:", decodedChunk);
-              var cleanedChunk = decodedChunk.replace(/^data:\s/, "");
-              console.log("Cleaned chunk:", cleanedChunk);
 
-              if (cleanedChunk.endsWith('\n\n')) {
-                console.log("the pair of trailing newlines detected, removing them.");
+              const decodedChunk = decoder.decode(value, { stream: true });
+              // console.log("Decoded chunk:", decodedChunk);
+
+              // remove data: prefix from the decoded chunk
+              var cleanedChunk = decodedChunk.replace(/^data:\s/, "");
+              // console.log("Cleaned chunk:", cleanedChunk);
+
+              if (cleanedChunk.endsWith("\n\n")) {
+                // console.log("the pair of trailing newlines detected, removing them.");
                 cleanedChunk = cleanedChunk.slice(0, -2); // Remove trailing \n\n if it exists
               }
 
               if (cleanedChunk === "event: close\ndata: done") {
-                console.log("Stream completed.");
-                console.log("Full response:", chatbotFullResponse);
+                console.log("Stream end detected.");
+                // console.log("Full response:", chatbotFullResponse);
                 setConversation((prev) => [
                   ...prev,
                   { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
@@ -158,8 +160,8 @@ const ConversationPage = () => {
 
               accumulatedResponse += cleanedChunk;
               chatbotFullResponse += cleanedChunk; // Append to full response
-              
-              console.log("Accumulated response:", accumulatedResponse);
+
+              // console.log("Accumulated response:", accumulatedResponse);
 
               setGeminiResponse(accumulatedResponse); // Update streaming UI
               processStream(); // Continue reading the stream
@@ -258,17 +260,19 @@ const ConversationPage = () => {
       if (inline) {
         return <code className="inline-code">{children}</code>; // Correctly renders inline code
       }
-  
+
       const match = /language-(\w+)/.exec(className || "");
       const language = match ? match[1].toUpperCase() : null; // Detect language
-  
+
       if (!language) {
         return <code className="inline-code">{children}</code>; // Return inline code if no language is specified
       }
 
       return (
         <div className="code-block-container m-2">
-          {language && <div className="code-language-label w-full">{language}</div>}
+          {language && (
+            <div className="code-language-label w-full">{language}</div>
+          )}
           <pre {...props} className={className}>
             <code className="!p-2">{children}</code>
           </pre>
@@ -336,21 +340,25 @@ const ConversationPage = () => {
           return (
             <div
               key={index}
-              className={`border p-4  rounded-lg markdown-body !py-0 ${isUser ? "bg-gray-700" : ""}`}
+              className={`border p-4  rounded-lg markdown-body !py-0 ${
+                isUser ? "bg-gray-700" : ""
+              }`}
             >
-              <ReactMarkdown 
-              skipHtml={true} 
-              remarkPlugins={[remarkGfm]}
-              components={renderers} 
-              >{`**${
-                isUser ? "You" : chatbotname
-              }:**\n\n ${msg.content}`}</ReactMarkdown>
+              <ReactMarkdown
+                skipHtml={true}
+                remarkPlugins={[remarkGfm]}
+                components={renderers}
+              >{`**${isUser ? "You" : chatbotname}:**\n\n ${
+                msg.content
+              }`}</ReactMarkdown>
             </div>
           );
         })}
         {loading && isStreaming && (
           <div ref={responseAreaRef} className="border p-4 rounded-lg">
-            <ReactMarkdown skipHtml={true}>{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
+            <ReactMarkdown
+              skipHtml={true}
+            >{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
           </div>
         )}
       </div>

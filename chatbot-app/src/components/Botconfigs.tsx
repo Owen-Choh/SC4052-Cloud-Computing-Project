@@ -72,25 +72,39 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     if (!chatbot) return;
     setSuccess("");
     setError("");
-    
+
     if (!chatbot.chatbotname || chatbot.chatbotname.length < 1) {
       setError("Chatbot name is required.");
       return;
     } else if (/^[a-zA-Z0-9]*$/.test(chatbot.chatbotname) === false) {
-      setError(`Chatbot name ${chatbot.chatbotname} must be alphanumeric and cannot contain special characters or spaces.`);
+      setError(
+        `Chatbot name ${chatbot.chatbotname} must be alphanumeric and cannot contain special characters or spaces.`
+      );
       return;
     }
 
-    if (chatbot.file){
+    if (chatbot.file) {
       if (chatbot.file.size > 10 * 1024 * 1024) {
         setError("File size exceeds 10MB limit.");
         return;
       } else if (/^[a-zA-Z0-9_\-\. ]+$/.test(chatbot.file.name) === false) {
-        setError(`File name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`);
+        setError(
+          `File name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`
+        );
         return;
-      } else if (!["application/pdf", "text/plain", "image/jpeg", "audio/mpeg", "video/mp4"].includes(chatbot.file.type)) {
+      } else if (
+        ![
+          "application/pdf",
+          "text/plain",
+          "image/jpeg",
+          "audio/mpeg",
+          "video/mp4",
+        ].includes(chatbot.file.type)
+      ) {
         // can only be pdf, txt, jpg, mp3, mp4
-        setError("Invalid file type. Please upload a valid file. Only pdf, txt, jpg, mp3, mp4 are allowed.");
+        setError(
+          "Invalid file type. Please upload a valid file. Only pdf, txt, jpg, mp3, mp4 are allowed."
+        );
         return;
       }
     }
@@ -119,7 +133,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             withCredentials: true,
           });
 
-      console.log("Chatbot saved successfully:", response.data);
+      // console.log("Chatbot saved successfully:", response.data);
       setSuccess("Chatbot saved successfully!");
       setError("");
       if (isCreatingChatbot) {
@@ -153,9 +167,14 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       const response = await chatbotsApi.delete(`/${chatbot.chatbotid}`, {
         withCredentials: true,
       });
-      console.log("Chatbot deleted successfully:", response.data);
+      // console.log("Chatbot deleted successfully:", response.data);
+      if (response.status !== 200) {
+        throw new Error("Failed to delete chatbot.");
+      }
+
       setSuccess("Chatbot deleted successfully!");
       setError("");
+      setDeleteModalOpen(false);
       setChatbot(null);
       setIsCreatingChatbot(false);
       setResetMessages((prev) => !prev);

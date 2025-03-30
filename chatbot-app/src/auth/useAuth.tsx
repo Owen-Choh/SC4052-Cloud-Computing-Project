@@ -1,5 +1,5 @@
 import { useState, useContext, createContext, useEffect } from "react";
-import { LoginResponse, User } from "./auth";
+import { LoginResponse, User } from "./auth_interface";
 import { checkAuthApi, loginApi, logoutApi } from "../api/apiConfig";
 import axios, { HttpStatusCode } from "axios";
 
@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // const [token, setToken] = useState<string>("");
 
   const login = async (formData: FormData) => {
-    console.log("sending formData to loginApi:", loginApi.getUri());
+    // console.log("sending formData to loginApi:", loginApi.getUri());
     const loginResponse = await loginApi.post("", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -52,9 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const logindata: LoginResponse = response.data;
         setCurrentUser(logindata.user);
         setIsAuthenticated(true);
-      } 
+      }
     } catch (error) {
-      if(axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error)) {
         if (error.response?.status === HttpStatusCode.ImATeapot) {
           // 418 is returned when theres no cookie
           setIsAuthenticated(false);
