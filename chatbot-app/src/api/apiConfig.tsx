@@ -19,11 +19,11 @@ export const checkAuthApi = axios.create({
 });
 
 export const getChatbotsListApi = axios.create({
-  baseURL: `${baseURL}/chatbot/list`
+  baseURL: `${baseURL}/chatbot/list`,
 });
 
 export const chatbotsApi = axios.create({
-  baseURL: `${baseURL}/chatbot`
+  baseURL: `${baseURL}/chatbot`,
 });
 
 export const getConversationIdApi = axios.create({
@@ -32,7 +32,7 @@ export const getConversationIdApi = axios.create({
 });
 
 export const chatConversationApi = axios.create({
-  baseURL: `${baseURL}/conversation/chat`
+  baseURL: `${baseURL}/conversation/chat`,
 });
 
 export const chatStreamConversationApiUrl = `${baseURL}/conversation/chat/stream`;

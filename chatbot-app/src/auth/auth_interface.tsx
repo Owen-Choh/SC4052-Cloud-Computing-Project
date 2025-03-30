@@ -1,9 +1,9 @@
 export interface User {
-  userid: number,
-	username: string,
+  userid: number;
+  username: string;
 }
 
 export interface LoginResponse {
-  user: User,
-  expiresAt: string,
+  user: User;
+  expiresAt: string;
 }

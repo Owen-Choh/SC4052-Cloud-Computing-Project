@@ -29,18 +29,22 @@ export const ChatbotProvider = ({ children }: { children: ReactNode }) => {
   const [isCreatingChatbot, setIsCreatingChatbot] = useState(false);
 
   const addChatbotInContext = (newBot: Chatbot) => {
-    setChatbots(prev => [newBot, ...prev]);
+    setChatbots((prev) => [newBot, ...prev]);
   };
 
   const updateChatbotInContext = (updatedBot: Chatbot) => {
-    setChatbots(prev =>
-      prev.map(bot => (bot.chatbotid === updatedBot.chatbotid ? updatedBot : bot))
+    setChatbots((prev) =>
+      prev.map((bot) =>
+        bot.chatbotid === updatedBot.chatbotid ? updatedBot : bot
+      )
     );
   };
 
   const deleteChatbotInContext = (deletedBot: Chatbot) => {
-    setChatbots(prev => prev.filter(bot => bot.chatbotid !== deletedBot.chatbotid));
-  }
+    setChatbots((prev) =>
+      prev.filter((bot) => bot.chatbotid !== deletedBot.chatbotid)
+    );
+  };
 
   return (
     <ChatbotContext.Provider

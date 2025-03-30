@@ -19,26 +19,30 @@ const LoginPage: React.FC = () => {
   const validateUsername = (username: string) => {
     const regex = /^[a-zA-Z0-9]{3,}$/; // Alphanumeric, at least 3 characters
     return regex.test(username);
-  }
+  };
 
-  const validatePassword = (password: string) => { 
+  const validatePassword = (password: string) => {
     if (password.length < 8) {
       setError("Password must be at least 8 characters long");
       return false;
     }
     return true;
-  }
+  };
 
   const submitLoginForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
 
     if (!validateUsername(username)) {
-      setError("Invalid username. Only alphanumeric characters and underscores are allowed, and it must be at least 3 characters long.");
+      setError(
+        "Invalid username. Only alphanumeric characters and underscores are allowed, and it must be at least 3 characters long."
+      );
       return;
     }
     if (!validatePassword(password)) {
-      setError("Invalid password. Password must be at least 8 characters long.");
+      setError(
+        "Invalid password. Password must be at least 8 characters long."
+      );
       return;
     }
 
@@ -67,11 +71,15 @@ const LoginPage: React.FC = () => {
     }
 
     if (!validateUsername(username)) {
-      setError("Invalid username. Only alphanumeric characters are allowed, and it must be at least 3 characters long.");
+      setError(
+        "Invalid username. Only alphanumeric characters are allowed, and it must be at least 3 characters long."
+      );
       return;
     }
     if (!validatePassword(password)) {
-      setError("Invalid password. Password must be at least 8 characters long.");
+      setError(
+        "Invalid password. Password must be at least 8 characters long."
+      );
       return;
     }
 
@@ -84,11 +92,14 @@ const LoginPage: React.FC = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // console.log("error", error);
-        var errormsg = error.message
+        var errormsg = error.message;
         if (errormsg === "Network Error") {
           errormsg = "Network Error: Please check your connection";
-        } else if (error.response?.data.error.includes("invalid payload ") ) {
-          errormsg = errormsg + " " + "There may be invalid inputs, please check your username or password";
+        } else if (error.response?.data.error.includes("invalid payload ")) {
+          errormsg =
+            errormsg +
+            " " +
+            "There may be invalid inputs, please check your username or password";
         } else if (error.response?.data.error) {
           errormsg = errormsg + " " + error.response?.data.error;
         }
@@ -97,7 +108,7 @@ const LoginPage: React.FC = () => {
         setError("Unknown error occurred");
       }
     }
-  }
+  };
 
   useEffect(() => {
     // console.log("login check user", currentUser);
@@ -158,7 +169,10 @@ const LoginPage: React.FC = () => {
           </form>
         </TabPanel>
         <TabPanel activeTab={activeTab} tabKey="register">
-          <form onSubmit={submitRegisterForm} className="flex flex-col space-y-4">
+          <form
+            onSubmit={submitRegisterForm}
+            className="flex flex-col space-y-4"
+          >
             <input
               type="text"
               name="username"

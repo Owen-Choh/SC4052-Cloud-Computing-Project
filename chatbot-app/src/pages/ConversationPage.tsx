@@ -139,7 +139,7 @@ const ConversationPage = () => {
               var cleanedChunk = decodedChunk.replace(/^data:\s/, "");
               // console.log("Cleaned chunk:", cleanedChunk);
 
-              if (cleanedChunk.endsWith('\n\n')) {
+              if (cleanedChunk.endsWith("\n\n")) {
                 // console.log("the pair of trailing newlines detected, removing them.");
                 cleanedChunk = cleanedChunk.slice(0, -2); // Remove trailing \n\n if it exists
               }
@@ -158,7 +158,7 @@ const ConversationPage = () => {
 
               accumulatedResponse += cleanedChunk;
               chatbotFullResponse += cleanedChunk; // Append to full response
-              
+
               // console.log("Accumulated response:", accumulatedResponse);
 
               setGeminiResponse(accumulatedResponse); // Update streaming UI
@@ -258,17 +258,19 @@ const ConversationPage = () => {
       if (inline) {
         return <code className="inline-code">{children}</code>; // Correctly renders inline code
       }
-  
+
       const match = /language-(\w+)/.exec(className || "");
       const language = match ? match[1].toUpperCase() : null; // Detect language
-  
+
       if (!language) {
         return <code className="inline-code">{children}</code>; // Return inline code if no language is specified
       }
 
       return (
         <div className="code-block-container m-2">
-          {language && <div className="code-language-label w-full">{language}</div>}
+          {language && (
+            <div className="code-language-label w-full">{language}</div>
+          )}
           <pre {...props} className={className}>
             <code className="!p-2">{children}</code>
           </pre>
@@ -336,21 +338,25 @@ const ConversationPage = () => {
           return (
             <div
               key={index}
-              className={`border p-4  rounded-lg markdown-body !py-0 ${isUser ? "bg-gray-700" : ""}`}
+              className={`border p-4  rounded-lg markdown-body !py-0 ${
+                isUser ? "bg-gray-700" : ""
+              }`}
             >
-              <ReactMarkdown 
-              skipHtml={true} 
-              remarkPlugins={[remarkGfm]}
-              components={renderers} 
-              >{`**${
-                isUser ? "You" : chatbotname
-              }:**\n\n ${msg.content}`}</ReactMarkdown>
+              <ReactMarkdown
+                skipHtml={true}
+                remarkPlugins={[remarkGfm]}
+                components={renderers}
+              >{`**${isUser ? "You" : chatbotname}:**\n\n ${
+                msg.content
+              }`}</ReactMarkdown>
             </div>
           );
         })}
         {loading && isStreaming && (
           <div ref={responseAreaRef} className="border p-4 rounded-lg">
-            <ReactMarkdown skipHtml={true}>{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
+            <ReactMarkdown
+              skipHtml={true}
+            >{`**${chatbotname} (Streaming):**\n> ${geminiResponse}`}</ReactMarkdown>
           </div>
         )}
       </div>

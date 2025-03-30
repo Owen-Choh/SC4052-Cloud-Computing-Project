@@ -52,9 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const logindata: LoginResponse = response.data;
         setCurrentUser(logindata.user);
         setIsAuthenticated(true);
-      } 
+      }
     } catch (error) {
-      if(axios.isAxiosError(error)) {
+      if (axios.isAxiosError(error)) {
         if (error.response?.status === HttpStatusCode.ImATeapot) {
           // 418 is returned when theres no cookie
           setIsAuthenticated(false);
