@@ -283,3 +283,6 @@ func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 func (m *mockUserStore) CreateUser(types.RegisterUserPayload) error {
 	return nil
 }
+func (m *mockUserStore) UpdateUserLastlogin(int) error {
+	return nil
+}

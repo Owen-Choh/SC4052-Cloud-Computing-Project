@@ -8,6 +8,7 @@ type NewChatbot struct {
 	Usercontext string `json:"usercontext"`
 	IsShared    bool   `json:"isShared"`
 	File        string `json:"file"`
+	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 type CreateChatbotPayload struct {
 	Chatbotname string `json:"chatbotname" validate:"required,min=3"`
@@ -16,6 +17,11 @@ type CreateChatbotPayload struct {
 	Usercontext string `json:"usercontext"`
 	IsShared    bool   `json:"isShared" validate:"required"`
 	File        string `json:"file"`
+}
+
+type UpdateChatbotLastused struct {
+	Chatbotid int    `json:"chatbotid" validate:"required"`
+	Username  string `json:"Username" validate:"required"`
 }
 
 type UpdateChatbot struct {
@@ -27,6 +33,7 @@ type UpdateChatbot struct {
 	Usercontext string `json:"usercontext"`
 	IsShared    bool   `json:"isShared"`
 	File        string `json:"file"`
+	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 
 type Chatbot struct {
@@ -41,6 +48,7 @@ type Chatbot struct {
 	Lastused    string `json:"lastused"`
 	IsShared    bool   `json:"isShared"`
 	Filepath    string `json:"filepath"`
+	FileUpdatedDate string `json:"fileUpdatedDate"`
 }
 
 type User struct {

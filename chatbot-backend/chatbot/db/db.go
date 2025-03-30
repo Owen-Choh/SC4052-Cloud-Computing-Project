@@ -5,11 +5,12 @@ import (
 	"errors"
 	"log"
 
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func GetDBConnection() (*sql.DB, error) {
-	return sql.Open("sqlite3", "./database_files/chatbot.db")
+	return sql.Open("sqlite3", config.Envs.DATABASE_PATH)
 }
 
 func InitDB() (bool, error) {
@@ -51,7 +52,8 @@ func InitDB() (bool, error) {
 		updateddate TEXT NOT NULL,
 		lastused TEXT NOT NULL,
 		isShared BOOLEAN NOT NULL DEFAULT FALSE,
-		filepath TEXT NOT NULL,
+		filepath TEXT NOT NULL DEFAULT '',
+		fileUpdatedDate TEXT NOT NULL DEFAULT '',
 		FOREIGN KEY(username) REFERENCES users(username),
 		UNIQUE(username, chatbotname)
 	);`)

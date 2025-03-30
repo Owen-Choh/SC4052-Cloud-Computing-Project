@@ -11,6 +11,8 @@ import (
 type Config struct {
 	FrontendDomain           string
 	Port                     string
+	DATABASE_PATH            string
+	FILES_PATH               string
 	Default_Time             string
 	Time_layout              string
 	Timezone                 string
@@ -28,6 +30,8 @@ func initConfig() Config {
 	return Config{
 		FrontendDomain:           getEnv("FrontendDomain", "http://localhost:5173"),
 		Port:                     getEnv("BACKEND_PORT", "8080"),
+		DATABASE_PATH:            getEnv("DATABASE_PATH", "./database_files/chatbot.db"),
+		FILES_PATH:               getEnv("FILES_PATH", "database_files/uploads/"),
 		Default_Time:             "20 Mar 25 15:32 +0800",
 		Time_layout:              "02 Jan 06 15:04 -0700",
 		Timezone:                 "Asia/Singapore",
