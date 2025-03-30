@@ -119,7 +119,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             withCredentials: true,
           });
 
-      console.log("Chatbot saved successfully:", response.data);
+      // console.log("Chatbot saved successfully:", response.data);
       setSuccess("Chatbot saved successfully!");
       setError("");
       if (isCreatingChatbot) {
@@ -154,7 +154,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       const response = await chatbotsApi.delete(`/${chatbot.chatbotid}`, {
         withCredentials: true,
       });
-      console.log("Chatbot deleted successfully:", response.data);
+      // console.log("Chatbot deleted successfully:", response.data);
       setSuccess("Chatbot deleted successfully!");
       setError("");
       setChatbot(null);

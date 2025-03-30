@@ -83,7 +83,7 @@ const LoginPage: React.FC = () => {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.log("error", error);
+        // console.log("error", error);
         var errormsg = error.message
         if (errormsg === "Network Error") {
           errormsg = "Network Error: Please check your connection";
@@ -100,9 +100,9 @@ const LoginPage: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log("login check user", currentUser);
+    // console.log("login check user", currentUser);
     if (currentUser) {
-      console.log("currentUser updated:", currentUser);
+      // console.log("currentUser updated:", currentUser);
       navigate("/Dashboard");
     }
   }, [currentUser, navigate]); // Runs when currentUser changes

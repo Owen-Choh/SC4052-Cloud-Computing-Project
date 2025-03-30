@@ -37,7 +37,7 @@ const ConversationPage = () => {
       );
 
       const conversationResponse = response.data as ConversationSuccessResponse;
-      console.log("Conversation start response object:", conversationResponse);
+      // console.log("Conversation start response object:", conversationResponse);
       // setConversationID(conversationResponse.conversationid);
       setConversationID("6176875e-e0ca-4bf8-a8f2-8f1a59ba36b5");
       setChatbotDescription(conversationResponse.description);
@@ -124,7 +124,7 @@ const ConversationPage = () => {
             .then(({ done, value }) => {
               if (done) {
                 console.log("Stream completed.");
-                console.log("Full response:", chatbotFullResponse);
+                // console.log("Full response:", chatbotFullResponse);
                 setConversation((prev) => [
                   ...prev,
                   { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
@@ -134,19 +134,19 @@ const ConversationPage = () => {
                 return;
               }
               const decodedChunk = decoder.decode(value, { stream: true });
+              // console.log("Decoded chunk:", decodedChunk);
               // remove data: prefix from the decoded chunk
-              console.log("Decoded chunk:", decodedChunk);
               var cleanedChunk = decodedChunk.replace(/^data:\s/, "");
-              console.log("Cleaned chunk:", cleanedChunk);
+              // console.log("Cleaned chunk:", cleanedChunk);
 
               if (cleanedChunk.endsWith('\n\n')) {
-                console.log("the pair of trailing newlines detected, removing them.");
+                // console.log("the pair of trailing newlines detected, removing them.");
                 cleanedChunk = cleanedChunk.slice(0, -2); // Remove trailing \n\n if it exists
               }
 
               if (cleanedChunk === "event: close\ndata: done") {
-                console.log("Stream completed.");
-                console.log("Full response:", chatbotFullResponse);
+                console.log("Stream end detected.");
+                // console.log("Full response:", chatbotFullResponse);
                 setConversation((prev) => [
                   ...prev,
                   { role: "chatbot", content: chatbotFullResponse }, // Add full chatbot response
@@ -159,7 +159,7 @@ const ConversationPage = () => {
               accumulatedResponse += cleanedChunk;
               chatbotFullResponse += cleanedChunk; // Append to full response
               
-              console.log("Accumulated response:", accumulatedResponse);
+              // console.log("Accumulated response:", accumulatedResponse);
 
               setGeminiResponse(accumulatedResponse); // Update streaming UI
               processStream(); // Continue reading the stream

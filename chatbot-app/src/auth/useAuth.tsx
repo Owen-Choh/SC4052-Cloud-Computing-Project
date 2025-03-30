@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // const [token, setToken] = useState<string>("");
 
   const login = async (formData: FormData) => {
-    console.log("sending formData to loginApi:", loginApi.getUri());
+    // console.log("sending formData to loginApi:", loginApi.getUri());
     const loginResponse = await loginApi.post("", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
