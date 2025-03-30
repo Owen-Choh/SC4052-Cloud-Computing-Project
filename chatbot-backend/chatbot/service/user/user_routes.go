@@ -37,11 +37,11 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
-		Value:    "",            // Empty value
-		Path:     "/",           // Match the original path
+		Value:    "",  // Empty value
+		Path:     "/", // Match the original path
 		HttpOnly: true,
-		Secure:   true,          // Keep this for HTTPS
-		MaxAge:   -1,            // Tells browser to delete cookie
+		Secure:   true,            // Keep this for HTTPS
+		MaxAge:   -1,              // Tells browser to delete cookie
 		Expires:  time.Unix(0, 0), // Optional extra
 	})
 	utils.WriteJSON(w, http.StatusOK, nil)
@@ -52,7 +52,7 @@ func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
 	userid := auth.GetUserIDFromContext(r.Context())
 	username := auth.GetUsernameFromContext(r.Context())
 	if userid == -1 || username == "" {
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))	
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))
 		return
 	}
 
@@ -109,11 +109,11 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
-    Value:    token,
-    HttpOnly: true,
-    Secure:   true, // Ensure it's only sent over HTTPS
-    Path:     "/",
-    Expires:  time.Now().Add(auth.GetExpirationDuration()),
+		Value:    token,
+		HttpOnly: true,
+		Secure:   true, // Ensure it's only sent over HTTPS
+		Path:     "/",
+		Expires:  time.Now().Add(auth.GetExpirationDuration()),
 	})
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -129,8 +129,9 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Parse the form for both application/x-www-form-urlencoded and multipart/form-data
+	log.Println(r.Header.Get("Content-Type"))
 	if err := r.ParseMultipartForm(1000); err != nil {
-		log.Println("Error parsing login form:", err)
+		log.Println("Error parsing register form:", err)
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -149,7 +150,8 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	// check if user exists
 	_, err := h.store.GetUserByName(payload.Username)
 	if err == nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("username %s already exists", payload.Username))
+		log.Printf("user %s already exists\n", payload.Username)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user %s already exists", payload.Username))
 		return
 	}
 

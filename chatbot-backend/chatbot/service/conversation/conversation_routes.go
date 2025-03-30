@@ -24,13 +24,13 @@ var ErrChatbotNotFound = errors.New("chatbot not found")
 
 type Handler struct {
 	chatbotStore      types.ChatbotStoreInterface
-	conversationStore *ConversationStore
-	apiFileStore      *APIFileStore
+	conversationStore types.ConversationStoreInterface
+	apiFileStore      types.APIFileStoreInterface
 	genaiCtx          context.Context
 	genaiClient       *genai.Client // Shared Gemini API client
 }
 
-func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore *ConversationStore, apifileStore *APIFileStore, apiKey string) (*Handler, error) {
+func NewHandler(chatbotStore types.ChatbotStoreInterface, conversationStore types.ConversationStoreInterface, apifileStore types.APIFileStoreInterface, apiKey string) (*Handler, error) {
 	// Initialize the Gemini client
 	// modelName := "gemini-2.0-flash-thinking-exp-01-21"
 	// modelName := "gemini-2.0-pro-exp-02-05"
@@ -190,7 +190,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 
 	log.Printf("done sending msg for conversationid: %s\n", conversationID)
 	// save to database and collate response to send back to user
-	h.conversationStore.CreateConversation(types.CreateConversationPayload{
+	h.conversationStore.CreateConversation(types.NewConversation{
 		Conversationid: conversationID,
 		Chatbotid:      chatbot.Chatbotid,
 		Username:       chatbot.Username,
@@ -201,7 +201,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 
 	go func(chatResponse string) {
 
-		_, err := h.conversationStore.CreateConversation(types.CreateConversationPayload{
+		_, err := h.conversationStore.CreateConversation(types.NewConversation{
 			Conversationid: conversationID,
 			Chatbotid:      chatbot.Chatbotid,
 			Username:       chatbot.Username,
@@ -215,19 +215,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 		}
 	}(chatResponse)
 
-	log.Printf("responding to conversation: %s\n", conversationID)
-	// utils.WriteJSON(w, http.StatusOK, types.ChatResponse{Response: responseString})
-
-	// Example of using flusher to send data chunks:
-	// for i := 0; i < 5; i++ {
-	// 	data := fmt.Sprintf("data: Chunk %d\n\n", i)
-	// 	fmt.Fprint(w, data)     // Write data to the ResponseWriter
-	// 	flusher.Flush()         // Important: Flush to send immediately
-	// 	time.Sleep(time.Second) // Simulate some processing time
-	// }
-
-	// fmt.Fprint(w, "data: done\n\n") // Optional: Signal stream end
-	// flusher.Flush()
+	log.Printf("completed handling conversation: %s\n", conversationID)
 }
 
 func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
@@ -350,7 +338,6 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
 
-	log.Printf("session history: %v", session.History)
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
 	resp, err := session.SendMessage(h.genaiCtx, genai.Text(chatRequest.Message))
 	if err != nil {
@@ -362,26 +349,29 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentTime, err := utils.GetCurrentTime()
 	// save to database and collate response to send back to user
-	h.conversationStore.CreateConversation(types.CreateConversationPayload{
+	h.conversationStore.CreateConversation(types.NewConversation{
 		Conversationid: conversationID,
 		Chatbotid:      chatbot.Chatbotid,
 		Username:       chatbot.Username,
 		Chatbotname:    chatbot.Chatbotname,
 		Role:           "user",
 		Chat:           chatRequest.Message,
+		Createddate:    currentTime,
 	})
 	responseString := ""
 	for _, part := range resp.Candidates[0].Content.Parts {
 		go func(part genai.Part) {
 			chat := string(part.(genai.Text))
-			_, err := h.conversationStore.CreateConversation(types.CreateConversationPayload{
+			_, err := h.conversationStore.CreateConversation(types.NewConversation{
 				Conversationid: conversationID,
 				Chatbotid:      chatbot.Chatbotid,
 				Username:       chatbot.Username,
 				Chatbotname:    chatbot.Chatbotname,
 				Role:           "model",
 				Chat:           chat,
+				Createddate:    currentTime,
 			})
 
 			if err != nil {
@@ -398,6 +388,9 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 
 func getSystemInstructionParts(chatbot types.Chatbot) []genai.Part {
 	parts := []genai.Part{} // Initialize empty slice
+	if chatbot.Description != "" {
+		parts = append(parts, genai.Text("This is a description of what you are: "+chatbot.Description))
+	}
 	if chatbot.Behaviour != "" {
 		parts = append(parts, genai.Text("This is how you should behave: "+chatbot.Behaviour))
 	}
@@ -442,13 +435,13 @@ func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
 		// store the uri in db to reuse next time
 		go func() {
 			currentTime, _ := utils.GetCurrentTime()
-			apiFile := types.APIfile{
+			apiFile := types.NewAPIFile{
 				Chatbotid:   chatbotid,
 				Createddate: currentTime,
 				Filepath:    path,
 				Fileuri:     fileURI,
 			}
-			_, err := h.apiFileStore.StoreAPIFile(apiFile)
+			_, err := h.apiFileStore.CreateAPIFile(apiFile)
 			if err != nil {
 				log.Printf("Error storing file to db: %v", err)
 			}
@@ -465,7 +458,8 @@ func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
 		// store the uri in db to reuse next time
 		go func() {
 			currentTime, _ := utils.GetCurrentTime()
-			apiFile := types.APIfile{
+			apiFile := types.UpdateAPIFile{
+				Fileid:      apiFile.Fileid,
 				Chatbotid:   chatbotid,
 				Createddate: currentTime,
 				Filepath:    path,

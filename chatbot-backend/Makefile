@@ -1,7 +1,13 @@
 build:
 	@go build -o bin/chatbot-backend main.go
 
-test:
+testfast:
+	@go test ./... -failfast
+
+testsum:
+	@go test ./...
+
+testv:
 	@go test -v ./...
 
 run: build

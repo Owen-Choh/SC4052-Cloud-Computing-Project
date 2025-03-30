@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -16,6 +17,7 @@ import (
 
 type contextKey string
 
+const CookieName = "token"
 const UserIDKey contextKey = "userid"
 const UsernameKey contextKey = "username"
 
@@ -73,6 +75,18 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 			return
 		}
 
+		if u == nil {
+			log.Printf("user not found")
+			permissionDenied(w)
+			return
+		}
+
+		if u.Username != claims["username"].(string) || u.Userid != userID {
+			log.Printf("jwt claims mismatched for userid %d, wrong userid %t, wrong username %t ", u.Userid, u.Userid != userID, u.Username != claims["username"].(string))
+			permissionDenied(w)
+			return
+		}
+
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, UserIDKey, u.Userid)
 		ctx = context.WithValue(ctx, UsernameKey, u.Username)
@@ -83,12 +97,17 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 }
 
 func GetTokenFromRequest(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+
 	// This code is getting the token from cookie
 	token, err := r.Cookie("token")
 	if err != nil {
 		return ""
 	}
-	return token.Value
+	return strings.TrimSpace(token.Value)
+
 	// This code is getting the token from header
 	// tokenAuth := r.Header.Get("Authorization")
 	// if tokenAuth != "" {

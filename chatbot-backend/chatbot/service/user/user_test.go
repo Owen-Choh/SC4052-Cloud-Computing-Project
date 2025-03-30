@@ -3,6 +3,9 @@ package user
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,43 +13,113 @@ import (
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 )
 
-func TestUserServiceHandlers(t *testing.T) {
+func TestUserServiceRegisterHandler(t *testing.T) {
 	userStore := &mockUserStore{}
 	handler := NewHandler(userStore)
 
-	t.Run("should fail if user payload invalid", func (t *testing.T) {
-		payload := types.RegisterUserPayload{
-			Username: "test-user",
-			Password: "test-password",
-		}
+	tests := []struct {
+		name        string
+		payload     types.RegisterUserPayload
+		payloadType string
+		expected    int
+	}{
+		{
+			name: "json payload",
+			payload: types.RegisterUserPayload{
+				Username: "testuser",
+				Password: "test-password",
+			},
+			payloadType: "application/json",
+			expected: http.StatusBadRequest, // Assuming JSON is not accepted
+		},
+		{
+			name: "multipart form payload",
+			payload: types.RegisterUserPayload{
+				Username: "testuser",
+				Password: "test-password",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusCreated, // Assuming successful registration
+		},
+		{
+			name: "username with special characters",
+			payload: types.RegisterUserPayload{
+				Username: "test\\user",
+				Password: "test-password",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
+		{
+			name: "username with spaces",
+			payload: types.RegisterUserPayload{
+				Username: "test user",
+				Password: "test-password",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
+		{
+			name: "password too short",
+			payload: types.RegisterUserPayload{
+				Username: "testuser",
+				Password: "test",
+			},
+			payloadType: "multipart/form-data",
+			expected: http.StatusBadRequest, // Assuming successful registration
+		},
+	}
 
-		marshalled, _ := json.Marshal(payload)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var requestBody bytes.Buffer
+			var contentType string
 
-		request, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
-		if err != nil {
-			t.Fatal(err)
-		}
+			if test.payloadType == "application/json" {
+				jsonData, _ := json.Marshal(test.payload)
+				requestBody.Write(jsonData)
+				contentType = "application/json"
+			} else if test.payloadType == "multipart/form-data" {
+				writer := multipart.NewWriter(&requestBody)
+				_ = writer.WriteField("username", test.payload.Username)
+				_ = writer.WriteField("password", test.payload.Password)
+				writer.Close() // Must close before using data
+				contentType = writer.FormDataContentType()
+			} else {
+				log.Fatal("Invalid payload type")
+			}
 
-		responseRecorder := httptest.NewRecorder()
-		router := http.NewServeMux()
-		router.HandleFunc("/register", handler.handleRegister)
-		router.ServeHTTP(responseRecorder, request)
+			// Create request with the correct Content-Type
+			request, err := http.NewRequest(http.MethodPost, "/register", &requestBody)
+			if err != nil {
+				t.Fatal(err)
+			}
+			request.Header.Set("Content-Type", contentType)
 
-		if responseRecorder.Code != http.StatusBadRequest {
-			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, responseRecorder.Code)
-		}
-	})
+			// Execute test request
+			responseRecorder := httptest.NewRecorder()
+			router := http.NewServeMux()
+			router.HandleFunc("/register", handler.handleRegister)
+			router.ServeHTTP(responseRecorder, request)
+
+			// Check response
+			if responseRecorder.Code != test.expected {
+				t.Errorf("expected status code %d, got %d %s", test.expected, responseRecorder.Code, responseRecorder.Body.String())
+			}
+		})
+	}
 }
 
 type mockUserStore struct{}
 
 func (m *mockUserStore) GetUserByName(username string) (*types.User, error) {
-	return nil, nil
+	return nil, fmt.Errorf("user %s does not exist", username)
 }
 
 func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
-	return nil, nil
+	return nil, fmt.Errorf("user %d does not exist", id)
 }
+
 func (m *mockUserStore) CreateUser(types.RegisterUserPayload) error {
 	return nil
 }

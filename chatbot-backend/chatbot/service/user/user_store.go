@@ -14,7 +14,7 @@ type UserStore struct {
 	store *sql.DB
 }
 
-func NewStore(db *sql.DB) *UserStore {
+func NewStore(db *sql.DB) types.UserStoreInterface {
 	return &UserStore{store: db}
 }
 
@@ -26,7 +26,7 @@ func (s *UserStore) GetUserByID(id int) (*types.User, error) {
 	defer rows.Close()
 
 	user := new(types.User)
-	for rows.Next(){
+	for rows.Next() {
 		user, err = scanRowIntoUser(rows)
 		if err != nil {
 			return nil, err
@@ -36,10 +36,10 @@ func (s *UserStore) GetUserByID(id int) (*types.User, error) {
 	if user.Userid == 0 {
 		return nil, fmt.Errorf("user not found")
 	}
-	
+
 	return user, nil
 }
-	
+
 func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
 	username := newUser.Username
 	password := newUser.Password
@@ -58,7 +58,6 @@ func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
 	return nil
 }
 
-
 func (s *UserStore) GetUserByName(username string) (*types.User, error) {
 	rows, err := s.store.Query("SELECT * FROM users WHERE username = ?", username)
 	if err != nil {
@@ -67,7 +66,7 @@ func (s *UserStore) GetUserByName(username string) (*types.User, error) {
 	defer rows.Close()
 
 	user := new(types.User)
-	for rows.Next(){
+	for rows.Next() {
 		user, err = scanRowIntoUser(rows)
 		if err != nil {
 			return nil, err
@@ -77,11 +76,11 @@ func (s *UserStore) GetUserByName(username string) (*types.User, error) {
 	if user.Userid == 0 {
 		return nil, fmt.Errorf("user not found")
 	}
-	
+
 	return user, nil
 }
 
-func scanRowIntoUser(rows *sql.Rows) (*types.User, error){
+func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
 	user := new(types.User)
 
 	err := rows.Scan(
