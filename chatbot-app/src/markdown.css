@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/* Base markdown container */
+.markdown-body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #dcdcdc;
+  background-color: #1e1e1e;
+  padding: 1em;
+  border-radius: 8px;
+}
+
+/* Headings */
+.markdown-body h1 {
+  font-size: 2em;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.3em;
+  margin-top: 1em;
+}
+
+.markdown-body h2 {
+  font-size: 1.75em;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.3em;
+  margin-top: 1em;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  margin-top: 1em;
+}
+
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 1.25em;
+  margin-top: 1em;
+}
+
+/* Paragraphs */
+.markdown-body p {
+  margin: 1em 0;
+}
+
+/* Links */
+.markdown-body a {
+  color: #61afef;
+  text-decoration: none;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+/* Lists */
+.markdown-body ul {
+  padding-left: 1.5em;
+  list-style: disc;
+}
+
+.markdown-body ol {
+  padding-left: 1.5em;
+  list-style: decimal;
+}
+
+.markdown-body li {
+  margin-bottom: 0.5em;
+}
+
+/* Blockquotes */
+.markdown-body blockquote {
+  border-left: 4px solid #888;
+  padding-left: 1em;
+  color: #999;
+  font-style: italic;
+  margin: 1em 0;
+}
+
+/* Horizontal rule */
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid #444;
+  margin: 1.5em 0;
+}
+
+/* Inline code */
+.markdown-body code {
+  font-family: "Fira Code", "Courier New", monospace;
+  background-color: #282c34;
+  color: #dcdcdc;
+  padding: 0.2em 0.4em;
+  border-radius: 5px;
+}
+
+/* Block code */
+.markdown-body pre {
+  background-color: #282c34;
+  margin: 1em 0;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  display: block;
+  line-height: 1.5;
+  color: #ffffff;
+  overflow-x: auto;
+}
+
+/* Tables */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #444;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: #333;
+  font-weight: bold;
+}
+
+/* Images */
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* General styling for code blocks */
+code {
+  font-family: "Fira Code", "Courier New", monospace;
+  background-color: #1e1e1e;
+  color: #dcdcdc;
+  padding: 0.2em 0.4em;
+  border-radius: 5px;
+}
+
+/* Block code styling */
+pre code {
+  display: block;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  background-color: #282c34; /* Dark theme background */
+  color: #ffffff;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Syntax highlighting for Caddyfile */
+code.language-caddyfile {
+  background-color: #282c34;
+  color: #abb2bf;
+}
+
+/* Comments */
+code.language-caddyfile .token.comment {
+  color: #5c6370;
+  font-style: italic;
+}
+
+/* Keywords */
+code.language-caddyfile .token.keyword {
+  color: #c678dd;
+}
+
+/* Function names (directives like encode, reverse_proxy) */
+code.language-caddyfile .token.function {
+  color: #61afef;
+}
+
+/* Strings (domain names, file paths) */
+code.language-caddyfile .token.string {
+  color: #98c379;
+}
+
+/* Numbers (port numbers, etc.) */
+code.language-caddyfile .token.number {
+  color: #d19a66;
+}
+
+.inline-code {
+  background-color: rgba(27, 31, 35, 0.05);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.code-block-container {
+  position: relative;
+  background-color: #282c34;
+  border-radius: 6px;
+}
+
+.code-language-label {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ddd;
+  padding: 2px 6px;
+  font-weight: bold;
+  border-radius: 4px;
+}

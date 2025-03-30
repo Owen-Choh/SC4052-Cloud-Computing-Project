@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 
@@ -42,6 +43,7 @@ func getEnv(key string, fallback string) string {
 		return value
 	}
 
+	log.Printf("Environment variable %s not set, using fallback value: %s", key, fallback)
 	return fallback
 }
 
@@ -49,11 +51,13 @@ func getEnvInt(key string, fallback int64) int64 {
 	if value, ok := os.LookupEnv(key); ok {
 		intValue, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
+			log.Printf("Environment variable %s not set, using fallback value: %d", key, fallback)
 			return fallback
 		}
 
 		return intValue
 	}
 
+	log.Printf("Environment variable %s not set, using fallback value: %d", key, fallback)
 	return fallback
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/types"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils"
+	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/utils/validate"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -106,13 +107,41 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	usercontext := r.FormValue("usercontext")
 	isShared := r.FormValue("isShared") == "true"
 
-	// Handle file upload
+	// Handle file upload, get the paths first for validation
 	file, header, err := r.FormFile("file")
+	var fullDirPath string
 	var filepath string
 	if err == nil {
+		fullDirPath = "database_files/uploads/" + username + "/" + chatbotname
+		filepath = fullDirPath + "/" + header.Filename
+	} else {
+		filepath = ""
+	}
+
+	// Create chatbot struct to validate fields first
+	newChatbot := types.NewChatbot{
+		Username:    username,
+		Chatbotname: chatbotname,
+		Behaviour:   behaviour,
+		IsShared:    isShared,
+		Usercontext: usercontext,
+		File:        filepath,
+	}
+	if err := utils.Validate.Struct(newChatbot); err != nil {
+		validate_error := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
+	}
+	// check file name, cannot have some special characters
+	if filepath != "" && !validate.ValidFileNameRegex.MatchString(header.Filename) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file name"))
+		return
+	}
+
+	// Handle file upload
+	if fullDirPath != "" && filepath != "" {
 		defer file.Close()
 
-		fullDirPath := "database_files/uploads/" + username + "/" + chatbotname
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
@@ -132,23 +161,6 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		}
 		defer out.Close()
 		io.Copy(out, file)
-	} else {
-		filepath = "" // No file uploaded
-	}
-
-	// Create chatbot struct
-	newChatbot := types.NewChatbot{
-		Username:    username,
-		Chatbotname: chatbotname,
-		Behaviour:   behaviour,
-		IsShared:    isShared,
-		Usercontext: usercontext,
-		File:        filepath,
-	}
-	if err := utils.Validate.Struct(newChatbot); err != nil {
-		validate_error := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
-		return
 	}
 
 	botID, err := h.chatbotStore.CreateChatbot(newChatbot)
@@ -207,23 +219,58 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	isShared := r.FormValue("isShared") == "true"
 	removeFile := r.FormValue("removeFile") == "true"
 
+	// Handle file upload, get the paths first for validation
+	file, header, err := r.FormFile("file")
+	var fullDirPath string
+	var newFilepath string
+	if err == nil {
+		fullDirPath = "database_files/uploads/" + username + "/" + chatbotname
+		newFilepath = fullDirPath + "/" + header.Filename
+	} else {
+		newFilepath = ""
+	}
+
+	// Create chatbot struct
+	updateChatbot := types.UpdateChatbot{
+		Chatbotid:   chatbotIDInt,
+		Username:    username,
+		Chatbotname: chatbotname,
+		Description: description,
+		Behaviour:   behaviour,
+		IsShared:    isShared,
+		Usercontext: usercontext,
+		File:        newFilepath,
+	}
+	if err := utils.Validate.Struct(updateChatbot); err != nil {
+		validate_error := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
+		return
+	}
+	// check file name, cannot have some special characters
+	if newFilepath != "" && !validate.ValidFileNameRegex.MatchString(header.Filename) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file name"))
+		return
+	}
+
 	// Handle file removal
 	oldfilepath := oldChatbot.Filepath
-	if removeFile {
+	if removeFile || newFilepath != "" {
 		if oldfilepath != "" {
 			log.Println("Attempting to remove file:", oldfilepath)
 			err = os.Remove(oldfilepath)
 			if err != nil {
 				log.Println("Error removing file:", err)
-				utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
-				return
+
+				// if user only requested to remove file, then do not proceed
+				if removeFile && newFilepath == "" {
+					utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
+					return
+				}
 			}
 		}
 	}
 
 	// Handle file upload
-	file, header, err := r.FormFile("file")
-	var newFilepath string
 	if err == nil {
 		defer file.Close()
 
@@ -257,23 +304,6 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	if newFilepath == "" {
 		newFilepath = oldfilepath
-	}
-
-	// Create chatbot struct
-	updateChatbot := types.UpdateChatbot{
-		Chatbotid:   chatbotIDInt,
-		Username:    username,
-		Chatbotname: chatbotname,
-		Description: description,
-		Behaviour:   behaviour,
-		IsShared:    isShared,
-		Usercontext: usercontext,
-		File:        newFilepath,
-	}
-	if err := utils.Validate.Struct(updateChatbot); err != nil {
-		validate_error := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
-		return
 	}
 
 	err = h.chatbotStore.UpdateChatbot(updateChatbot)

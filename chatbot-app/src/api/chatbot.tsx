@@ -1,3 +1,18 @@
+export interface ChatbotServerResponse {
+  chatbotid: number | null;
+  userid: number;
+  chatbotname: string;
+  description: string;
+  behaviour: string;
+  usercontext: string;
+  isShared: boolean;
+  createddate: string;
+  updateddate: string;
+  lastused: string;
+  filepath: string;
+  file: File | null;
+}
+
 export interface Chatbot {
   chatbotid: number | null;
   userid: number;
@@ -9,6 +24,7 @@ export interface Chatbot {
   createddate: string;
   updateddate: string;
   lastused: string;
+  prevFilePath: string;
   filepath: string;
   file: File | null;
 }

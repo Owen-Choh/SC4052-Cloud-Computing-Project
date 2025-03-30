@@ -30,8 +30,43 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("POST /register", h.handleRegister)
 	router.HandleFunc("GET /logout", h.logout)
 	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
+	router.HandleFunc("GET /logout", h.logout)
+	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
 
 	// admin routes
+}
+
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",            // Empty value
+		Path:     "/",           // Match the original path
+		HttpOnly: true,
+		Secure:   true,          // Keep this for HTTPS
+		MaxAge:   -1,            // Tells browser to delete cookie
+		Expires:  time.Unix(0, 0), // Optional extra
+	})
+	utils.WriteJSON(w, http.StatusOK, nil)
+}
+
+func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
+	// auth should be handled by middleware, if it reaches here, it means auth is successful
+	userid := auth.GetUserIDFromContext(r.Context())
+	username := auth.GetUsernameFromContext(r.Context())
+	if userid == -1 || username == "" {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))	
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"user": map[string]interface{}{
+			"userid":   strconv.Itoa(userid),
+			"username": username,
+		},
+		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
+	})
+
+	log.Printf("checked cookie for user %s\n", username)
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +117,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
+		log.Printf("error validating login payload %s: %s\n", payload.Username, err)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
 		return
 	}
@@ -89,13 +125,13 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	u, err := h.store.GetUserByName(payload.Username)
 	if err != nil {
 		log.Printf("error querying by username: %s\n", err)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 
 	if !auth.ComparePassword(u.Password, []byte(payload.Password)) {
 		log.Printf("someone tried to login with wrong password\n")
-		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("not found, invalid email or password"))
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("not found, invalid username or password"))
 		return
 	}
 
@@ -105,6 +141,15 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+    Value:    token,
+    HttpOnly: true,
+    Secure:   true, // Ensure it's only sent over HTTPS
+    Path:     "/",
+    Expires:  time.Now().Add(auth.GetExpirationDuration()),
+	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
@@ -124,6 +169,8 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	})
 
 	log.Printf("user %s logged in\n", u.Username)
+
+	log.Printf("user %s logged in\n", u.Username)
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -135,13 +182,14 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := types.LoginUserPayload{
+	payload := types.RegisterUserPayload{
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
 
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
+		log.Printf("error validating register payload %s: %s\n", payload.Username, err)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", validate_error))
 		return
 	}

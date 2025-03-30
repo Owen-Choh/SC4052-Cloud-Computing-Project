@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Botconfigs from "../components/Botconfigs";
 
 import { getChatbotsListApi } from "../api/apiConfig";
-import { Chatbot } from "../api/chatbot";
+import { Chatbot, ChatbotServerResponse } from "../api/chatbot";
 import { useChatbotContext } from "../context/ChatbotContext";
 
 function Dashboard() {
@@ -26,6 +26,7 @@ function Dashboard() {
     createddate: "",
     updateddate: "",
     lastused: "",
+    prevFilePath: "",
     filepath: "",
     file: null,
   };
@@ -37,11 +38,21 @@ function Dashboard() {
 
   const fetchChatbots = async () => {
     try {
-      const response = await getChatbotsListApi.get("", {
+      const response = await getChatbotsListApi.get<ChatbotServerResponse>("", {
         withCredentials: true,
       });
-      setChatbots(response.data);
-      console.log("Chatbots fetched:", response.data);
+
+      const chatbotsData = Array.isArray(response.data)
+        ? response.data.map((bot) => {
+            return {
+              ...bot,
+              prevFilePath: bot.filepath,
+              file: null,
+            };
+          })
+        : [];
+      setChatbots(chatbotsData);
+      // console.log("Chatbots fetched:", response.data);
     } catch (error) {
       console.error("Failed to fetch chatbots:", error);
     }
@@ -73,7 +84,10 @@ function Dashboard() {
             setExcludeFile={setExcludeFile}
           />
         ) : (
-          <h1 className="text-2xl font-bold p-4 text-center">Click on the sidebar to create a new chatbot or <br/> select an existing chatbot to view your customisations</h1>
+          <h1 className="text-2xl font-bold p-4 text-center">
+            Click on the sidebar to create a new chatbot or <br /> select an
+            existing chatbot to view your customisations
+          </h1>
         )}
       </div>
     </div>

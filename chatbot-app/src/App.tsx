@@ -5,12 +5,13 @@ import {
   Navigate,
 } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import TempPage from "./pages/TempPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import { AuthProvider } from "./auth/useAuth";
 import Dashboard from "./pages/Dashboard";
 import ConversationPage from "./pages/ConversationPage";
 import { ChatbotProvider } from "./context/ChatbotContext";
+
+import "./markdown.css";
 
 function App() {
   return (
@@ -25,7 +26,6 @@ function App() {
           />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/TempPage" element={<TempPage />} />
             <Route
               path="/Dashboard"
               element={

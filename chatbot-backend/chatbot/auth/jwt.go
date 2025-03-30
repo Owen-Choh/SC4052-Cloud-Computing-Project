@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -42,7 +41,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
 		if tokenString == "" {
-			utils.WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
+			utils.WriteError(w, http.StatusTeapot, fmt.Errorf("token missing, permission denied"))
 			return
 		}
 		// tokenString = tokenString[7:] //remove the bearer prefix
@@ -97,16 +96,12 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 }
 
 func GetTokenFromRequest(r *http.Request) string {
-	if r == nil {
-		return ""
-	}
-
 	// This code is getting the token from cookie
-	token, err := r.Cookie(CookieName)
+	token, err := r.Cookie("token")
 	if err != nil {
 		return ""
 	}
-	return strings.TrimSpace(token.Value)
+	return token.Value
 	// This code is getting the token from header
 	// tokenAuth := r.Header.Get("Authorization")
 	// if tokenAuth != "" {
