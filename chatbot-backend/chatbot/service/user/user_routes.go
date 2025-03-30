@@ -37,11 +37,11 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
-		Value:    "",            // Empty value
-		Path:     "/",           // Match the original path
+		Value:    "",  // Empty value
+		Path:     "/", // Match the original path
 		HttpOnly: true,
-		Secure:   true,          // Keep this for HTTPS
-		MaxAge:   -1,            // Tells browser to delete cookie
+		Secure:   true,            // Keep this for HTTPS
+		MaxAge:   -1,              // Tells browser to delete cookie
 		Expires:  time.Unix(0, 0), // Optional extra
 	})
 	utils.WriteJSON(w, http.StatusOK, nil)
@@ -52,7 +52,7 @@ func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
 	userid := auth.GetUserIDFromContext(r.Context())
 	username := auth.GetUsernameFromContext(r.Context())
 	if userid == -1 || username == "" {
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))	
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))
 		return
 	}
 
@@ -109,11 +109,11 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
-    Value:    token,
-    HttpOnly: true,
-    Secure:   true, // Ensure it's only sent over HTTPS
-    Path:     "/",
-    Expires:  time.Now().Add(auth.GetExpirationDuration()),
+		Value:    token,
+		HttpOnly: true,
+		Secure:   true, // Ensure it's only sent over HTTPS
+		Path:     "/",
+		Expires:  time.Now().Add(auth.GetExpirationDuration()),
 	})
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
@@ -139,6 +139,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
+
 	if err := utils.Validate.Struct(payload); err != nil {
 		validate_error := err.(validator.ValidationErrors)
 		log.Printf("error validating register payload %s: %s\n", payload.Username, err)

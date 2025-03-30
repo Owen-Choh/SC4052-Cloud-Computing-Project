@@ -97,7 +97,11 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 	}
 }
 
-func GetTokenFromRequest(r *http.Request) string {	
+func GetTokenFromRequest(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+
 	// This code is getting the token from cookie
 	token, err := r.Cookie(CookieName)
 	if err != nil {

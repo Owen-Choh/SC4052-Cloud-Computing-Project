@@ -370,7 +370,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		Chatbotname:    chatbot.Chatbotname,
 		Role:           "user",
 		Chat:           chatRequest.Message,
-		Createddate:   currentTime,
+		Createddate:    currentTime,
 	})
 	responseString := ""
 	for _, part := range resp.Candidates[0].Content.Parts {

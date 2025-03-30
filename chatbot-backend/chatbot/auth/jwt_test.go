@@ -38,10 +38,10 @@ func TestCreateJWT(t *testing.T) {
 
 func TestGetTokenFromRequest(t *testing.T) {
 	tests := []struct {
-		name     string
-		req      *http.Request
-		cookieString 			string
-		expected string
+		name         string
+		req          *http.Request
+		cookieString string
+		expected     string
 	}{
 		{
 			name: "valid cookie",
@@ -49,7 +49,7 @@ func TestGetTokenFromRequest(t *testing.T) {
 				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
 			cookieString: "test-token",
-			expected: "test-token",
+			expected:     "test-token",
 		},
 		{
 			name:     "no input",
@@ -62,7 +62,7 @@ func TestGetTokenFromRequest(t *testing.T) {
 				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
 			cookieString: "nil",
-			expected: "",
+			expected:     "",
 		},
 		{
 			name: "empty cookie",
@@ -70,7 +70,7 @@ func TestGetTokenFromRequest(t *testing.T) {
 				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
 			cookieString: "",
-			expected: "",
+			expected:     "",
 		},
 		{
 			name: "trimmed token",
@@ -78,7 +78,7 @@ func TestGetTokenFromRequest(t *testing.T) {
 				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
 			cookieString: "   test-token   ",
-			expected: "test-token",
+			expected:     "test-token",
 		},
 	}
 
