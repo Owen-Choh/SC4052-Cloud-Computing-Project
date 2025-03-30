@@ -190,7 +190,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 
 	log.Printf("done sending msg for conversationid: %s\n", conversationID)
 	// save to database and collate response to send back to user
-	h.conversationStore.CreateConversation(types.CreateConversationPayload{
+	h.conversationStore.CreateConversation(types.NewConversation{
 		Conversationid: conversationID,
 		Chatbotid:      chatbot.Chatbotid,
 		Username:       chatbot.Username,
@@ -201,7 +201,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 
 	go func(chatResponse string) {
 
-		_, err := h.conversationStore.CreateConversation(types.CreateConversationPayload{
+		_, err := h.conversationStore.CreateConversation(types.NewConversation{
 			Conversationid: conversationID,
 			Chatbotid:      chatbot.Chatbotid,
 			Username:       chatbot.Username,

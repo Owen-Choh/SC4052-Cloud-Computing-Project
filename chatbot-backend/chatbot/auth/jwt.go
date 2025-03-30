@@ -103,7 +103,7 @@ func GetTokenFromRequest(r *http.Request) string {
 	}
 
 	// This code is getting the token from cookie
-	token, err := r.Cookie(CookieName)
+	token, err := r.Cookie("token")
 	if err != nil {
 		return ""
 	}

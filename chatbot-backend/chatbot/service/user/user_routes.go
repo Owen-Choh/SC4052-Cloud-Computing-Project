@@ -30,6 +30,8 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 	router.HandleFunc("POST /register", h.handleRegister)
 	router.HandleFunc("GET /logout", h.logout)
 	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
+	router.HandleFunc("GET /logout", h.logout)
+	router.HandleFunc("GET /auth/check", auth.WithJWTAuth(h.checkAuth, h.store))
 
 	// admin routes
 }
@@ -37,11 +39,11 @@ func (h *Handler) RegisterRoutes(router *http.ServeMux) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
-		Value:    "",  // Empty value
-		Path:     "/", // Match the original path
+		Value:    "",            // Empty value
+		Path:     "/",           // Match the original path
 		HttpOnly: true,
-		Secure:   true,            // Keep this for HTTPS
-		MaxAge:   -1,              // Tells browser to delete cookie
+		Secure:   true,          // Keep this for HTTPS
+		MaxAge:   -1,            // Tells browser to delete cookie
 		Expires:  time.Unix(0, 0), // Optional extra
 	})
 	utils.WriteJSON(w, http.StatusOK, nil)
@@ -52,7 +54,7 @@ func (h *Handler) checkAuth(w http.ResponseWriter, r *http.Request) {
 	userid := auth.GetUserIDFromContext(r.Context())
 	username := auth.GetUsernameFromContext(r.Context())
 	if userid == -1 || username == "" {
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to get user info from request context"))	
 		return
 	}
 
@@ -109,6 +111,15 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
+    Value:    token,
+    HttpOnly: true,
+    Secure:   true, // Ensure it's only sent over HTTPS
+    Path:     "/",
+    Expires:  time.Now().Add(auth.GetExpirationDuration()),
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
 		Value:    token,
 		HttpOnly: true,
 		Secure:   true, // Ensure it's only sent over HTTPS
@@ -123,6 +134,8 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		},
 		"expiresAt": time.Now().Add(auth.GetExpirationDuration()).Format(time.RFC3339),
 	})
+
+	log.Printf("user %s logged in\n", u.Username)
 
 	log.Printf("user %s logged in\n", u.Username)
 }

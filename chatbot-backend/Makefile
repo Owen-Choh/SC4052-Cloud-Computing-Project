@@ -4,7 +4,10 @@ build:
 testfast:
 	@go test ./... -failfast
 
-test:
+testsum:
+	@go test ./...
+
+testv:
 	@go test -v ./...
 
 run: build
