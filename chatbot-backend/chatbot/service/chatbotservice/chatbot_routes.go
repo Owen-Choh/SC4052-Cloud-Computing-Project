@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/auth"
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -103,10 +104,10 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract chatbot fields from form
-	chatbotname := r.FormValue("chatbotname")
-	description := r.FormValue("description")
-	behaviour := r.FormValue("behaviour")
-	usercontext := r.FormValue("usercontext")
+	chatbotname := strings.TrimSpace(r.FormValue("chatbotname"))
+	description := strings.TrimSpace(r.FormValue("description"))
+	behaviour := strings.TrimSpace(r.FormValue("behaviour"))
+	usercontext := strings.TrimSpace(r.FormValue("usercontext"))
 	isShared := r.FormValue("isShared") == "true"
 
 	// Handle file upload, get the paths first for validation
@@ -228,10 +229,10 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract chatbot fields from form
-	chatbotname := r.FormValue("chatbotname")
-	description := r.FormValue("description")
-	behaviour := r.FormValue("behaviour")
-	usercontext := r.FormValue("usercontext")
+	chatbotname := strings.TrimSpace(r.FormValue("chatbotname"))
+	description := strings.TrimSpace(r.FormValue("description"))
+	behaviour := strings.TrimSpace(r.FormValue("behaviour"))
+	usercontext := strings.TrimSpace(r.FormValue("usercontext"))
 	isShared := r.FormValue("isShared") == "true"
 	removeFile := r.FormValue("removeFile") == "true"
 

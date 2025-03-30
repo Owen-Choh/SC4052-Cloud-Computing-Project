@@ -35,7 +35,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
             updateChatbotInfo(e.target.value, isShared, description);
             updateChatbotLink(e.target.value);
           }}
-          className="p-2 border rounded bg-gray-900 text-white"
+          className="flex-grow p-2 border rounded bg-gray-900 text-white"
         />
       </div>
       <div className="flex flex-row gap-4 items-center">
@@ -60,7 +60,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
         />
       </div>
       <div className="flex flex-row items-center gap-4">
-        <p className="text-lg">Your Chatbot's unique link:</p>
+        <p className="text-lg">Your Chatbot's unique link (has to be shared in order to access):</p>
         <div>{window.location.origin + chatbotEndpoint}</div>
       </div>
     </div>

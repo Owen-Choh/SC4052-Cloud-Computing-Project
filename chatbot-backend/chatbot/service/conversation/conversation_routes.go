@@ -400,6 +400,9 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 
 func getSystemInstructionParts(chatbot types.Chatbot) []genai.Part {
 	parts := []genai.Part{} // Initialize empty slice
+
+	parts = append(parts, genai.Text(fmt.Sprintf("You are meant to be a customised chatbot. This is what the owner (%s) named you and other users will know you by the same name: %s", chatbot.Username, chatbot.Chatbotname)))
+
 	if chatbot.Description != "" {
 		parts = append(parts, genai.Text("This is a description of what you are: "+chatbot.Description))
 	}
