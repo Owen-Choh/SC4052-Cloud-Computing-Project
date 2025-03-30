@@ -221,7 +221,10 @@ func TestValidateTokenMiddleware(t *testing.T) {
 				t.Fatal(err)
 			}
 			if test.authHeader {
-				request.Header.Set("Authorization", "Bearer "+test.token)
+				request.AddCookie(&http.Cookie{
+					Name:  CookieName,
+					Value: test.token,
+				})
 			}
 
 			var capturedCtx context.Context
