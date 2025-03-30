@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Owen-Choh/SC4052-Cloud-Computing-Assignment-2/chatbot-backend/chatbot/config"
@@ -16,6 +17,7 @@ import (
 
 type contextKey string
 
+const CookieName = "token"
 const UserIDKey contextKey = "userid"
 const UsernameKey contextKey = "username"
 
@@ -97,11 +99,11 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 
 func GetTokenFromRequest(r *http.Request) string {	
 	// This code is getting the token from cookie
-	token, err := r.Cookie("token")
+	token, err := r.Cookie(CookieName)
 	if err != nil {
 		return ""
 	}
-	return token.Value
+	return strings.TrimSpace(token.Value)
 	// This code is getting the token from header
 	// tokenAuth := r.Header.Get("Authorization")
 	// if tokenAuth != "" {

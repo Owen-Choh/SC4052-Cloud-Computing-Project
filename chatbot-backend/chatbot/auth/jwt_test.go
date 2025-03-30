@@ -40,52 +40,58 @@ func TestGetTokenFromRequest(t *testing.T) {
 	tests := []struct {
 		name     string
 		req      *http.Request
+		cookieString 			string
 		expected string
 	}{
+		{
+			name: "valid cookie",
+			req: &http.Request{
+				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
+			},
+			cookieString: "test-token",
+			expected: "test-token",
+		},
 		{
 			name:     "no input",
 			req:      nil,
 			expected: "",
 		},
 		{
-			name: "no token header",
-			req: &http.Request{
-				Header: http.Header{"Accept": []string{"*/*"}},
-			},
-			expected: "",
-		},
-		{
-			name: "valid token",
+			name: "no cookie",
 			req: &http.Request{
 				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
-			expected: "Bearer test-token",
+			cookieString: "nil",
+			expected: "",
 		},
 		{
-			name: "empty token",
+			name: "empty cookie",
 			req: &http.Request{
-				Header: http.Header{"Authorization": []string{""}},
+				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
+			cookieString: "",
 			expected: "",
 		},
 		{
 			name: "trimmed token",
 			req: &http.Request{
-				Header: http.Header{"Authorization": []string{"  Bearer test-token"}},
+				Header: http.Header{"Authorization": []string{"Bearer test-token"}},
 			},
-			expected: "Bearer test-token",
-		},
-		{
-			name: "malformed token header",
-			req: &http.Request{
-				Header: http.Header{"Authorization": []string{"  Bea rer test-token"}},
-			},
-			expected: "",
+			cookieString: "   test-token   ",
+			expected: "test-token",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			if test.req != nil && test.cookieString != "nil" {
+				cookie := &http.Cookie{
+					Name:  CookieName,
+					Value: test.cookieString,
+				}
+				test.req.AddCookie(cookie)
+			}
+
 			token := GetTokenFromRequest(test.req)
 			if token != test.expected {
 				t.Errorf("expected token %s, got %s", test.expected, token)
