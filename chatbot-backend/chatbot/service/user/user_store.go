@@ -52,7 +52,21 @@ func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
 
 	_, dberr := s.store.Exec("INSERT INTO users (username, password, createddate, lastlogin) VALUES (?, ?, ?, ?)", username, password, createdDate, lastLogin)
 	if dberr != nil {
-		log.Fatal(dberr)
+		log.Println(dberr)
+	}
+
+	return nil
+}
+
+func (s *UserStore) UpdateUserLastlogin(userid int) error {
+	currentTime, err := utils.GetCurrentTime()
+	if err != nil {
+		log.Println("unable to obtain formatted date for updating user lastlogin")
+	}
+
+	_, dberr := s.store.Exec("UPDATE users SET lastlogin=? WHERE userid=?", currentTime, userid)
+	if dberr != nil {
+		log.Println(dberr)
 	}
 
 	return nil

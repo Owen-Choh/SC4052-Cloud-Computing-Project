@@ -5,6 +5,7 @@ type UserStoreInterface interface {
 	GetUserByID(id int) (*User, error)
 	GetUserByName(username string) (*User, error)
 	CreateUser(user RegisterUserPayload) error
+	UpdateUserLastlogin(userID int) error
 }
 
 // ChatbotStoreInterface defines the methods for chatbot store
@@ -15,6 +16,7 @@ type ChatbotStoreInterface interface {
 	CreateChatbot(userPayload NewChatbot) (int, error)
 	UpdateChatbot(chatbotPayload UpdateChatbot) error
 	DeleteChatbot(chatbotID int) error
+	UpdateChatbotLastused(chatbotPayload UpdateChatbotLastused) error
 }
 
 // ConversationStoreInterface defines the methods for conversation store

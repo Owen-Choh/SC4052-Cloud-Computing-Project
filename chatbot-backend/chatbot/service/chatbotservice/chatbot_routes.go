@@ -118,14 +118,22 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		filepath = ""
 	}
 
+	var fileUpdatedDate string
+	if filepath != "" {
+		fileUpdatedDate, _ = utils.GetCurrentTime()
+	} else {
+		fileUpdatedDate = ""
+	}
+
 	// Create chatbot struct to validate fields first
 	newChatbot := types.NewChatbot{
-		Username:    username,
-		Chatbotname: chatbotname,
-		Behaviour:   behaviour,
-		IsShared:    isShared,
-		Usercontext: usercontext,
-		File:        filepath,
+		Username:        username,
+		Chatbotname:     chatbotname,
+		Behaviour:       behaviour,
+		IsShared:        isShared,
+		Usercontext:     usercontext,
+		File:            filepath,
+		FileUpdatedDate: fileUpdatedDate,
 	}
 	if err := utils.Validate.Struct(newChatbot); err != nil {
 		validate_error := err.(validator.ValidationErrors)
@@ -230,16 +238,24 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		newFilepath = ""
 	}
 
+	var fileUpdatedDate string
+	if newFilepath != "" {
+		fileUpdatedDate, _ = utils.GetCurrentTime()
+	} else {
+		fileUpdatedDate = oldChatbot.FileUpdatedDate
+	}
+
 	// Create chatbot struct
 	updateChatbot := types.UpdateChatbot{
-		Chatbotid:   chatbotIDInt,
-		Username:    username,
-		Chatbotname: chatbotname,
-		Description: description,
-		Behaviour:   behaviour,
-		IsShared:    isShared,
-		Usercontext: usercontext,
-		File:        newFilepath,
+		Chatbotid:       chatbotIDInt,
+		Username:        username,
+		Chatbotname:     chatbotname,
+		Description:     description,
+		Behaviour:       behaviour,
+		IsShared:        isShared,
+		Usercontext:     usercontext,
+		File:            newFilepath,
+		FileUpdatedDate: fileUpdatedDate,
 	}
 	if err := utils.Validate.Struct(updateChatbot); err != nil {
 		validate_error := err.(validator.ValidationErrors)
@@ -302,10 +318,10 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		newFilepath = "" // No file uploaded
 	}
 
-	if newFilepath == "" {
-		newFilepath = oldfilepath
+	// set back to the old path so that db dont get updated with empty string
+	if updateChatbot.File == "" && oldfilepath != "" {
+		updateChatbot.File = oldfilepath
 	}
-
 	err = h.chatbotStore.UpdateChatbot(updateChatbot)
 	if err != nil {
 		log.Println("Error updating chatbot:", err)

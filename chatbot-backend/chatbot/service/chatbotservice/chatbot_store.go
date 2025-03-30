@@ -79,7 +79,7 @@ func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) 
 	// temp_filepath := "tempfilepath.pdf"
 
 	res, dberr := s.db.Exec(
-		"INSERT INTO chatbots (username, chatbotname, description, behaviour, usercontext, createddate, updateddate, lastused, isShared, filepath) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO chatbots (username, chatbotname, description, behaviour, usercontext, createddate, updateddate, lastused, isShared, filepath, fileUpdatedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		userPayload.Username,
 		userPayload.Chatbotname,
 		userPayload.Description,
@@ -90,6 +90,7 @@ func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) 
 		currentTime,
 		userPayload.IsShared,
 		userPayload.File,
+		userPayload.FileUpdatedDate,
 	)
 	if dberr != nil {
 		return 0, dberr
@@ -107,7 +108,7 @@ func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
 	currentTime, _ := utils.GetCurrentTime()
 
 	_, err := s.db.Exec(
-		"UPDATE chatbots SET chatbotname=?, description=?, behaviour=?, usercontext=?, updateddate=?, isShared=?, filepath=? WHERE chatbotid=? AND username=?",
+		"UPDATE chatbots SET chatbotname=?, description=?, behaviour=?, usercontext=?, updateddate=?, isShared=?, filepath=?, fileUpdatedDate=? WHERE chatbotid=? AND username=?",
 		chatbotPayload.Chatbotname,
 		chatbotPayload.Description,
 		chatbotPayload.Behaviour,
@@ -117,6 +118,19 @@ func (s *ChatbotStore) UpdateChatbot(chatbotPayload types.UpdateChatbot) error {
 		chatbotPayload.File,
 		chatbotPayload.Chatbotid,
 		chatbotPayload.Username,
+		chatbotPayload.FileUpdatedDate,
+	)
+	return err
+}
+
+func (s *ChatbotStore) UpdateChatbotLastused(updatePayload types.UpdateChatbotLastused) error {
+	currentTime, _ := utils.GetCurrentTime()
+
+	_, err := s.db.Exec(
+		"UPDATE chatbots SET lastused=? WHERE chatbotid=? AND username=?",
+		currentTime,
+		updatePayload.Chatbotid,
+		updatePayload.Username,
 	)
 	return err
 }
@@ -141,6 +155,7 @@ func scanRowsIntoChatbot(rows *sql.Rows) (*types.Chatbot, error) {
 		&chatbot.Lastused,
 		&chatbot.IsShared,
 		&chatbot.Filepath,
+		&chatbot.FileUpdatedDate,
 	)
 	if err != nil {
 		return nil, err

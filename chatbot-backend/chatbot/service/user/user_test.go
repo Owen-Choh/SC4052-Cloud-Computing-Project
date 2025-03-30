@@ -30,7 +30,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 				Password: "test-password",
 			},
 			payloadType: "application/json",
-			expected: http.StatusBadRequest, // Assuming JSON is not accepted
+			expected:    http.StatusBadRequest, // Assuming JSON is not accepted
 		},
 		{
 			name: "multipart form payload",
@@ -39,7 +39,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 				Password: "test-password",
 			},
 			payloadType: "multipart/form-data",
-			expected: http.StatusCreated, // Assuming successful registration
+			expected:    http.StatusCreated, // Assuming successful registration
 		},
 		{
 			name: "username with special characters",
@@ -48,7 +48,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 				Password: "test-password",
 			},
 			payloadType: "multipart/form-data",
-			expected: http.StatusBadRequest, // Assuming successful registration
+			expected:    http.StatusBadRequest, // Assuming successful registration
 		},
 		{
 			name: "username with spaces",
@@ -57,7 +57,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 				Password: "test-password",
 			},
 			payloadType: "multipart/form-data",
-			expected: http.StatusBadRequest, // Assuming successful registration
+			expected:    http.StatusBadRequest, // Assuming successful registration
 		},
 		{
 			name: "password too short",
@@ -66,7 +66,7 @@ func TestUserServiceRegisterHandler(t *testing.T) {
 				Password: "test",
 			},
 			payloadType: "multipart/form-data",
-			expected: http.StatusBadRequest, // Assuming successful registration
+			expected:    http.StatusBadRequest, // Assuming successful registration
 		},
 	}
 
@@ -121,5 +121,9 @@ func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 }
 
 func (m *mockUserStore) CreateUser(types.RegisterUserPayload) error {
+	return nil
+}
+
+func (m *mockUserStore) UpdateUserLastlogin(int) error {
 	return nil
 }

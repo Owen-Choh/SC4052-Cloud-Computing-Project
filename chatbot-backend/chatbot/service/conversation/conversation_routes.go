@@ -125,7 +125,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
 		systemFileURIs = []string{
-			h.checkAndUploadToGemini(chatbot.Filepath, chatbot.Chatbotid),
+			h.checkAndUploadToGemini(chatbot.Filepath, chatbot.Chatbotid, chatbot.FileUpdatedDate),
 		}
 	}
 	genaiModel.SystemInstruction = &genai.Content{
@@ -239,6 +239,18 @@ func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go func() {
+		currentTime, _ := utils.GetCurrentTime()
+		chatbot.Lastused = currentTime
+		err := h.chatbotStore.UpdateChatbotLastused(types.UpdateChatbotLastused{
+			Chatbotid: chatbot.Chatbotid,
+			Username:  chatbot.Username,
+		})
+		if err != nil {
+			log.Printf("Error updating chatbot last used time: %v", err)
+		}
+	}()
+
 	// Generate a new conversation ID to track this conversation in db
 	conversationID := utils.GenerateUUID().String()
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
@@ -315,7 +327,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	systemFileURIs := []string{}
 	if chatbot.Filepath != "" {
 		systemFileURIs = []string{
-			h.checkAndUploadToGemini(chatbot.Filepath, chatbot.Chatbotid),
+			h.checkAndUploadToGemini(chatbot.Filepath, chatbot.Chatbotid, chatbot.FileUpdatedDate),
 		}
 	}
 	genaiModel.SystemInstruction = &genai.Content{
@@ -349,7 +361,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentTime, err := utils.GetCurrentTime()
+	currentTime, _ := utils.GetCurrentTime()
 	// save to database and collate response to send back to user
 	h.conversationStore.CreateConversation(types.NewConversation{
 		Conversationid: conversationID,
@@ -425,7 +437,7 @@ func setupAiCtxAndClient(apiKey string) (context.Context, *genai.Client) {
 	return ctx, client
 }
 
-func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
+func (h *Handler) checkAndUploadToGemini(path string, chatbotid int, chatbotFiledate string) string {
 	apiFile, err := h.apiFileStore.GetAPIFileByFilepath(path)
 	// if file not found in db, upload and store in db
 	if err != nil {
@@ -449,10 +461,15 @@ func (h *Handler) checkAndUploadToGemini(path string, chatbotid int) string {
 		return fileURI
 	}
 
-	storedTime, timeerr := time.Parse(config.Envs.Time_layout, apiFile.Createddate)
+	// if file exist in db, check it before reuploading
+	storedTime, storedTimeParseerr := time.Parse(config.Envs.Time_layout, apiFile.Createddate)
+	fileUpdatedTime, fileUpdateTimeParseError := time.Parse(config.Envs.Time_layout, chatbotFiledate)
+
 	// if file exist but file is too old
-	if time.Since(storedTime) > time.Duration(config.Envs.API_FILE_EXPIRATION_HOUR)*time.Hour {
-		log.Printf("File is too old, reuploading. previous stored time %s parsed time %s error %v", apiFile.Createddate, storedTime, timeerr)
+	// or if apifile is updated in db but uri is created before the update
+	if (storedTimeParseerr != nil || fileUpdateTimeParseError != nil) ||
+		(time.Since(storedTime) > time.Duration(config.Envs.API_FILE_EXPIRATION_HOUR)*time.Hour || fileUpdatedTime.After(storedTime)) {
+		log.Printf("File is too old, reuploading. previous created time %s, user updated at %s parse errors %v %v", storedTime, fileUpdatedTime, storedTimeParseerr, fileUpdateTimeParseError)
 		fileURI := uploadToGemini(h.genaiCtx, h.genaiClient, path)
 
 		// store the uri in db to reuse next time

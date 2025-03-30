@@ -51,7 +51,8 @@ func InitDB() (bool, error) {
 		updateddate TEXT NOT NULL,
 		lastused TEXT NOT NULL,
 		isShared BOOLEAN NOT NULL DEFAULT FALSE,
-		filepath TEXT NOT NULL,
+		filepath TEXT NOT NULL DEFAULT '',
+		fileUpdatedDate TEXT NOT NULL DEFAULT '',
 		FOREIGN KEY(username) REFERENCES users(username),
 		UNIQUE(username, chatbotname)
 	);`)

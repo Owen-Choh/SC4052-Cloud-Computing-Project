@@ -100,6 +100,13 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go func ()  {
+		err := h.store.UpdateUserLastlogin(u.Userid)
+		if err != nil {
+			log.Printf("error updating last login time for user %s: %s\n", u.Username, err)
+		}
+	}()
+
 	secret := []byte(config.Envs.JWTSecret)
 	token, err := auth.CreateJWT(secret, u.Userid, u.Username)
 	if err != nil {
