@@ -280,9 +280,11 @@ func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 		Lastlogin:   "2021-03-20T12:00:00+08:00",
 	}, nil
 }
+
 func (m *mockUserStore) CreateUser(types.RegisterUserPayload) error {
 	return nil
 }
+
 func (m *mockUserStore) UpdateUserLastlogin(int) error {
 	return nil
 }

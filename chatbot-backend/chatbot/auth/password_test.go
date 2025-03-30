@@ -37,5 +37,4 @@ func TestComparePassword(t *testing.T) {
 	if ComparePassword(hash, []byte(fail_plaintext)) {
 		t.Errorf("error password to not match hash")
 	}
-
 }
