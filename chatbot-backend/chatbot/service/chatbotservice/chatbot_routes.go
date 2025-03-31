@@ -180,6 +180,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		io.Copy(out, file)
 	}
 
+	createdTime, _ := utils.GetCurrentTime()
 	botID, err := h.chatbotStore.CreateChatbot(newChatbot)
 	if err != nil {
 		log.Println("Error creating chatbot:", err)
@@ -189,6 +190,8 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
 		"chatbotid": botID,
+		"createddate": createdTime,
+		"updateddate": createdTime,
 	})
 }
 
@@ -336,6 +339,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	if updateChatbot.File == "" && oldfilepath != "" {
 		updateChatbot.File = oldfilepath
 	}
+	updateTime, _ := utils.GetCurrentTime()
 	err = h.chatbotStore.UpdateChatbot(updateChatbot)
 	if err != nil {
 		log.Println("Error updating chatbot:", err)
@@ -345,6 +349,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "Chatbot updated successfully",
+		"updateddate": updateTime,
 	})
 }
 

@@ -143,11 +143,19 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
           chatbotid: response.data.chatbotid,
           file: null,
           prevFilePath: chatbot.filepath,
+          createddate: response.data.createddate,
+          updateddate: response.data.updateddate,
         };
         setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
         addChatbotInContext(updatedChatbot);
       } else {
+        const updatedChatbot = {
+          ...chatbot,
+          prevFilePath: chatbot.filepath,
+          updateddate: response.data.updateddate,
+        };
+        setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
         updateChatbotInContext(chatbot);
       }
@@ -155,10 +163,18 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     } catch (err: any) {
       console.error("Failed to save chatbot:", err);
       setSuccess("");
-      setError(
-        "Failed to save chatbot. " +
-          (err.response?.data?.error || "Unknown error")
-      );
+
+      // if the error is UNIQUE constraint failed something
+      if (err.response?.data?.error && err.response.data.error.includes("UNIQUE constraint failed")) {
+        setError(
+          "Failed to save chatbot. Please try again with a different name."
+        );
+      } else {
+        setError(
+          "Failed to save chatbot. " +
+            (err.response?.data?.error || "Unknown error")
+        );
+      }
     }
   };
 
@@ -226,6 +242,8 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             isShared={chatbot.isShared}
             chatbotEndpoint={chatbotLink}
             description={chatbot.description}
+            createdDate={chatbot.createddate}
+            updatedDate={chatbot.updateddate}
             lastUsed={chatbot.lastused}
             updateChatbotLink={setChatbotLink}
             updateChatbotInfo={updateChatbotInfo}

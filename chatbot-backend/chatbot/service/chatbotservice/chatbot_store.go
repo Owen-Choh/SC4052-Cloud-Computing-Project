@@ -87,7 +87,7 @@ func (s *ChatbotStore) CreateChatbot(userPayload types.NewChatbot) (int, error) 
 		userPayload.Usercontext,
 		currentTime,
 		currentTime,
-		currentTime,
+		"",
 		userPayload.IsShared,
 		userPayload.File,
 		userPayload.FileUpdatedDate,
