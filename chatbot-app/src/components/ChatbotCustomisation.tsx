@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import FileUpload from "./FileUpload";
 
 interface ChatbotCustomisationProps {
@@ -20,6 +20,17 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
   excludeFile,
   toggleExcludeFile,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset the file input
+    }
+  };
+
+  useEffect(() => {
+    resetFileInput();
+  }, [chatbotDocument]);
+  
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-2xl font-bold">
@@ -76,7 +87,7 @@ const ChatbotCustomisation: React.FC<ChatbotCustomisationProps> = ({
         ) : (
           <p>No document uploaded</p>
         )}
-        <FileUpload onFileSelect={updateChatbotFile} />
+        <FileUpload fileInputRef={fileInputRef} onFileSelect={updateChatbotFile} />
       </div>
     </div>
   );
