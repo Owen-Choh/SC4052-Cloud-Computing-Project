@@ -356,7 +356,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	// Handle file upload
 	if err == nil {
 		// fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
-		log.Println("Removed old file:", oldfilepath)
+		log.Println("Full directory path:",fullDirPath)
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
