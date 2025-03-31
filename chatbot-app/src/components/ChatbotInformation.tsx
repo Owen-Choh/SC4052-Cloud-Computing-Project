@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { Chatbot } from "../api/chatbot";
-import Botconfigs from "./Botconfigs";
+import React from "react";
 
 interface ChatbotInformationProps {
   chatbotName: string;
