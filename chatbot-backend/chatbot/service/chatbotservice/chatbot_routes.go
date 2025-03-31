@@ -115,6 +115,8 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var filepath string
 	if err == nil {
+		defer file.Close()
+
 		// Read the first 512 bytes to detect content type
 		buffer := make([]byte, 512)
 		_, err = file.Read(buffer)
@@ -180,8 +182,6 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	// Handle file upload
 	if fullDirPath != "" && filepath != "" {
-		defer file.Close()
-
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
@@ -267,6 +267,8 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var newFilepath string
 	if err == nil {
+		defer file.Close()
+
 		// Read the first 512 bytes to detect content type
 		buffer := make([]byte, 512)
 		_, err = file.Read(buffer)
@@ -351,8 +353,6 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 
 	// Handle file upload
 	if err == nil {
-		defer file.Close()
-
 		fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
