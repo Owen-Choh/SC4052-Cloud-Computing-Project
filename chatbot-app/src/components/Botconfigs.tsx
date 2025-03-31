@@ -226,6 +226,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
             isShared={chatbot.isShared}
             chatbotEndpoint={chatbotLink}
             description={chatbot.description}
+            lastUsed={chatbot.lastused}
             updateChatbotLink={setChatbotLink}
             updateChatbotInfo={updateChatbotInfo}
           />

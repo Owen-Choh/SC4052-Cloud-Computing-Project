@@ -7,6 +7,7 @@ interface ChatbotInformationProps {
   isShared: boolean;
   chatbotEndpoint: string;
   description: string;
+  lastUsed: string;
   updateChatbotLink: (chatbotName: string) => void;
   updateChatbotInfo: (
     chatbotName: string,
@@ -20,6 +21,7 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
   isShared,
   chatbotEndpoint,
   description,
+  lastUsed,
   updateChatbotLink,
   updateChatbotInfo,
 }) => {
@@ -60,9 +62,17 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
         />
       </div>
       <div className="flex flex-row items-center gap-4">
-        <p className="text-lg">Your Chatbot's unique link (has to be shared in order to access):</p>
+        <p className="text-lg">
+          Your Chatbot's unique link (has to be shared in order to access):
+        </p>
         <div>{window.location.origin + chatbotEndpoint}</div>
       </div>
+      {lastUsed && (
+        <div className="flex flex-row items-center gap-4">
+          <p className="text-lg">Your Chatbot's last used on: </p>
+          <p className="text-lg">{lastUsed}</p>
+        </div>
+      )}
     </div>
   );
 };
