@@ -60,7 +60,9 @@ func (h *Handler) GetUserChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for index := range chatbots {
-		chatbots[index].Filepath = filepath.Base(chatbots[index].Filepath)
+		if chatbots[index].Filepath != "" {
+			chatbots[index].Filepath = filepath.Base(chatbots[index].Filepath)
+		}
 	}
 
 	utils.WriteJSON(w, http.StatusOK, chatbots)
@@ -84,8 +86,10 @@ func (h *Handler) GetChatbot(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	chatbot.Filepath = filepath.Base(chatbot.Filepath)
+	
+	if chatbot.Filepath != "" {
+		chatbot.Filepath = filepath.Base(chatbot.Filepath)
+	}
 	utils.WriteJSON(w, http.StatusOK, chatbot)
 }
 
@@ -376,7 +380,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle file upload
-	if err == nil {
+	if fullDirPath != "" && newFilepath != "" {
 		// fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
 		log.Println("Full directory path:", fullDirPath)
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
@@ -406,10 +410,6 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		newFilepath = "" // No file uploaded
 	}
 
-	// set back to the old path so that db dont get updated with empty string
-	if updateChatbot.File == "" && oldfilepath != "" {
-		updateChatbot.File = oldfilepath
-	}
 	updateTime, _ := utils.GetCurrentTime()
 	err = h.chatbotStore.UpdateChatbot(updateChatbot)
 	if err != nil {
