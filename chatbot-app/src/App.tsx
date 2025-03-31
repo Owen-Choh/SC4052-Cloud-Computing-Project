@@ -33,6 +33,9 @@ function App() {
               }
             />
           </Route>
+
+          {/* Catch-all route for unknown paths */}
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </AuthProvider>
     </Router>
