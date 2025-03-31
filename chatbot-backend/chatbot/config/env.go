@@ -62,10 +62,15 @@ func getOSEnv(key string, fallback string) string {
 	return value
 }
 
-func getEnvSecretFile(secretPath string, fallback string) string {
-	apiKey, err := ioutil.ReadFile(secretPath)
+func getEnvSecretFile(envKey string, fallback string) string {
+	secretPath := getOSEnv(envKey, "")
+	if secretPath == "" {
+		return fallback
+	}
+
+	apiKey, err := os.ReadFile(secretPath)
 	if err != nil {
-		log.Fatalf("Failed to read API key secret: %v", err)
+		log.Printf("Failed to read API key secret: %v", err)
 		return fallback
 	}
 
