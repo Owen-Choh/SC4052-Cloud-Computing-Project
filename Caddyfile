@@ -1,0 +1,8 @@
+your-domain.com { # Replace with your actual domain name
+    reverse_proxy /api* backend:8080  # Proxy API requests to backend service on port 8080
+
+    root * /usr/share/nginx/html # Serve frontend static files from Nginx's html directory
+    file_server
+
+    try_files {path} /index.html # For React Router SPA routing
+}

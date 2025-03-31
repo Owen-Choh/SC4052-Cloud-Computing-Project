@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  chatbot-backend:
+    build: ./chatbot-backend
+    ports:
+      - "8080:8080" # Host port:Container port
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY} # Pass Gemini API key as env var
+      # ... other backend environment variables ...
+    volumes:
+      - backend-data:/app/database_files # For SQLite database persistence (example)
+      - backend-uploads:/app/database_files/uploads # For user file uploads persistence (example)
+
+  chatbot-frontend:
+    build: ./chatbot-app
+    ports:
+      - "3000:80" # Host port:Container port (for HTTP, Caddy will handle HTTPS)
+    depends_on:
+      - chatbot-backend
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"   # HTTP
+      - "443:443" # HTTPS
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - chatbot-frontend
+      - chatbot-backend
+
+volumes:
+  backend-data: # Named volume for backend data
+  backend-uploads: # Named volume for backend uploads
+  caddy_data: # Caddy data persistence
+  caddy_config: # Caddy config persistence
