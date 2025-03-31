@@ -1,5 +1,5 @@
 ec2-54-179-162-106.ap-southeast-1.compute.amazonaws.com {  # Use "localhost" or configure a local domain in /etc/hosts
-    tls /secrets/selfsigned.crt /secrets/selfsigned.key
+    tls internal
       
     reverse_proxy /api* http://chatbot-backend:8080  # Proxy API requests
     reverse_proxy /* http://chatbot-frontend:80     # Serve React frontend
