@@ -1,4 +1,7 @@
 localhost {  # Use "localhost" or configure a local domain in /etc/hosts
     reverse_proxy /api* http://chatbot-backend:8080  # Proxy API requests
     reverse_proxy /* http://chatbot-frontend:80     # Serve React frontend
+    header {
+        Access-Control-Allow-Credentials true
+    }
 }

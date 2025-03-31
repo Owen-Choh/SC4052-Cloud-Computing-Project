@@ -20,8 +20,8 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install runtime dependency (sqlite3 library) in final image
-RUN apk add --no-cache sqlite # Install sqlite3 runtime library
+# Install runtime dependencies in final image
+RUN apk add --no-cache sqlite tzdata
 
 COPY --from=builder /app/chatbot-backend /app/chatbot-backend
 COPY .env /app/.env 
