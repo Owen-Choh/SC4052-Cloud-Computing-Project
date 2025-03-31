@@ -151,7 +151,19 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
 
-	log.Printf("session history: %v", session.History)
+	// Update the last used time for the chatbot, this is done in a goroutine to avoid blocking the response to user
+	go func() {
+		currentTime, _ := utils.GetCurrentTime()
+		chatbot.Lastused = currentTime
+		err := h.chatbotStore.UpdateChatbotLastused(types.UpdateChatbotLastused{
+			Chatbotid: chatbot.Chatbotid,
+			Username:  chatbot.Username,
+		})
+		if err != nil {
+			log.Printf("Error updating chatbot last used time: %v", err)
+		}
+	}()
+	// log.Printf("session history: %v", session.History)
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
 
 	respIter := session.SendMessageStream(h.genaiCtx, genai.Text(chatRequest.Message))
@@ -160,7 +172,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 		resp, err := respIter.Next()
 		if err != nil {
 			if err == iterator.Done {
-				fmt.Println("Gemini stream ended.")
+				// log.Println("Gemini stream ended.")
 				fmt.Fprintf(w, "event: close\ndata: done\n\n") // Optional: Signal stream end
 				flusher.Flush()
 				break
@@ -182,13 +194,13 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 		}
 
 		// Check if context is cancelled (client disconnected)
-		select {
-		case <-h.genaiCtx.Done():
-			fmt.Println("Client disconnected, stopping stream.")
-			return
-		default:
-			// Continue streaming
-		}
+		// select {
+		// case <-h.genaiCtx.Done():
+		// 	log.Println("Client disconnected, stopping stream.")
+		// 	return
+		// default:
+		// 	// Continue streaming
+		// }
 	}
 
 	log.Printf("done sending msg for conversationid: %s\n", conversationID)
@@ -353,6 +365,19 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	// append the actual conversation from db
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
+
+	// Update the last used time for the chatbot, this is done in a goroutine to avoid blocking the response to user
+	go func() {
+		currentTime, _ := utils.GetCurrentTime()
+		chatbot.Lastused = currentTime
+		err := h.chatbotStore.UpdateChatbotLastused(types.UpdateChatbotLastused{
+			Chatbotid: chatbot.Chatbotid,
+			Username:  chatbot.Username,
+		})
+		if err != nil {
+			log.Printf("Error updating chatbot last used time: %v", err)
+		}
+	}()
 
 	log.Printf("sending msg for conversationid: %s\n", conversationID)
 	resp, err := session.SendMessage(h.genaiCtx, genai.Text(chatRequest.Message))
