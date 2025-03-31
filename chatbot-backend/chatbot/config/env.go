@@ -1,6 +1,7 @@
 package config
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -28,6 +29,13 @@ var Envs = initConfig()
 func initConfig() Config {
 	godotenv.Load()
 
+	GEMINI_API_KEY := getEnvSecretFile("GEMINI_API_KEY", "")
+	if GEMINI_API_KEY == "" {
+		GEMINI_API_KEY = getOSEnv("GEMINI_API_KEY", "")
+	} else {
+		log.Printf("GEMINI_API_KEY is set from file")
+	}
+
 	return Config{
 		FrontendDomain:           getEnv("FrontendDomain", "http://localhost:5173"),
 		Port:                     getEnv("BACKEND_PORT", "8080"),
@@ -40,7 +48,7 @@ func initConfig() Config {
 		JWTSecret:                getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
 		API_FILE_EXPIRATION_HOUR: getEnvInt("API_FILE_EXPIRATION_HOUR", 47),
 		MODEL_NAME:               getEnv("MODEL_NAME", "gemini-2.0-flash-thinking-exp-01-21"),
-		GEMINI_API_KEY:           getOSEnv("GEMINI_API_KEY", ""),
+		GEMINI_API_KEY:           GEMINI_API_KEY,
 	}
 }
 
@@ -52,6 +60,16 @@ func getOSEnv(key string, fallback string) string {
 	}
 
 	return value
+}
+
+func getEnvSecretFile(secretPath string, fallback string) string {
+	apiKey, err := ioutil.ReadFile(secretPath)
+	if err != nil {
+		log.Fatalf("Failed to read API key secret: %v", err)
+		return fallback
+	}
+
+	return string(apiKey)
 }
 
 func getEnv(key string, fallback string) string {
