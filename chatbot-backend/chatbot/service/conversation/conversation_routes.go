@@ -134,15 +134,18 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 
 	log.Printf("start chatid: %v", chatRequest.Conversationid)
 	session := genaiModel.StartChat()
-	// append the file to history as system instruction only allow text
-	session.History = []*genai.Content{
-		{
-			Role: "user",
-			Parts: []genai.Part{
-				genai.Text("Here are some files you can use:"),
-				genai.FileData{URI: systemFileURIs[0]},
+
+	if len(systemFileURIs) > 0 {
+		// append the file to history as system instruction only allow text
+		session.History = []*genai.Content{
+			{
+				Role: "user",
+				Parts: []genai.Part{
+					genai.Text("Here are some files you can use:"),
+					genai.FileData{URI: systemFileURIs[0]},
+				},
 			},
-		},
+		}
 	}
 	// append the actual conversation from db
 	conversationHistory := getContentFromConversions(conversations)
@@ -239,6 +242,7 @@ func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Update the last used time for the chatbot, this is done in a goroutine to avoid blocking the response to user
 	go func() {
 		currentTime, _ := utils.GetCurrentTime()
 		chatbot.Lastused = currentTime
