@@ -183,7 +183,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 			if errors.As(err, &apiErr) {
 				log.Printf("%s", apiErr.Body)
 			}
-			log.Printf("Error from Gemini stream: %T, %+v", err, err) //Original error log
+			log.Printf("Error from Gemini stream: %T, %+v", err, err)                     // Original error log
 			fmt.Fprintf(w, "event: error\ndata: unable to get response from chatbot\n\n") // Send error to client
 			flusher.Flush()
 			return // Stop streaming on error
@@ -359,19 +359,21 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	log.Printf("start chatid: %v", chatRequest.Conversationid)
 	session := genaiModel.StartChat()
 	// append the file to history as system instruction only allow text
-	session.History = []*genai.Content{
-		{
-			Role: "user",
-			Parts: []genai.Part{
-				genai.Text("Here is a file you can use"),
-				genai.FileData{URI: systemFileURIs[0]},
+	if len(systemFileURIs) > 0 {
+		session.History = []*genai.Content{
+			{
+				Role: "user",
+				Parts: []genai.Part{
+					genai.Text("Here is a file you can use"),
+					genai.FileData{URI: systemFileURIs[0]},
+				},
 			},
-		},
+		}
+		log.Println("uri", systemFileURIs[0])
 	}
 	// append the actual conversation from db
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
-	log.Println("uri", systemFileURIs[0])
 	// Update the last used time for the chatbot, this is done in a goroutine to avoid blocking the response to user
 	go func() {
 		currentTime, _ := utils.GetCurrentTime()
