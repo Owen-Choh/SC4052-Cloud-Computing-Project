@@ -2,10 +2,12 @@ version: "3.9"
 services:
   chatbot-backend:
     build: ./chatbot-backend
+    secrets:
+      - gemini_api_key
     ports:
       - "8080:8080"
     environment:
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      - GEMINI_API_KEY="/run/secrets/gemini_api_key"
     volumes:
       - backend-data:/app/database_files
       - backend-uploads:/app/database_files/uploads
@@ -39,6 +41,10 @@ services:
 networks:
   caddy_network:
     driver: bridge  # Changed from overlay to bridge
+
+secrets:
+  gemini_api_key:
+    file: ./secrets/gemini_api_key.txt
 
 volumes:
   backend-data:
