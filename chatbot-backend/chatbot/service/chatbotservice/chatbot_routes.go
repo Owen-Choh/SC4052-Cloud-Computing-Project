@@ -115,6 +115,29 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var filepath string
 	if err == nil {
+		// Read the first 512 bytes to detect content type
+		buffer := make([]byte, 512)
+		_, err = file.Read(buffer)
+		if err != nil {
+			http.Error(w, "Failed to read file", http.StatusInternalServerError)
+			return
+		}
+		fileType := http.DetectContentType(buffer)
+
+		// Reset file reader position (important for saving later)
+		file.Seek(0, 0)
+
+		// Allowed file types
+		allowedTypes := map[string]bool{
+			"application/pdf": true, // PDF
+			"image/jpeg":      true, // JPEG
+		}
+		// Validate file type
+		if !allowedTypes[fileType] {
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed."))
+			return
+		}
+
 		fullDirPath = config.Envs.FILES_PATH + username + "/" + chatbotname
 		filepath = fullDirPath + "/" + header.Filename
 	} else {
@@ -244,6 +267,29 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	var fullDirPath string
 	var newFilepath string
 	if err == nil {
+		// Read the first 512 bytes to detect content type
+		buffer := make([]byte, 512)
+		_, err = file.Read(buffer)
+		if err != nil {
+			http.Error(w, "Failed to read file", http.StatusInternalServerError)
+			return
+		}
+		fileType := http.DetectContentType(buffer)
+
+		// Reset file reader position (important for saving later)
+		file.Seek(0, 0)
+
+		// Allowed file types
+		allowedTypes := map[string]bool{
+			"application/pdf": true, // PDF
+			"image/jpeg":      true, // JPEG
+		}
+		// Validate file type
+		if !allowedTypes[fileType] {
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed."))
+			return
+		}
+		
 		fullDirPath = config.Envs.FILES_PATH + username + "/" + chatbotname
 		newFilepath = fullDirPath + "/" + header.Filename
 	} else {

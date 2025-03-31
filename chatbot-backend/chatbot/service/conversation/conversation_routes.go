@@ -177,8 +177,14 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 				flusher.Flush()
 				break
 			} // End of stream
-			log.Printf("Error from Gemini stream: %T, %v", err, err)
-			fmt.Fprintf(w, "event: error\ndata: Error from Gemini API: %v\n\n", err) // Send error to client
+
+			// Try to extract more detailed error information
+			var apiErr *googleapi.Error
+			if errors.As(err, &apiErr) {
+				log.Printf("%s", apiErr.Body)
+			}
+			log.Printf("Error from Gemini stream: %T, %+v", err, err) //Original error log
+			fmt.Fprintf(w, "event: error\ndata: unable to get response from chatbot\n\n") // Send error to client
 			flusher.Flush()
 			return // Stop streaming on error
 		}
@@ -357,7 +363,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 		{
 			Role: "user",
 			Parts: []genai.Part{
-				genai.Text("Here are some files you can use:"),
+				genai.Text("Here is a file you can use"),
 				genai.FileData{URI: systemFileURIs[0]},
 			},
 		},
@@ -365,7 +371,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	// append the actual conversation from db
 	conversationHistory := getContentFromConversions(conversations)
 	session.History = append(session.History, conversationHistory...)
-
+	log.Println("uri", systemFileURIs[0])
 	// Update the last used time for the chatbot, this is done in a goroutine to avoid blocking the response to user
 	go func() {
 		currentTime, _ := utils.GetCurrentTime()
@@ -387,6 +393,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%s\n", apiErr.Body)
 		}
 		log.Println("WARNING: api call is not working")
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("unable to get response from chatbot"))
 		return
 	}
 
@@ -540,6 +547,6 @@ func uploadToGemini(ctx context.Context, client *genai.Client, path string) stri
 		log.Fatalf("Error uploading file: %v", err)
 	}
 
-	log.Printf("Uploaded file %s as: %s", fileData.DisplayName, fileData.URI)
+	log.Printf("Uploaded file %s %s as: %s %s", path, fileData.DisplayName, fileData.Name, fileData.URI)
 	return fileData.URI
 }

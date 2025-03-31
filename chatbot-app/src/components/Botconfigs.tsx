@@ -95,15 +95,11 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       } else if (
         ![
           "application/pdf",
-          "text/plain",
           "image/jpeg",
-          "audio/mpeg",
-          "video/mp4",
         ].includes(chatbot.file.type)
       ) {
-        // can only be pdf, txt, jpg, mp3, mp4
         setError(
-          "Invalid file type. Please upload a valid file. Only pdf, txt, jpg, mp3, mp4 are allowed."
+          "Invalid file type. Please upload a valid file. Only PDF, JPG, JPEG are allowed."
         );
         return;
       }
@@ -224,12 +220,26 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         <Tab
           label="Chatbot information"
           isActive={activeTab === "chatInfo"}
-          onClick={() => setActiveTab("chatInfo")}
+          onClick={() => {
+            setActiveTab("chatInfo");
+            const updatedChatbot = {
+              ...chatbot,
+              file: null,
+            };
+            setChatbot(updatedChatbot);
+          }}
         />
         <Tab
           label="Customise"
           isActive={activeTab === "customisation"}
-          onClick={() => setActiveTab("customisation")}
+          onClick={() => {
+            setActiveTab("customisation");
+            const updatedChatbot = {
+              ...chatbot,
+              file: null,
+            };
+            setChatbot(updatedChatbot);
+          }}
         />
       </div>
 
