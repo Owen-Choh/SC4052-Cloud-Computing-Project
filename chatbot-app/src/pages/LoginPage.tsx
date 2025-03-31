@@ -119,98 +119,115 @@ const LoginPage: React.FC = () => {
   }, [currentUser, navigate]); // Runs when currentUser changes
 
   return (
-    <div className="flex flex-col w-1/2 h-full p-4 bg-gray-900 m-auto rounded-lg">
-      <div className="flex gap-1 text-xl font-bold p-4">
-        <Tab
-          label="Login"
-          isActive={activeTab === "login"}
-          onClick={() => {
-            setActiveTab("login");
-            setError("");
-          }}
-        />
-        <Tab
-          label="Register"
-          isActive={activeTab === "register"}
-          onClick={() => {
-            setActiveTab("register");
-            setError("");
-          }}
-        />
-      </div>
-      <div className="border-b-2 border-gray-700"></div>
-      <div>
-        <TabPanel activeTab={activeTab} tabKey="login">
-          <form onSubmit={submitLoginForm} className="flex flex-col space-y-4">
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              className="border rounded p-2"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              className="border rounded p-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="bg-blue-800 text-white p-2 rounded mt-2"
-            >
-              Login
-            </button>
-          </form>
-        </TabPanel>
-        <TabPanel activeTab={activeTab} tabKey="register">
-          <form
-            onSubmit={submitRegisterForm}
-            className="flex flex-col space-y-4"
-          >
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              className="border rounded p-2"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              className="border rounded p-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              name="password-confirm"
-              placeholder="Confirm Password"
-              className="border rounded p-2"
-              value={password2}
-              onChange={(e) => setPassword2(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="bg-blue-800 text-white p-2 rounded mt-2"
-            >
-              Register
-            </button>
-          </form>
-        </TabPanel>
-      </div>
+    <div className="flex flex-col w-full h-full p-4 bg-gray-800 m-auto items-center">
+      <div className="w-1/2 p-4 bg-blue-900 text-center m-auto rounded-lg">
+        <h1 className="text-5xl">Welcome to SimpleChat</h1>
+        <div className="border-b-2 py-2 border-gray-700"></div>
 
-      {error && <p className="text-red-500 m-auto p-4">{error}</p>}
+        <p className="text-lg pb-2">Login or Register below. </p>
+        <p>
+          <a href="_blank" target="_blank" className="bg-gray-200 rounded-lg p-1 font-bold underline hover:bg-gray-300">
+            Click here
+          </a>{" "}
+          to understand how to use our app
+        </p>
+      </div>
+      <div className="flex flex-col w-1/2 h-full p-4 bg-gray-900 m-auto rounded-lg">
+        <div className="flex gap-1 text-xl font-bold p-4">
+          <Tab
+            label="Login"
+            isActive={activeTab === "login"}
+            onClick={() => {
+              setActiveTab("login");
+              setError("");
+            }}
+          />
+          <Tab
+            label="Register"
+            isActive={activeTab === "register"}
+            onClick={() => {
+              setActiveTab("register");
+              setError("");
+            }}
+          />
+        </div>
+        <div className="border-b-2 border-gray-700"></div>
+        <div>
+          <TabPanel activeTab={activeTab} tabKey="login">
+            <form
+              onSubmit={submitLoginForm}
+              className="flex flex-col space-y-4"
+            >
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                className="border rounded p-2"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="border rounded p-2"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                className="bg-blue-800 text-white p-2 rounded mt-2"
+              >
+                Login
+              </button>
+            </form>
+          </TabPanel>
+          <TabPanel activeTab={activeTab} tabKey="register">
+            <form
+              onSubmit={submitRegisterForm}
+              className="flex flex-col space-y-4"
+            >
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                className="border rounded p-2"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="border rounded p-2"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                name="password-confirm"
+                placeholder="Confirm Password"
+                className="border rounded p-2"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                className="bg-blue-800 text-white p-2 rounded mt-2"
+              >
+                Register
+              </button>
+            </form>
+          </TabPanel>
+        </div>
+
+        {error && <p className="text-red-500 m-auto p-4">{error}</p>}
+      </div>
     </div>
   );
 };
