@@ -34,6 +34,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
   const [chatbotLink, setChatbotLink] = useState(
     `/chat/${currentUser?.username}/${chatbot.chatbotname}`
   );
+
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [resetMessages, setResetMessages] = useState(true);
@@ -93,10 +94,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         );
         return;
       } else if (
-        ![
-          "application/pdf",
-          "image/jpeg",
-        ].includes(chatbot.file.type)
+        !["application/pdf", "image/jpeg"].includes(chatbot.file.type)
       ) {
         setError(
           "Invalid file type. Please upload a valid file. Only PDF, JPG, JPEG are allowed."
@@ -111,8 +109,14 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
     formData.append("behaviour", chatbot.behaviour);
     formData.append("usercontext", chatbot.usercontext);
     formData.append("isShared", chatbot.isShared.toString());
-    if (chatbot.file) formData.append("file", chatbot.file);
-    if (excludeFile) formData.append("removeFile", "true");
+    var removeCurrentFile = true;
+    if (chatbot.file) {
+      formData.append("file", chatbot.file);
+      removeCurrentFile = false;
+    } else if (excludeFile) {
+      formData.append("removeFile", "true");
+      removeCurrentFile = true;
+    }
 
     try {
       const response = !isCreatingChatbot
@@ -148,9 +152,21 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       } else {
         const updatedChatbot = {
           ...chatbot,
-          prevFilePath: chatbot.filepath,
+          prevFilePath: removeCurrentFile ? "" : chatbot.filepath,
+          file: null,
           updateddate: response.data.updateddate,
         };
+        console.log(
+          "Updated chatbot:",
+          removeCurrentFile,
+          !chatbot.filepath,
+          chatbot.filepath
+        );
+        console.log(
+          "Chatbot updated successfully:",
+          updatedChatbot.prevFilePath
+        );
+        setExcludeFile(false);
         setChatbot(updatedChatbot);
         setIsCreatingChatbot(false);
         updateChatbotInContext(chatbot);
@@ -161,7 +177,10 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
       setSuccess("");
 
       // if the error is UNIQUE constraint failed something
-      if (err.response?.data?.error && err.response.data.error.includes("UNIQUE constraint failed")) {
+      if (
+        err.response?.data?.error &&
+        err.response.data.error.includes("UNIQUE constraint failed")
+      ) {
         setError(
           "Failed to save chatbot. Please try again with a different name."
         );
