@@ -13,7 +13,7 @@ COPY . .
 # Enable CGO during build for sqlite
 ENV CGO_ENABLED=1 
 
-RUN go build -o chatbot-backend main.go
+RUN make build
 
 
 FROM alpine:latest
@@ -23,9 +23,9 @@ WORKDIR /app
 # Install runtime dependencies in final image
 RUN apk add --no-cache sqlite tzdata
 
-COPY --from=builder /app/chatbot-backend /app/chatbot-backend
+COPY --from=builder /app/bin/chatbot-backend /app/bin/chatbot-backend
 COPY .env /app/.env 
 
 EXPOSE 8080
 
-CMD ["./chatbot-backend"]
+CMD ["./bin/chatbot-backend"]
