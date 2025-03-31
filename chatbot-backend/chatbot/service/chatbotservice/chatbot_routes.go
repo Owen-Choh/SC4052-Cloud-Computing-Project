@@ -212,7 +212,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"chatbotid": botID,
+		"chatbotid":   botID,
 		"createddate": createdTime,
 		"updateddate": createdTime,
 	})
@@ -291,9 +291,10 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed."))
 			return
 		}
-		
+
 		fullDirPath = config.Envs.FILES_PATH + username + "/" + chatbotname
 		newFilepath = fullDirPath + "/" + header.Filename
+		log.Println("Saving file to:", newFilepath)
 	} else {
 		newFilepath = ""
 	}
@@ -348,12 +349,14 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+			log.Println("Removed old file:", oldfilepath)
 		}
 	}
 
 	// Handle file upload
 	if err == nil {
-		fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
+		// fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
+		log.Println("Removed old file:", oldfilepath)
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
@@ -367,7 +370,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Save the uploaded file
-		newFilepath = fullDirPath + "/" + header.Filename
+		// newFilepath = fullDirPath + "/" + header.Filename
 		log.Println("Saving file to:", newFilepath)
 		out, err := os.Create(newFilepath)
 		if err != nil {
@@ -394,7 +397,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Chatbot updated successfully",
+		"message":     "Chatbot updated successfully",
 		"updateddate": updateTime,
 	})
 }
