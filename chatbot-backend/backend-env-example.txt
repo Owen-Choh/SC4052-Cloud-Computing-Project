@@ -8,4 +8,7 @@ Timezone="Asia/Singapore"
 JWT_EXP_SECONDS="86400" # 3600*24*1
 JWT_SECRET="should-have-jwt-secret-here"
 API_FILE_EXPIRATION_HOUR="47"
+
+
+MODEL_NAME="gemini-2.0-flash-thinking-exp-01-21"
 GEMINI_API_KEY="YOUR GEMINI_API_KEY"

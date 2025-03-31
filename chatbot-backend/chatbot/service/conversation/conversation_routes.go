@@ -112,7 +112,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Initialize the Gemini model
-	modelName := "gemini-2.0-pro-exp-02-05"
+	modelName := config.Envs.MODEL_NAME
 	genaiModel := h.genaiClient.GenerativeModel(modelName)
 
 	genaiModel.SetTemperature(0.9)
@@ -330,7 +330,7 @@ func (h *Handler) ChatWithChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Initialize the Gemini model
-	modelName := "gemini-2.0-pro-exp-02-05"
+	modelName := config.Envs.MODEL_NAME
 	genaiModel := h.genaiClient.GenerativeModel(modelName)
 
 	genaiModel.SetTemperature(0.9)
