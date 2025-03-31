@@ -25,4 +25,4 @@ go.work.sum
 # env file
 .env
 
-database_files/uploads
+database_files
