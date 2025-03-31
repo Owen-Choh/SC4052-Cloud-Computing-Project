@@ -52,13 +52,13 @@ func main() {
 		apiFileStore := conversation.NewAPIFileStore(dbConnection)
 		conversationHandler, err := conversation.NewHandler(chatbotStore, conversationStore, apiFileStore, apiKey)
 		if err != nil {
-			log.Printf("Error when starting conversation service, %v", err)
+			log.Fatalf("Error when starting conversation service, %v", err)
 		} else {
 			conversationHandler.RegisterRoutes(conversationSubRouter)
 			mainRouter.Handle("/api/conversation/", http.StripPrefix("/api/conversation", mainStack(conversationSubRouter)))
 		}
 	} else {
-		log.Println("Gemini API key not set, not starting conversation service")
+		log.Fatal("Gemini API key not set, not starting conversation service")
 	}
 
 	// set server and start

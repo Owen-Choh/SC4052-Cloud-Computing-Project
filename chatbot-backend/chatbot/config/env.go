@@ -45,7 +45,7 @@ func initConfig() Config {
 }
 
 func getOSEnv(key string, fallback string) string {
-	value := os.Getenv("key") // Get API key from environment variable
+	value := os.Getenv(key) // Get API key from environment variable
 	if value == "" {
 		log.Printf("OS Environment variable %s not set, using fallback value: %s", key, fallback)
 		return fallback
