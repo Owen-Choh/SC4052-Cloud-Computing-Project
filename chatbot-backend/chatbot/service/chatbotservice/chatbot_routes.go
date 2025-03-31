@@ -341,12 +341,34 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 			log.Println("Attempting to remove file:", oldfilepath)
 			err = os.Remove(oldfilepath)
 			if err != nil {
-				log.Println("Error removing file:", err)
+				if err != os.ErrNotExist {
+					// Log the error but can continue
+					log.Println("Error removing file but continuing:", oldfilepath, err)
+					if removeFile && newFilepath == "" {
+						// if user requested to remove file, then just skip to the end of the handler function behaviour
+						log.Println("Error removing file ending early since user requested to remove file only")
 
-				// if user only requested to remove file, then do not proceed
-				if removeFile && newFilepath == "" {
-					utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
-					return
+						updateTime, _ := utils.GetCurrentTime()
+						err = h.chatbotStore.UpdateChatbot(updateChatbot)
+						if err != nil {
+							log.Println("Error updating chatbot:", err)
+							utils.WriteError(w, http.StatusInternalServerError, err)
+							return
+						}
+						utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
+							"message":     "Chatbot updated successfully",
+							"updateddate": updateTime,
+						})
+						return
+					}
+				} else {
+					log.Println("Error removing file:", err)
+
+					// if user only requested to remove file, then do not proceed
+					if removeFile && newFilepath == "" {
+						utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previously uploaded file"))
+						return
+					}
 				}
 			}
 			log.Println("Removed old file:", oldfilepath)
@@ -356,7 +378,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	// Handle file upload
 	if err == nil {
 		// fullDirPath := config.Envs.FILES_PATH + username + "/" + chatbotname
-		log.Println("Full directory path:",fullDirPath)
+		log.Println("Full directory path:", fullDirPath)
 		err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
 		if err != nil {
 			log.Println("Error creating directory:", err)
