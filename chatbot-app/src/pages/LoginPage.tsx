@@ -126,7 +126,7 @@ const LoginPage: React.FC = () => {
 
         <p className="text-lg pb-2">Login or Register below. </p>
         <p>
-          <a href="_blank" target="_blank" className="bg-gray-200 rounded-lg p-1 font-bold underline hover:bg-gray-300">
+          <a href="https://ec2-54-179-162-106.ap-southeast-1.compute.amazonaws.com/chat/SimpleChat/FAQ" target="_blank" rel="noopener noreferrer" className="bg-gray-200 rounded-lg p-1 font-bold underline hover:bg-gray-300">
             Click here
           </a>{" "}
           to understand how to use our app
