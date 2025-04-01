@@ -67,7 +67,14 @@ const ChatbotInformation: React.FC<ChatbotInformationProps> = ({
         <p className="text-lg">
           Your Chatbot's unique link (has to be shared in order to access):
         </p>
-        <div>{window.location.origin + chatbotEndpoint}</div>
+        <a
+          href={window.location.origin + chatbotEndpoint}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline"
+        >
+          {window.location.origin + chatbotEndpoint}
+        </a>
       </div>
       {createdDate && (
         <div className="flex flex-row items-center gap-4">
