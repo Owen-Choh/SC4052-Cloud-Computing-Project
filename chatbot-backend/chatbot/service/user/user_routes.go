@@ -41,6 +41,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/", // Match the original path
 		HttpOnly: true,
 		Secure:   true,            // Keep this for HTTPS
+		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,              // Tells browser to delete cookie
 		Expires:  time.Unix(0, 0), // Optional extra
 	})
@@ -119,6 +120,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		HttpOnly: true,
 		Secure:   true, // Ensure it's only sent over HTTPS
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 		Expires:  time.Now().Add(auth.GetExpirationDuration()),
 	})
