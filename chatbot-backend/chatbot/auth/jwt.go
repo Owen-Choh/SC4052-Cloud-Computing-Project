@@ -46,7 +46,6 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStoreInterface) h
 			return
 		}
 		// tokenString = tokenString[7:] //remove the bearer prefix
-		// tokenString = tokenString[7:] //remove the bearer prefix
 		token, err := validateToken(tokenString)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
