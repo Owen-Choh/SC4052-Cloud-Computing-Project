@@ -6,8 +6,10 @@ services:
       context: ./chatbot-backend
     secrets:
       - gemini_api_key
+      - jwt_secret
     environment:
       GEMINI_API_KEY: /run/secrets/gemini_api_key
+      JWT_SECRET: /run/secrets/jwt_secret
     volumes:
       - backend-data:/app/database_files
       - backend-uploads:/app/database_files/uploads
@@ -45,6 +47,8 @@ networks:
 secrets:
   gemini_api_key:
     file: ./secrets/gemini_api_key.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
 
 volumes:
   backend-data:

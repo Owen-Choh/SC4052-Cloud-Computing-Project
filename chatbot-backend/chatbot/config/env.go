@@ -28,13 +28,6 @@ var Envs = initConfig()
 func initConfig() Config {
 	godotenv.Load()
 
-	GEMINI_API_KEY := getEnvSecretFile("GEMINI_API_KEY", "")
-	if GEMINI_API_KEY == "" {
-		GEMINI_API_KEY = getOSEnv("GEMINI_API_KEY", "")
-	} else {
-		log.Printf("GEMINI_API_KEY is set from file")
-	}
-
 	return Config{
 		FrontendDomain:           getEnv("FrontendDomain", "http://localhost:5173"),
 		Port:                     getEnv("BACKEND_PORT", "8080"),
@@ -44,11 +37,19 @@ func initConfig() Config {
 		Time_layout:              getEnv("Time_layout", "02 Jan 06 15:04 -0700"),
 		Timezone:                 getEnv("Timezone", "Asia/Singapore"),
 		JWTExpirationInSeconds:   getEnvInt("JWT_EXP_SECONDS", 3600*24*1),
-		JWTSecret:                getEnv("JWT_SECRET", "should-have-jwt-secret-here"),
 		API_FILE_EXPIRATION_HOUR: getEnvInt("API_FILE_EXPIRATION_HOUR", 47),
 		MODEL_NAME:               getEnv("MODEL_NAME", "gemini-2.0-flash-thinking-exp-01-21"),
-		GEMINI_API_KEY:           GEMINI_API_KEY,
+		JWTSecret:                getEnvSecretFileorOS("JWT_SECRET", "should-have-jwt-secret-here"),
+		GEMINI_API_KEY:           getEnvSecretFileorOS("GEMINI_API_KEY", ""),
 	}
+}
+
+func getEnvSecretFileorOS(envKey string, fallback string) string {
+	value := getEnvSecretFile(envKey, fallback)
+	if value == "" {
+		value = getOSEnv(envKey, fallback)
+	} 
+	return value
 }
 
 func getOSEnv(key string, fallback string) string {
