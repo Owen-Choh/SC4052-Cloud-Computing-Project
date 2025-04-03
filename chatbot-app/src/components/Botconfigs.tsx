@@ -90,7 +90,7 @@ const Botconfigs: React.FC<BotconfigsProps> = ({
         return;
       } else if (/^[a-zA-Z0-9_\-\. ]+$/.test(chatbot.file.name) === false) {
         setError(
-          `File name ${chatbot.file.name} must be alphanumeric and cannot contain special characters or spaces.`
+          `File name ${chatbot.file.name} can only contain alphanumeric, spaces, '_' and '-' characters. It cannot contain special characters.`
         );
         return;
       } else if (
