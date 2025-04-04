@@ -198,15 +198,6 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 				time.Sleep(100 * time.Millisecond)           // Optional: Rate limiting/pacing
 			}
 		}
-
-		// Check if context is cancelled (client disconnected)
-		// select {
-		// case <-h.genaiCtx.Done():
-		// 	log.Println("Client disconnected, stopping stream.")
-		// 	return
-		// default:
-		// 	// Continue streaming
-		// }
 	}
 
 	log.Printf("done sending msg for conversationid: %s\n", conversationID)
@@ -221,7 +212,6 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 	})
 
 	go func(chatResponse string) {
-
 		_, err := h.conversationStore.CreateConversation(types.NewConversation{
 			Conversationid: conversationID,
 			Chatbotid:      chatbot.Chatbotid,
@@ -236,7 +226,7 @@ func (h *Handler) ChatStreamWithChatbot(w http.ResponseWriter, r *http.Request) 
 		}
 	}(chatResponse)
 
-	log.Printf("completed handling conversation: %s\n", conversationID)
+	log.Printf("completed handling streamed conversation: %s\n", conversationID)
 }
 
 func (h *Handler) StartConversation(w http.ResponseWriter, r *http.Request) {
