@@ -32,12 +32,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-docker-
 
-    - name: Build Docker image
-      run: |
-        docker buildx create --use
-        docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
-                            --cache-to=type=local,dest=/tmp/.buildx-cache \
-                            -f docker-compose.yaml --push .
+    - name: Build Docker images
+      run: docker buildx bake --file docker-compose.yml --file docker-compose-cache.json
+
+    - name: Push Docker images
+      run: docker compose push
 
   deploy:
     needs: build-and-push-image
