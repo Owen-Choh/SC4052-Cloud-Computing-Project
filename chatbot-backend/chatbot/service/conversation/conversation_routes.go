@@ -500,7 +500,8 @@ func (h *Handler) checkAndUploadToGemini(path string, chatbotid int, chatbotFile
 
 	// if file exist but file is too old
 	// or if apifile is updated in db but uri is created before the update
-	if (storedTimeParseerr != nil || fileUpdateTimeParseError != nil) ||
+	if apiFile.Filepath != path ||
+		(storedTimeParseerr != nil || fileUpdateTimeParseError != nil) ||
 		(time.Since(storedTime) > time.Duration(config.Envs.API_FILE_EXPIRATION_HOUR)*time.Hour || fileUpdatedTime.After(storedTime)) {
 		log.Printf("File is too old, reuploading. previous created time %s, user updated at %s parse errors %v %v", storedTime, fileUpdatedTime, storedTimeParseerr, fileUpdateTimeParseError)
 		fileURI := uploadToGemini(h.genaiCtx, h.genaiClient, path)
