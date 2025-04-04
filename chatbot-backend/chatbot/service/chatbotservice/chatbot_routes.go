@@ -140,7 +140,7 @@ func (h *Handler) CreateChatbot(w http.ResponseWriter, r *http.Request) {
 		}
 		// Validate file type
 		if !allowedTypes[fileType] {
-			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed."))
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed"))
 			return
 		}
 
@@ -292,7 +292,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		}
 		// Validate file type
 		if !allowedTypes[fileType] {
-			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed."))
+			utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid file type. Only PDF, JPG or JPEG are allowed"))
 			return
 		}
 
@@ -304,10 +304,44 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var fileUpdatedDate string
+	var updatedFilepath string
 	if newFilepath != "" {
 		fileUpdatedDate, _ = utils.GetCurrentTime()
+		updatedFilepath = newFilepath
 	} else {
+		// if no new file is uploaded, means keep the old file
 		fileUpdatedDate = oldChatbot.FileUpdatedDate
+		updatedFilepath = oldChatbot.Filepath
+		
+		if oldChatbot.Chatbotname != chatbotname {
+			// user chose to rename chatbot
+			// move the old file to the new directory
+			oldfilepath := oldChatbot.Filepath
+			if oldfilepath != "" {
+				err := os.MkdirAll(fullDirPath, os.ModePerm) // Create the directory if it doesn’t exist
+				if err != nil {
+					log.Println("Error creating directory:", err)
+					utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to move previous file"))
+					return
+				}
+
+				moveFilepath := fullDirPath + "/" + filepath.Base(oldfilepath)
+				err = MoveFile(oldfilepath, moveFilepath)
+				if err != nil {
+					log.Println("Error moving file:", err)
+					utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to move previous file"))
+					return
+				}
+
+				// remove old file and directory
+				err = os.RemoveAll(filepath.Dir(oldfilepath))
+				if err != nil {
+					log.Println("Error removing old directory:", err)
+					utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to remove previous file"))
+					return
+				}
+			}
+		}
 	}
 
 	// Create chatbot struct
@@ -319,7 +353,7 @@ func (h *Handler) UpdateChatbot(w http.ResponseWriter, r *http.Request) {
 		Behaviour:       behaviour,
 		IsShared:        isShared,
 		Usercontext:     usercontext,
-		File:            newFilepath,
+		File:            updatedFilepath,
 		FileUpdatedDate: fileUpdatedDate,
 	}
 	if err := utils.Validate.Struct(updateChatbot); err != nil {
@@ -474,4 +508,31 @@ func (h *Handler) DeleteChatbot(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "Chatbot deleted successfully",
 	})
+}
+
+func MoveFile(sourcePath, destPath string) error {
+	inputFile, err := os.Open(sourcePath)
+	if err != nil {
+			return fmt.Errorf("couldn't open source file: %v", err)
+	}
+	defer inputFile.Close()
+
+	outputFile, err := os.Create(destPath)
+	if err != nil {
+			return fmt.Errorf("couldn't open dest file: %v", err)
+	}
+	defer outputFile.Close()
+
+	_, err = io.Copy(outputFile, inputFile)
+	if err != nil {
+			return fmt.Errorf("couldn't copy to dest from source: %v", err)
+	}
+
+	inputFile.Close()
+
+	err = os.Remove(sourcePath)
+	if err != nil {
+			return fmt.Errorf("couldn't remove source file: %v", err)
+	}
+	return nil
 }
