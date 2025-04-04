@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-docker-
 
     - name: Build Docker images
-      run: docker buildx bake --file docker-compose.yml --file docker-compose-cache.json
+      run: docker buildx bake --file docker-compose.yaml --file docker-compose-cache.json
 
     - name: Push Docker images
       run: docker compose push
