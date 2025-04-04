@@ -24,11 +24,20 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-docker-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
+
     - name: Build Docker image
-      run: docker compose -f docker-compose.yaml build
-    
-    - name: Push Docker image
-      run: docker compose -f docker-compose.yaml push
+      run: |
+        docker buildx create --use
+        docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
+                            --cache-to=type=local,dest=/tmp/.buildx-cache \
+                            -f docker-compose.yaml --push .
 
   deploy:
     needs: build-and-push-image
