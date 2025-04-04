@@ -62,14 +62,10 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        mkdir -p ~/.ssh/ && touch ~/.ssh/known_hosts
-        ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
-        eval $(ssh-agent)
-        ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-        echo "$SSH_PRIVATE_KEY" > private_key.pem
-        chmod 600 private_key.pem  
-        scp -i private_key.pem -o UserKnownHostsFile=/github/home/.ssh/known_hosts docker-compose.yaml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
-        ssh -i private_key.pem -o UserKnownHostsFile=/github/home/.ssh/known_hosts $SERVER_USER@$SERVER_HOST << EOF
+        echo "$SSH_PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        scp -i private_key -o StrictHostKeyChecking=no docker-compose.yaml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
+        ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << EOF
           cd ~/app/SC4052-Cloud-Computing-Project
           echo -n $GEMINI_API_KEY > ./secrets/gemini_api_key.txt
           echo -n $JWT_SECRET > ./secrets/jwt_secret.txt
