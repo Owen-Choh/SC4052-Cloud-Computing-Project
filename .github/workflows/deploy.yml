@@ -12,8 +12,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Build Docker image
-      run: docker compose -f docker-compose.yaml build
+    - name: Add backend .env file
+      run: echo "${{ secrets.BACKEND_ENV }}" > chatbot-backend/.env
+
+    - name: Add frontend .env file
+      run: echo "${{ secrets.FRONTEND_ENV }}" > chatbot-app/.env
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -21,25 +24,36 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Build Docker image
+      run: docker compose -f docker-compose.yaml build
+    
     - name: Push Docker image
       run: docker compose -f docker-compose.yaml push
 
   deploy:
+    needs: build-and-push-image
     runs-on: ubuntu-latest
     environment: ec2
-    
+
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
     - name: Deploy to server
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
         SERVER_USER: ${{ secrets.SERVER_USER }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key
         chmod 600 private_key
-        scp -i private_key docker-compose.yml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
+        scp -i private_key docker-compose.yaml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
         ssh -i private_key $SERVER_USER@$SERVER_HOST << EOF
           cd ~/app/SC4052-Cloud-Computing-Project
+          echo -n $GEMINI_API_KEY > ./secrets/gemini_api_key.txt
+          echo -n $JWT_SECRET > ./secrets/jwt_secret.txt
           docker-compose pull
           docker-compose up -d
         EOF
