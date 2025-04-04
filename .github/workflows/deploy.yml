@@ -30,6 +30,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
+        context: ./chatbot-frontend
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/projects:chatbot-app-latest
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/projects:chatbot-app-latest
@@ -38,6 +39,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
+        context: ./chatbot-backend
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/projects:chatbot-backend-latest
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/projects:chatbot-backend-latest
