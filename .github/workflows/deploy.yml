@@ -47,10 +47,10 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        echo "$SSH_PRIVATE_KEY" > private_key
-        chmod 600 private_key
-        scp -i private_key docker-compose.yaml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
-        ssh -i private_key $SERVER_USER@$SERVER_HOST << EOF
+        echo "$SSH_PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        scp -i private_key.pem docker-compose.yaml $SERVER_USER@$SERVER_HOST:~/app/SC4052-Cloud-Computing-Project
+        ssh -i private_key.pem $SERVER_USER@$SERVER_HOST << EOF
           cd ~/app/SC4052-Cloud-Computing-Project
           echo -n $GEMINI_API_KEY > ./secrets/gemini_api_key.txt
           echo -n $JWT_SECRET > ./secrets/jwt_secret.txt
