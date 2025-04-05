@@ -1,1 +1,1 @@
-# SC4052-Cloud-Computing-Assignment-2
+# SC4052-Cloud-Computing-Project
