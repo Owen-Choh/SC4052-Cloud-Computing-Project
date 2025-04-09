@@ -50,7 +50,14 @@ func (s *UserStore) CreateUser(newUser types.RegisterUserPayload) error {
 	}
 	lastLogin := createdDate
 
-	_, dberr := s.store.Exec("INSERT INTO users (username, password, createddate, lastlogin) VALUES (?, ?, ?, ?)", username, password, createdDate, lastLogin)
+	_, dberr := s.store.Exec(
+		"INSERT INTO users (username, password, createddate, lastlogin) VALUES (?, ?, ?, ?)",
+		username,
+		password,
+		createdDate,
+		lastLogin,
+	)
+
 	if dberr != nil {
 		log.Println(dberr)
 	}
