@@ -6,6 +6,12 @@ import TabPanel from "../components/ui/TabPanel";
 import axios from "axios";
 import { registerApi } from "../api/apiConfig";
 
+/**
+ * LoginPage Component
+ *
+ * This component provides a user interface for both logging in and registering.
+ * It utilizes tabs to switch between the login and register forms.
+ */
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,11 +22,23 @@ const LoginPage: React.FC = () => {
 
   const navigate = useNavigate();
 
+  /**
+   * validateUsername
+   * Validates the username to ensure it is alphanumeric and at least 3 characters long.
+   * @param username The username to validate.
+   * @returns True if the username is valid, false otherwise.
+   */
   const validateUsername = (username: string) => {
     const regex = /^[a-zA-Z0-9]{3,}$/; // Alphanumeric, at least 3 characters
     return regex.test(username);
   };
 
+  /**
+   * validatePassword
+   * Validates the password to ensure it is at least 8 characters long.
+   * @param password The password to validate.
+   * @returns True if the password is valid, false otherwise. Also sets an error message if invalid.
+   */
   const validatePassword = (password: string) => {
     if (password.length < 8) {
       setError("Password must be at least 8 characters long");
@@ -29,6 +47,12 @@ const LoginPage: React.FC = () => {
     return true;
   };
 
+  /**
+   * submitLoginForm
+   * Handles the submission of the login form.  It prevents the default form submission,
+   * validates the username and password, and then calls the login function from the useAuth hook.
+   * @param event The form event.
+   */
   const submitLoginForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -62,6 +86,12 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  /**
+   * submitRegisterForm
+   * Handles the submission of the registration form. It prevents the default form submission,
+   * validates the username, password, and password confirmation, and then calls the register API.
+   * @param event The form event.
+   */
   const submitRegisterForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -110,6 +140,11 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  /**
+   * useEffect hook to handle navigation upon successful login.
+   * It checks if the currentUser state is populated (i.e., the user is logged in),
+   * and if so, navigates to the '/Dashboard' route.
+   */
   useEffect(() => {
     // console.log("login check user", currentUser);
     if (currentUser) {
