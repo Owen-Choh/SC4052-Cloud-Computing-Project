@@ -1,3 +1,4 @@
+```typescript
 import useAuth from "../auth/useAuth";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,12 @@ import TabPanel from "../components/ui/TabPanel";
 import axios from "axios";
 import { registerApi } from "../api/apiConfig";
 
+/**
+ * LoginPage component for user authentication (login and registration).
+ *
+ * This component provides a user interface for logging in and registering.
+ * It uses tabs to switch between the login and register forms.
+ */
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,11 +23,21 @@ const LoginPage: React.FC = () => {
 
   const navigate = useNavigate();
 
+  /**
+   * Validates the username format.
+   * @param username The username to validate.
+   * @returns True if the username is valid, false otherwise.
+   */
   const validateUsername = (username: string) => {
     const regex = /^[a-zA-Z0-9]{3,}$/; // Alphanumeric, at least 3 characters
     return regex.test(username);
   };
 
+  /**
+   * Validates the password strength.
+   * @param password The password to validate.
+   * @returns True if the password is valid, false otherwise.
+   */
   const validatePassword = (password: string) => {
     if (password.length < 8) {
       setError("Password must be at least 8 characters long");
@@ -29,6 +46,10 @@ const LoginPage: React.FC = () => {
     return true;
   };
 
+  /**
+   * Handles the login form submission.
+   * @param event The form submit event.
+   */
   const submitLoginForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -62,6 +83,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  /**
+   * Handles the registration form submission.
+   * @param event The form submit event.
+   */
   const submitRegisterForm = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
@@ -233,3 +258,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+```
