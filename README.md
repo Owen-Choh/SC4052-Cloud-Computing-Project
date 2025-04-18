@@ -100,6 +100,9 @@ The application follows a microservices architecture, with the frontend and back
     ```bash
     go run .
     ```
+
+> [!NOTE]  
+> Steps to setup Github Actions on your own repository is included in `setup github actions.md`
 ### Usage
 
 Once the application is running, you can access the frontend in your web browser at `http://localhost` or the configured domain in the Caddyfile.
