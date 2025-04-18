@@ -4,6 +4,8 @@
 
 This repository contains the code for a cloud-based chatbot application, developed as part of the SC4052 Cloud Computing project. The application consists of a React frontend, a Go backend, and a Caddy reverse proxy, all designed to be containerized with Docker and orchestrated with Docker Compose. The backend leverages the Gemini API for conversational AI capabilities.
 
+➡️ [Try the app here](https://ec2-54-179-162-106.ap-southeast-1.compute.amazonaws.com/login)
+
 ## Codebase Structure
 
 The repository is structured as follows:
