@@ -88,6 +88,18 @@ The application follows a microservices architecture, with the frontend and back
 
     This command builds the Docker images and starts the application.
 
+6. Alternatively, you can run these commands instead of using docker.
+    - in the `chatbot-app` directory, run:
+    ```bash
+    npm run dev
+    ```
+    - in the `chatbot-backend` directory, run either of these:
+    ```bash
+    make run
+    ```
+    ```bash
+    go run .
+    ```
 ### Usage
 
 Once the application is running, you can access the frontend in your web browser at `http://localhost` or the configured domain in the Caddyfile.
@@ -95,8 +107,8 @@ Once the application is running, you can access the frontend in your web browser
 ## Important Notes
 
 - **Do not commit your `.env` files or the `secrets` directory to the repository.** These files contain sensitive information, such as API keys and secrets, which should be kept confidential.
-- Ensure that Docker is properly installed and running before attempting to build and run the application.
-- The application uses a SQLite database, which is stored in the `database_files/` directory. This directory is persisted as a Docker volume.
-- The Caddyfile is configured to use a self-signed certificate for HTTPS. You may need to configure your browser to trust this certificate.
 - The frontend communicates with the backend via API calls. The base URL for these API calls is configured in the `.env` file.
 - The backend uses the Gemini API to generate chatbot responses. Ensure that you have a valid API key and that it is properly configured in the `.env` file.
+- The `Caddyfile` is currently configured to use a self-signed certificate for HTTPS. You may change this if you have your own domain name or working locally.
+- Ensure that Docker is properly installed and running before attempting to build and run the application.
+- The application uses a SQLite database, which is stored in the `database_files/` directory. This directory is persisted as a Docker volume.
